@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function authEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && authEmail() == 'admin@boatpro.club';
+    }
+
+    function isHardcodedAdmin() {
+      return isSignedIn() && (
+        authEmail() == 'admin@boatpro.club'
+        || authEmail() == 'info@boatpro.club'
+      );
+    }
+
+    function isAdmin() {
+      return isHardcodedAdmin()
+        || (
+          isSignedIn()
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        );
+    }
+
+    function targetIsSuperAdmin() {
+      return resource.data.email is string
+        && resource.data.email.lower() == 'admin@boatpro.club';
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == userId
+        && (
+          (isHardcodedAdmin() && request.resource.data.role == 'admin')
+          || (!('role' in request.resource.data) || request.resource.data.role == 'user')
+        );
+      allow update: if (
+          isAdmin()
+          && !(targetIsSuperAdmin() && request.resource.data.role != 'admin')
+        )
+        || (
+          isSignedIn()
+          && request.auth.uid == userId
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+        );
+      allow delete: if isSuperAdmin() && !targetIsSuperAdmin();
+    }
+
+    match /contactRequests/{id} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'phone', 'content', 'userType', 'status'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.content is string
+        && request.resource.data.userType is string
+        && request.resource.data.status == 'new'
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 120
+        && request.resource.data.phone.size() > 0
+        && request.resource.data.phone.size() <= 40
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 2000
+        && request.resource.data.userType.size() > 0
+        && request.resource.data.userType.size() <= 80;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /posts/{id} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}

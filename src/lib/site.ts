@@ -1,0 +1,110 @@
+export const PRODUCTION_ORIGIN = "https://boatpro.club";
+
+export const SITE_ORIGIN = (
+  typeof import.meta.env["VITE_SITE_URL"] === "string" && import.meta.env["VITE_SITE_URL"]
+    ? import.meta.env["VITE_SITE_URL"]
+    : PRODUCTION_ORIGIN
+).replace(/\/$/, "");
+
+export const CONTACT = {
+  email: "Info@boatpro.club",
+  mailto: "mailto:Info@boatpro.club",
+  whatsapp: "https://wa.me/966502554747",
+  phoneDisplay: "00966502554747",
+  tel: "tel:+966502554747",
+} as const;
+
+function envHttps(key: string) {
+  const value = import.meta.env[key];
+  return typeof value === "string" && value.startsWith("https://") ? value : "";
+}
+
+/** Official store URLs only — empty until published. Badges then open /app. */
+export const STORES = {
+  appStore: envHttps("VITE_APP_STORE_URL"),
+  playStore: envHttps("VITE_PLAY_STORE_URL"),
+};
+
+/**
+ * تسجيل الدخول لمواقع الخدمة (دومين مختلف عن الموقع التسويقي).
+ * الصق الرابط مباشرة بدل "" أو عبر:
+ * VITE_GUESTS_LOGIN_URL / VITE_MARINAS_LOGIN_URL
+ */
+export const SERVICE_LOGIN_URLS = {
+  /** مغامرة بحرية / الضيوف */
+  guests: envHttps("VITE_GUESTS_LOGIN_URL") || "",
+  /** مراسي ومحطات الوقود */
+  marinas: envHttps("VITE_MARINAS_LOGIN_URL") || "",
+} as const;
+
+export type PageSeoInput = {
+  title: string;
+  description: string;
+  path: string;
+  image?: string;
+  type?: "website" | "article";
+  noindex?: boolean;
+};
+
+export function absoluteUrl(path: string) {
+  if (path.startsWith("http")) return path;
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${SITE_ORIGIN}${normalized === "/" ? "/" : normalized}`;
+}
+
+export function pageHead({
+  title,
+  description,
+  path,
+  image,
+  type = "website",
+  noindex,
+}: PageSeoInput) {
+  const url = absoluteUrl(path);
+  const img =
+    image && image.startsWith("http")
+      ? image
+      : `${PRODUCTION_ORIGIN}${image ? (image.startsWith("/") ? image : `/${image}`) : "/og.jpg"}`;
+  return {
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:type", content: type },
+      { property: "og:url", content: url },
+      { property: "og:image", content: img },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:locale", content: "ar_SA" },
+      { property: "og:site_name", content: "BoatPro" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+      { name: "twitter:image", content: img },
+      ...(noindex ? [{ name: "robots" as const, content: "noindex, nofollow" }] : []),
+    ],
+    links: noindex ? [] : [{ rel: "canonical", href: url }],
+  };
+}
+
+export function isValidPhone(raw: string) {
+  const digits = raw.trim().replace(/\D/g, "");
+  if (!digits) return false;
+  if (/^(?:00966|966)?0?5\d{8}$/.test(digits)) return true;
+  return digits.length >= 8 && digits.length <= 15;
+}
+
+export function readingMinutes(text: string) {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 180));
+}
+
+export function formatDisplayDate(date: Date | null, lang: "ar" | "en") {
+  if (!date) return "";
+  return date.toLocaleDateString(lang === "ar" ? "ar-SA" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
