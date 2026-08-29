@@ -1,8 +1,9 @@
-﻿import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { Compass, Ship, Waves } from "lucide-react";
 import { useEffect, useState } from "react";
 import { JsonLd } from "../components/json-ld";
 import { MarketingShell } from "../components/marketing-shell";
+import { PageMeta } from "../components/page-meta";
 import { PageHero } from "../components/page-hero";
 import { Photo, type PhotoName } from "../components/photo";
 import { SHELL } from "../components/brand";
@@ -211,7 +212,9 @@ function FeaturesPage() {
   const flipImage = dir === "ltr";
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={t.seo.featuresTitle} description={t.seo.featuresDesc} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
@@ -274,10 +277,7 @@ function FeaturesPage() {
 
       {GROUPS.map((group, i) => {
         const copy = p[group.key];
-        const loginHref =
-          group.id === "guests" || group.id === "marinas"
-            ? SERVICE_LOGIN_URLS[group.id]
-            : "";
+        const loginHref = group.id === "marinas" ? SERVICE_LOGIN_URLS.marinas : "";
         return (
           <ServiceSection
             key={group.id}
@@ -315,5 +315,6 @@ function FeaturesPage() {
         </div>
       </Section>
     </MarketingShell>
+    </>
   );
 }

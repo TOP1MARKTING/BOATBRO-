@@ -1,0 +1,42 @@
+import { ASSIGNABLE_TABS, type AdminPermissions, type AdminTab } from "../../lib/admin-permissions";
+
+export function AdminPermissionsPicker({
+  value,
+  onChange,
+  labels,
+  hint,
+  disabled = false,
+}: {
+  value: AdminPermissions;
+  onChange: (next: AdminPermissions) => void;
+  labels: Record<AdminTab, string>;
+  hint?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <div>
+      {hint ? <p className="mb-4 text-[13px] leading-6 text-muted-foreground">{hint}</p> : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {ASSIGNABLE_TABS.map((tab) => (
+          <label
+            key={tab}
+            className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[13px] transition-colors ${
+              value[tab]
+                ? "border-gold/40 bg-gold/5 text-navy"
+                : "border-border bg-card text-muted-foreground hover:border-gold/25"
+            } ${disabled ? "pointer-events-none opacity-60" : ""}`}
+          >
+            <input
+              type="checkbox"
+              className="size-4 shrink-0 rounded border-border accent-gold"
+              checked={value[tab]}
+              disabled={disabled}
+              onChange={(e) => onChange({ ...value, [tab]: e.target.checked })}
+            />
+            <span className="font-medium">{labels[tab]}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}

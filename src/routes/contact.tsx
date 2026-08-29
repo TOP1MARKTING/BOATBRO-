@@ -3,6 +3,7 @@ import { ContactChannels } from "../components/contact-channels";
 import { ContactForm } from "../components/contact-form";
 import { JsonLd } from "../components/json-ld";
 import { MarketingShell } from "../components/marketing-shell";
+import { PageMeta } from "../components/page-meta";
 import { PageHero } from "../components/page-hero";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
@@ -24,7 +25,9 @@ function ContactPage() {
   const c = t.contact;
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={t.seo.contactTitle} description={t.seo.contactDesc} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
@@ -121,5 +124,6 @@ function ContactPage() {
         </div>
       </Section>
     </MarketingShell>
+    </>
   );
 }

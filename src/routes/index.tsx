@@ -1,9 +1,10 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Compass, Ship, Waves } from "lucide-react";
 import { Logo, SHELL } from "../components/brand";
 import { ContactChannels } from "../components/contact-channels";
 import { JsonLd } from "../components/json-ld";
 import { MarketingShell } from "../components/marketing-shell";
+import { PageMeta } from "../components/page-meta";
 import { Photo, type PhotoName } from "../components/photo";
 import { StoreButtons } from "../components/store-buttons";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
@@ -29,8 +30,8 @@ const actionPill =
 
 function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
   const { t } = useLang();
-  const loginHref =
-    id === "guests" || id === "marinas" ? SERVICE_LOGIN_URLS[id] : "";
+  const loginHref = id === "marinas" ? SERVICE_LOGIN_URLS.marinas : "";
+  const showStores = id === "guests" || id === "owners";
 
   return (
     <div className="mt-auto flex flex-col gap-3 pt-5">
@@ -53,7 +54,7 @@ function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
           </a>
         ) : null}
       </div>
-      {id === "owners" ? <StoreButtons size="sm" /> : null}
+      {showStores ? <StoreButtons size="sm" /> : null}
     </div>
   );
 }
@@ -62,7 +63,9 @@ function HomePage() {
   const { dir, t } = useLang();
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={t.seo.homeTitle} description={t.seo.homeDesc} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
@@ -307,5 +310,6 @@ function HomePage() {
         </div>
       </Section>
     </MarketingShell>
+    </>
   );
 }

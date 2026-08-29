@@ -1,13 +1,15 @@
 ﻿import { Link } from "@tanstack/react-router";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { CONTACT } from "../lib/site";
 import { useLang } from "../lib/i18n";
+import { useSiteSettings } from "../lib/site-settings-context";
 import { NAV } from "../lib/nav";
 import { Logo, SHELL } from "./brand";
+import { SocialLinksRow } from "./social-links";
 import { StoreButtons } from "./store-buttons";
 
 export function SiteFooter() {
   const { lang, t } = useLang();
+  const { settings, contact, stores } = useSiteSettings();
 
   return (
     <footer className="relative overflow-hidden bg-navy-deep text-white">
@@ -36,7 +38,7 @@ export function SiteFooter() {
 
             <div className="mt-4 flex w-full max-w-xs flex-col gap-2 sm:mt-7 sm:max-w-none sm:flex-row sm:flex-wrap">
               <a
-                href={CONTACT.tel}
+                href={contact.tel}
                 aria-label={t.cta.callUs}
                 className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 text-[13px] text-white/85 transition-colors hover:border-gold hover:text-gold sm:min-h-11 sm:w-auto sm:justify-start"
               >
@@ -44,16 +46,18 @@ export function SiteFooter() {
                 <span>{t.cta.callUs}</span>
               </a>
               <a
-                href={CONTACT.mailto}
+                href={contact.mailto}
                 aria-label={t.contact.email}
                 className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 text-[13px] text-white/85 transition-colors hover:border-gold hover:text-gold sm:min-h-11 sm:w-auto sm:justify-start"
               >
                 <Mail size={15} aria-hidden="true" />
                 <span dir="ltr" className="truncate">
-                  {CONTACT.email}
+                  {contact.email}
                 </span>
               </a>
             </div>
+
+            <SocialLinksRow social={settings.social} className="mt-4 justify-center sm:mt-5 sm:justify-start" />
 
             <p className="mt-4 flex items-start justify-center gap-2 text-[13px] leading-6 text-white/55 sm:mt-5 sm:justify-start sm:text-sm sm:leading-7">
               <MapPin size={15} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
@@ -92,6 +96,8 @@ export function SiteFooter() {
                 tone="hero"
                 size="md"
                 equal
+                appStoreUrl={stores.appStore}
+                playStoreUrl={stores.playStore}
                 className="mt-3 !max-w-none !grid-cols-1 sm:mt-5 sm:!grid-cols-2"
               />
             </div>

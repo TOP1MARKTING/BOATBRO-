@@ -1,7 +1,8 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { JsonLd } from "../components/json-ld";
 import { Photo } from "../components/photo";
 import { MarketingShell } from "../components/marketing-shell";
+import { PageMeta } from "../components/page-meta";
 import { PageHero } from "../components/page-hero";
 import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
@@ -23,7 +24,9 @@ function AboutPage() {
   const { dir, t } = useLang();
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={t.seo.aboutTitle} description={t.seo.aboutDesc} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
@@ -177,5 +180,6 @@ function AboutPage() {
         </Btn>
       </Section>
     </MarketingShell>
+    </>
   );
 }

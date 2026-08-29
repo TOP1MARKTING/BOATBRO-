@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "../lib/auth";
+import { SiteSettingsProvider } from "../lib/site-settings-context";
 import { LanguageProvider, useLang } from "../lib/i18n";
 import { ThemeProvider, THEME_BOOT_SCRIPT } from "../lib/theme";
 import { ScrollToTop } from "../components/scroll-to-top";
@@ -117,7 +118,9 @@ function RootShell({ children }: { children: ReactNode }) {
       <body className="bg-background text-foreground">
         <ThemeProvider>
           <LanguageProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <SiteSettingsProvider>{children}</SiteSettingsProvider>
+            </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
         <Scripts />

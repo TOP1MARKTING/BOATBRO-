@@ -1,7 +1,8 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppHeroPreview, AppScrollShowcase } from "../components/app-screen-frame";
 import { JsonLd } from "../components/json-ld";
 import { MarketingShell } from "../components/marketing-shell";
+import { PageMeta } from "../components/page-meta";
 import { StoreButtons } from "../components/store-buttons";
 import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
@@ -24,7 +25,9 @@ function AppPage() {
   const p = t.appPage;
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={t.seo.appTitle} description={t.seo.appDesc} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
@@ -108,5 +111,6 @@ function AppPage() {
         </div>
       </Section>
     </MarketingShell>
+    </>
   );
 }

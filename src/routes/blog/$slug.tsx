@@ -1,10 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SHELL } from "../../components/brand";
+import { BlogFaqSection, BlogPostBody, BlogPostTags } from "../../components/blog-post-body";
 import { JsonLd } from "../../components/json-ld";
 import { MarketingShell } from "../../components/marketing-shell";
+import { PageMeta } from "../../components/page-meta";
 import { Btn, CtaArrow } from "../../components/ui";
 import { getPostBySlug, listPublishedPosts, pickRelatedPosts } from "../../lib/db";
+import { pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
+import { blocksPlainText } from "../../lib/post-content";
+import { resolveMetaDescription, resolveMetaTitle, resolveOgImage } from "../../lib/post-seo";
 import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -31,12 +36,29 @@ export const Route = createFileRoute("/blog/$slug")({
         links: [],
       };
     }
+    const input = {
+      ...post,
+      blocks: post.blocks,
+      titleI18n: post.titleI18n,
+      excerptI18n: post.excerptI18n,
+      metaTitleI18n: post.metaTitleI18n,
+      metaDescriptionI18n: post.metaDescriptionI18n,
+      focusKeywordI18n: post.focusKeywordI18n,
+      categoryI18n: post.categoryI18n,
+      authorI18n: post.authorI18n,
+      coverAlt: post.coverAlt,
+      tags: post.tags,
+      featured: post.featured,
+    };
+    const title = resolveMetaTitle(input, post.lang);
+    const description = resolveMetaDescription(input, post.lang).slice(0, 160);
     return pageHead({
-      title: `${post.title} | بوت برو`,
-      description: (post.excerpt || post.title).slice(0, 160),
+      title: `${title} | بوت برو`,
+      description,
       path: `/blog/${post.slug}`,
-      image: post.coverUrl || "/og.jpg",
+      image: resolveOgImage(input) || "/og.jpg",
       type: "article",
+      noindex: post.noindex,
     });
   },
   component: BlogPostPage,
@@ -45,8 +67,18 @@ export const Route = createFileRoute("/blog/$slug")({
 function BlogPostPage() {
   const { post, posts } = Route.useLoaderData();
   const { dir, lang, t } = useLang();
-  const mins = readingMinutes(`${post.excerpt} ${post.body}`);
   const related = pickRelatedPosts(posts, post);
+  const title = pickLocalized(post.titleI18n, lang, post.title);
+  const excerpt = pickLocalized(post.excerptI18n, lang, post.excerpt);
+  const category = pickLocalized(post.categoryI18n, lang, post.category);
+  const author = pickLocalized(post.authorI18n, lang, post.authorName);
+  const coverAlt = pickLocalized(post.coverAlt, lang, title);
+  const metaTitle = resolveMetaTitle(post, lang);
+  const metaDescription = resolveMetaDescription(post, lang);
+  const ogImage = resolveOgImage(post) || `${SITE_ORIGIN}/og.jpg`;
+  const bodyText = blocksPlainText(post.blocks) || post.body;
+  const mins = readingMinutes(`${excerpt} ${bodyText}`);
+  const tags = lang === "en" ? post.tags.en : post.tags.ar;
   const published = post.createdAt ? formatDisplayDate(post.createdAt, lang) : "";
   const updated =
     post.updatedAt && post.createdAt && post.updatedAt.getTime() - post.createdAt.getTime() > 60_000
@@ -54,20 +86,22 @@ function BlogPostPage() {
       : "";
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={metaTitle} description={metaDescription} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: post.title,
-            description: post.excerpt,
-            image: post.coverUrl || `${SITE_ORIGIN}/og.jpg`,
+            headline: metaTitle,
+            description: metaDescription,
+            image: ogImage,
             datePublished: post.createdAt?.toISOString(),
             dateModified: (post.updatedAt || post.createdAt)?.toISOString(),
             author: {
               "@type": "Person",
-              name: post.authorName || "BoatPro",
+              name: author || "BoatPro",
             },
             publisher: {
               "@type": "Organization",
@@ -83,18 +117,41 @@ function BlogPostPage() {
             itemListElement: [
               { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
               { "@type": "ListItem", position: 2, name: t.crumbs.blog, item: `${SITE_ORIGIN}/blog` },
-              { "@type": "ListItem", position: 3, name: post.title, item: `${SITE_ORIGIN}/blog/${post.slug}` },
+              { "@type": "ListItem", position: 3, name: metaTitle, item: `${SITE_ORIGIN}/blog/${post.slug}` },
             ],
           },
+          ...(post.faq.length > 0
+            ? [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: post.faq.map((item) => ({
+                    "@type": "Question",
+                    name: pickLocalized(item.question, lang),
+                    acceptedAnswer: {
+                      "@type": "Answer",
+                      text: pickLocalized(item.answer, lang),
+                    },
+                  })),
+                },
+              ]
+            : []),
         ]}
       />
       <article className={`${SHELL} max-w-3xl pt-20 pb-20 sm:pt-24 lg:pt-[104px]`}>
-        <p className="text-[13px] font-medium text-gold-ink">{post.category}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[13px] font-medium text-gold-ink">{category}</p>
+          {post.featured ? (
+            <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-[11px] font-semibold text-gold-ink">
+              {t.blog.featuredBadge}
+            </span>
+          ) : null}
+        </div>
         <h1 className="mt-4 font-display text-4xl font-semibold leading-snug text-navy md:text-5xl">
-          {post.title}
+          {title}
         </h1>
         <p className="mt-4 text-sm leading-7 text-muted-foreground">
-          {t.blog.author}: {post.authorName || "BoatPro"}
+          {t.blog.author}: {author || "BoatPro"}
           {published ? ` · ${t.blog.published} ${published}` : ""}
           {updated ? ` · ${t.blog.updated} ${updated}` : ""}
           {` · ${mins} ${t.blog.minRead}`}
@@ -102,12 +159,18 @@ function BlogPostPage() {
         {post.coverUrl && (
           <img
             src={post.coverUrl}
-            alt=""
+            alt={coverAlt}
             className="mt-8 aspect-[16/9] w-full rounded-[1.6rem] object-cover"
           />
         )}
-        <p className="mt-8 text-lg leading-9 text-foreground/85">{post.excerpt}</p>
-        <div className="mt-8 whitespace-pre-wrap text-base leading-9 text-muted-foreground">{post.body}</div>
+        <p className="mt-8 text-lg leading-9 text-foreground/85">{excerpt}</p>
+        <BlogPostBody post={post} lang={lang} />
+        <BlogPostTags tags={tags} lang={lang} />
+        <BlogFaqSection
+          faq={post.faq}
+          lang={lang}
+          title={t.blog.faqTitle}
+        />
 
         {related.length > 0 && (
           <aside className="mt-14 border-t border-border pt-10">
@@ -120,9 +183,15 @@ function BlogPostPage() {
                   params={{ slug: item.slug }}
                   className="rounded-[1.3rem] border border-border bg-card p-5 transition-colors hover:border-gold"
                 >
-                  <p className="text-[12px] font-medium text-gold-ink">{item.category}</p>
-                  <h3 className="mt-2 font-display text-xl text-navy">{item.title}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted-foreground">{item.excerpt}</p>
+                  <p className="text-[12px] font-medium text-gold-ink">
+                    {pickLocalized(item.categoryI18n, lang, item.category)}
+                  </p>
+                  <h3 className="mt-2 font-display text-xl text-navy">
+                    {pickLocalized(item.titleI18n, lang, item.title)}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted-foreground">
+                    {pickLocalized(item.excerptI18n, lang, item.excerpt)}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -136,5 +205,6 @@ function BlogPostPage() {
         </div>
       </article>
     </MarketingShell>
+    </>
   );
 }

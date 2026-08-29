@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { SHELL } from "../../components/brand";
 import { JsonLd } from "../../components/json-ld";
 import { MarketingShell } from "../../components/marketing-shell";
+import { PageMeta } from "../../components/page-meta";
 import { PageHero } from "../../components/page-hero";
 import { listPublishedPosts, type BlogPost } from "../../lib/db";
+import { blocksPlainText, pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
 import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
 
@@ -30,7 +32,9 @@ function BlogPage() {
   }, []);
 
   return (
-    <MarketingShell dir={dir}>
+    <>
+      <PageMeta title={t.blog.seoTitle} description={t.blog.seoDesc} />
+      <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
@@ -60,7 +64,7 @@ function BlogPage() {
       />
 
       <section className={`${SHELL} pb-20 pt-10 sm:pt-12`}>
-        {posts === null && <p className="text-sm text-muted-foreground">{t.admin.loading}</p>}
+        {posts === null && <p className="text-sm text-muted-foreground">{t.blog.loading}</p>}
 
         {posts && posts.length === 0 && (
           <div className="rounded-[1.75rem] border border-border bg-card px-8 py-16 text-center">
@@ -71,7 +75,12 @@ function BlogPage() {
         {posts && posts.length > 0 && (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {posts.map((post) => {
-              const mins = readingMinutes(`${post.excerpt} ${post.body}`);
+              const title = pickLocalized(post.titleI18n, lang, post.title);
+              const excerpt = pickLocalized(post.excerptI18n, lang, post.excerpt);
+              const category = pickLocalized(post.categoryI18n, lang, post.category);
+              const coverAlt = pickLocalized(post.coverAlt, lang, title);
+              const bodyText = blocksPlainText(post.blocks) || post.body;
+              const mins = readingMinutes(`${excerpt} ${bodyText}`);
               return (
                 <Link
                   key={post.id}
@@ -83,7 +92,7 @@ function BlogPage() {
                     {post.coverUrl ? (
                       <img
                         src={post.coverUrl}
-                        alt=""
+                        alt={coverAlt}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
@@ -91,11 +100,18 @@ function BlogPage() {
                     )}
                   </div>
                   <div className="p-6">
-                    <p className="text-[13px] font-medium text-gold-ink">{post.category || t.blog.chip}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-[13px] font-medium text-gold-ink">{category || t.blog.chip}</p>
+                      {post.featured ? (
+                        <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold-ink">
+                          {t.blog.featuredBadge}
+                        </span>
+                      ) : null}
+                    </div>
                     <h2 className="mt-3 font-display text-2xl leading-snug text-navy group-hover:text-gold">
-                      {post.title}
+                      {title}
                     </h2>
-                    <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
+                    <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">{excerpt}</p>
                     <p className="mt-5 text-[12px] text-muted-foreground">
                       {formatDisplayDate(post.createdAt, lang)}
                       <span className="mx-2">·</span>
@@ -111,5 +127,6 @@ function BlogPage() {
         )}
       </section>
     </MarketingShell>
+    </>
   );
 }

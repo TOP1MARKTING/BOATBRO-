@@ -20,13 +20,77 @@ service cloud.firestore {
       );
     }
 
-    function isAdmin() {
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isStaff() {
       return isHardcodedAdmin()
         || (
           isSignedIn()
           && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+          && userDoc().role == 'admin'
+          && userDoc().active != false
         );
+    }
+
+    function isFullAdmin() {
+      return isHardcodedAdmin()
+        || (
+          isStaff()
+          && (
+            userDoc().permissions.users == true
+            || userDoc().adminRole == 'admin'
+          )
+        );
+    }
+
+    function hasPermission(key) {
+      return isHardcodedAdmin()
+        || (
+          isStaff()
+          && (
+            userDoc().permissions[key] == true
+            || (
+              !('permissions' in userDoc())
+              && (
+                (key == 'posts' || key == 'gallery') && (userDoc().adminRole == 'admin' || userDoc().adminRole == 'editor')
+                || key == 'contacts' && (userDoc().adminRole == 'admin' || userDoc().adminRole == 'moderator')
+                || key == 'overview' && userDoc().adminRole != 'user'
+                || key == 'users' && userDoc().adminRole == 'admin'
+                || key == 'settings' && userDoc().adminRole == 'admin'
+                || key == 'profile' && userDoc().adminRole != 'user'
+              )
+            )
+          )
+        );
+    }
+
+    function canEditPosts() {
+      return hasPermission('posts');
+    }
+
+    function canEditGallery() {
+      return hasPermission('gallery');
+    }
+
+    function canEditContacts() {
+      return hasPermission('contacts');
+    }
+
+    function canEditSettings() {
+      return isSuperAdmin() || hasPermission('settings');
+    }
+
+    function validPermissionsMap(perms) {
+      return perms is map
+        && (!('overview' in perms) || perms.overview is bool)
+        && (!('posts' in perms) || perms.posts is bool)
+        && (!('gallery' in perms) || perms.gallery is bool)
+        && (!('contacts' in perms) || perms.contacts is bool)
+        && (!('users' in perms) || perms.users is bool)
+        && (!('settings' in perms) || perms.settings is bool)
+        && (!('profile' in perms) || perms.profile is bool);
     }
 
     function targetIsSuperAdmin() {
@@ -35,22 +99,59 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow create: if isSignedIn() && request.auth.uid == userId
-        && (
-          (isHardcodedAdmin() && request.resource.data.role == 'admin')
-          || (!('role' in request.resource.data) || request.resource.data.role == 'user')
+      allow read: if isSignedIn() && (request.auth.uid == userId || isStaff());
+      allow create: if (
+          isSuperAdmin()
+          && request.resource.data.email is string
+          && request.resource.data.name is string
+          && request.resource.data.role is string
+          && validPermissionsMap(request.resource.data.permissions)
+        )
+        || (
+          isSignedIn() && request.auth.uid == userId
+          && (
+            (isHardcodedAdmin() && request.resource.data.role == 'admin')
+            || (!('role' in request.resource.data) || request.resource.data.role == 'user')
+            || (
+              exists(/databases/$(database)/documents/adminInvites/$(authEmail()))
+              && request.resource.data.role == 'admin'
+              && request.resource.data.permissions == get(/databases/$(database)/documents/adminInvites/$(authEmail())).data.permissions
+              && request.resource.data.active == get(/databases/$(database)/documents/adminInvites/$(authEmail())).data.active
+            )
+          )
+          && (!('permissions' in request.resource.data) || validPermissionsMap(request.resource.data.permissions))
         );
       allow update: if (
-          isAdmin()
+          isSuperAdmin()
           && !(targetIsSuperAdmin() && request.resource.data.role != 'admin')
+          && (!('permissions' in request.resource.data) || validPermissionsMap(request.resource.data.permissions))
         )
         || (
           isSignedIn()
           && request.auth.uid == userId
-          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'adminRole', 'permissions', 'active'])
+        )
+        || (
+          isSignedIn()
+          && request.auth.uid == userId
+          && exists(/databases/$(database)/documents/adminInvites/$(authEmail()))
+          && request.resource.data.role == 'admin'
+          && request.resource.data.permissions == get(/databases/$(database)/documents/adminInvites/$(authEmail())).data.permissions
+          && request.resource.data.active == get(/databases/$(database)/documents/adminInvites/$(authEmail())).data.active
         );
       allow delete: if isSuperAdmin() && !targetIsSuperAdmin();
+    }
+
+    match /userCredentials/{userId} {
+      allow read, create, update, delete: if isSuperAdmin();
+    }
+
+    match /adminInvites/{email} {
+      allow read: if isSuperAdmin() || (isSignedIn() && authEmail() == email);
+      allow create: if isSuperAdmin()
+        && validPermissionsMap(request.resource.data.permissions);
+      allow delete: if isSuperAdmin() || (isSignedIn() && authEmail() == email);
+      allow update: if false;
     }
 
     match /contactRequests/{id} {
@@ -71,12 +172,23 @@ service cloud.firestore {
         && request.resource.data.content.size() <= 2000
         && request.resource.data.userType.size() > 0
         && request.resource.data.userType.size() <= 80;
-      allow read, update, delete: if isAdmin();
+      allow read, update, delete: if canEditContacts();
     }
 
     match /posts/{id} {
-      allow read: if resource.data.published == true || isAdmin();
-      allow create, update, delete: if isAdmin();
+      allow read: if resource.data.published == true || isStaff();
+      allow create, update, delete: if canEditPosts();
+    }
+
+    match /gallery/{id} {
+      allow read: if isStaff();
+      allow create, update, delete: if canEditGallery();
+    }
+
+    match /siteSettings/{id} {
+      allow read: if true;
+      allow create, update: if canEditSettings();
+      allow delete: if false;
     }
   }
 }

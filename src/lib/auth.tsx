@@ -15,14 +15,31 @@ import {
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth, initAnalytics } from "./firebase";
-import { getUserProfile, saveUserProfile, setUserRole } from "./db";
+import { applyAdminInvite, getUserProfile, saveUserProfile, setUserRole } from "./db";
 import { isAdminEmail, isSuperAdminEmail } from "./admin";
+import {
+  EMPTY_PERMISSIONS,
+  FULL_PERMISSIONS,
+  canAccessAdmin,
+  canManageUsers,
+  firstAllowedTab,
+  normalizeStaffRole,
+  resolvePermissions,
+  type AdminPermissions,
+  type AdminTab,
+  type StaffRole,
+} from "./admin-permissions";
 
 type AuthContextValue = {
   user: User | null;
   ready: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  staffRole: StaffRole;
+  permissions: AdminPermissions;
+  canAccessTab: (tab: AdminTab) => boolean;
+  canManageUsers: boolean;
+  defaultAdminTab: AdminTab;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -58,7 +75,9 @@ export function mapAuthError(code: string, lang: "ar" | "en") {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
-  const [role, setRole] = useState<"admin" | "user" | null>(null);
+  const [staffRole, setStaffRole] = useState<StaffRole>("user");
+  const [storedPermissions, setStoredPermissions] = useState<AdminPermissions>(EMPTY_PERMISSIONS);
+  const [staffActive, setStaffActive] = useState(true);
 
   useEffect(() => {
     initAnalytics();
@@ -66,47 +85,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return onAuthStateChanged(auth, (next) => {
       setUser(next);
       if (!next) {
-        setRole(null);
+        setStaffRole("user");
+        setStoredPermissions(EMPTY_PERMISSIONS);
+        setStaffActive(true);
         setReady(true);
         return;
       }
-      void getUserProfile(next.uid)
-        .then(async (profile) => {
-          const email = next.email?.trim() ?? "";
-          const name = next.displayName?.trim() || profile?.name || email.split("@")[0] || "";
-          const shouldBeAdmin = isAdminEmail(email);
-          const nextRole = shouldBeAdmin ? ("admin" as const) : profile?.role ?? ("user" as const);
+      void (async () => {
+        const email = next.email?.trim() ?? "";
+        try {
+          await applyAdminInvite(next.uid, email);
+        } catch {
+          // Invite apply is optional.
+        }
 
-          const needsProfileSync =
-            !profile ||
-            !profile.email ||
-            (name && profile.name !== name) ||
-            (shouldBeAdmin && profile.role !== "admin");
+        const profile = await getUserProfile(next.uid).catch(() => null);
+        const name = next.displayName?.trim() || profile?.name || email.split("@")[0] || "";
+        const whitelisted = isAdminEmail(email);
+        const nextStaffRole = whitelisted
+          ? ("admin" as const)
+          : normalizeStaffRole(profile?.adminRole, profile?.role);
+        const nextPermissions = whitelisted ? FULL_PERMISSIONS : (profile?.permissions ?? EMPTY_PERMISSIONS);
+        const nextActive = whitelisted ? true : (profile?.active ?? nextStaffRole !== "user");
 
-          if (needsProfileSync && email) {
-            try {
-              await saveUserProfile(next.uid, { name, email, role: nextRole });
-            } catch {
-              // Email whitelist still grants admin access even if profile write fails.
-              if (shouldBeAdmin) {
-                try {
-                  await setUserRole(next.uid, "admin");
-                } catch {
-                  // ignore
-                }
+        const needsProfileSync =
+          !profile ||
+          !profile.email ||
+          (name && profile.name !== name) ||
+          (whitelisted && profile.adminRole !== "admin");
+
+        if (needsProfileSync && email) {
+          try {
+            await saveUserProfile(next.uid, {
+              name,
+              email,
+              role: nextStaffRole === "user" ? "user" : "admin",
+              adminRole: nextStaffRole,
+              permissions: nextPermissions,
+              active: nextActive,
+            });
+          } catch {
+            if (whitelisted) {
+              try {
+                await setUserRole(next.uid, "admin");
+              } catch {
+                // ignore
               }
             }
           }
+        }
 
-          setRole(nextRole);
+        setStaffRole(nextStaffRole);
+        setStoredPermissions(nextPermissions);
+        setStaffActive(nextActive);
+      })()
+        .catch(() => {
+          setStaffRole(isAdminEmail(next.email) ? "admin" : "user");
+          setStoredPermissions(isAdminEmail(next.email) ? FULL_PERMISSIONS : EMPTY_PERMISSIONS);
+          setStaffActive(true);
         })
-        .catch(() => setRole(isAdminEmail(next.email) ? "admin" : "user"))
         .finally(() => setReady(true));
     });
   }, []);
 
   const isSuperAdmin = isSuperAdminEmail(user?.email);
-  const isAdmin = isSuperAdmin || isAdminEmail(user?.email) || role === "admin";
+  const isWhitelisted = isAdminEmail(user?.email);
+  const permissions = resolvePermissions(user?.email, storedPermissions, staffActive, isSuperAdmin, isWhitelisted);
+  const isAdmin = canAccessAdmin(permissions, staffActive, isSuperAdmin, isWhitelisted);
+  const defaultAdminTab = firstAllowedTab(permissions);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -114,6 +160,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ready,
       isAdmin,
       isSuperAdmin,
+      staffRole,
+      permissions,
+      canAccessTab: (tab) => permissions[tab],
+      canManageUsers: canManageUsers(isSuperAdmin),
+      defaultAdminTab,
       login: async (email, password) => {
         await signInWithEmailAndPassword(getFirebaseAuth(), email.trim(), password);
       },
@@ -125,11 +176,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         await updateProfile(cred.user, { displayName: name.trim() });
         try {
-          await saveUserProfile(cred.user.uid, {
-            name: name.trim(),
-            email: email.trim(),
-            role: isAdminEmail(email) ? "admin" : "user",
-          });
+          const applied = await applyAdminInvite(cred.user.uid, email.trim());
+          if (!applied) {
+            await saveUserProfile(cred.user.uid, {
+              name: name.trim(),
+              email: email.trim(),
+              role: isAdminEmail(email) ? "admin" : "user",
+              adminRole: isAdminEmail(email) ? "admin" : "user",
+              permissions: isAdminEmail(email) ? FULL_PERMISSIONS : EMPTY_PERMISSIONS,
+              active: isAdminEmail(email),
+            });
+          }
         } catch {
           // Auth succeeded even if the profile write is blocked by rules.
         }
@@ -138,7 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await firebaseSignOut(getFirebaseAuth());
       },
     }),
-    [user, ready, isAdmin, isSuperAdmin],
+    [user, ready, isAdmin, isSuperAdmin, staffRole, permissions, defaultAdminTab, storedPermissions, staffActive],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

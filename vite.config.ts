@@ -8,7 +8,8 @@ import tsConfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   server: {
     host: "::",
-    port: 8080,
+    port: 55228,
+    strictPort: true,
   },
   resolve: {
     alias: {

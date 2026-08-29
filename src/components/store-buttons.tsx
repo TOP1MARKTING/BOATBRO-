@@ -61,15 +61,21 @@ export function StoreButtons({
   size = "md",
   equal = false,
   className = "",
+  appStoreUrl,
+  playStoreUrl,
 }: {
   tone?: "hero" | "page";
   size?: "md" | "sm" | "lg";
   /** Make both store badges the same width */
   equal?: boolean;
   className?: string;
+  appStoreUrl?: string;
+  playStoreUrl?: string;
 }) {
   const { t } = useLang();
   const s = t.stores;
+  const appStore = appStoreUrl ?? STORES.appStore;
+  const playStore = playStoreUrl ?? STORES.playStore;
   const compact = size === "sm";
   const large = size === "lg";
   const onHero = tone === "hero";
@@ -97,7 +103,7 @@ export function StoreButtons({
           : `flex flex-wrap items-center gap-2 ${large ? "justify-center gap-2.5 sm:gap-4" : ""}`
       } ${className}`}
     >
-      <StoreLink href={STORES.appStore} label={s.appleAria} className={`${badge} group`}>
+      <StoreLink href={appStore} label={s.appleAria} className={`${badge} group`}>
         <span
           className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep text-white group-hover:bg-white/15 group-hover:text-white ${iconBox}`}
         >
@@ -110,7 +116,7 @@ export function StoreButtons({
           </span>
         </span>
       </StoreLink>
-      <StoreLink href={STORES.playStore} label={s.googleAria} className={`${badge} group`}>
+      <StoreLink href={playStore} label={s.googleAria} className={`${badge} group`}>
         <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep group-hover:bg-white/15 ${iconBox}`}>
           <PlayMark className={iconSvg} />
         </span>
