@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
 const WIDTHS = [360, 480, 720];
-const source = path.resolve("public/media/Boatpro icons 2.png");
+const source = path.resolve("public/media/app-source-screenshot.png");
 const outDir = path.resolve("public/media");
 
 /** Crop regions tuned to the long BoatPro app screenshot (720×6228). */

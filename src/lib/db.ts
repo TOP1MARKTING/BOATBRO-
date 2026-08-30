@@ -485,48 +485,6 @@ function mapAdminInvite(id: string, data: Record<string, unknown>): AdminInvite 
   };
 }
 
-export async function listAdminInvites() {
-  const snap = await getDocs(query(collection(getDb(), "adminInvites"), limit(100)));
-  return snap.docs
-    .map((d) => mapAdminInvite(d.id, d.data()))
-    .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
-}
-
-export async function createAdminInvite(input: {
-  email: string;
-  name: string;
-  permissions: AdminPermissions;
-  active?: boolean;
-  createdBy: string;
-}) {
-  const email = input.email.trim().toLowerCase();
-  if (!email.includes("@")) throw new Error("invalid-email");
-  const ref = doc(getDb(), "adminInvites", email);
-  const existing = await getDoc(ref);
-  if (existing.exists()) throw new Error("invite-exists");
-  const access = accessFromPermissions(input.permissions, input.active ?? true);
-  await setDoc(ref, {
-    email,
-    name: input.name.trim().slice(0, 120),
-    permissions: access.permissions,
-    active: access.active,
-    createdBy: input.createdBy,
-    createdAt: serverTimestamp(),
-  });
-  return mapAdminInvite(email, {
-    email,
-    name: input.name.trim(),
-    permissions: access.permissions,
-    active: access.active,
-    createdBy: input.createdBy,
-    createdAt: new Date(),
-  });
-}
-
-export async function deleteAdminInvite(id: string) {
-  await deleteDoc(doc(getDb(), "adminInvites", id.trim().toLowerCase()));
-}
-
 export async function applyAdminInvite(uid: string, email: string) {
   const normalized = email.trim().toLowerCase();
   const ref = doc(getDb(), "adminInvites", normalized);

@@ -1,11 +1,8 @@
 const WIDTHS = [480, 960, 1440] as const;
 
 export type PhotoName =
-  | "luxury-water"
   | "luxury-marina"
   | "luxury-dive"
-  | "luxury-family"
-  | "luxury-club"
   | "luxury-night"
   | "luxury-sailing"
   | "night-yacht"
