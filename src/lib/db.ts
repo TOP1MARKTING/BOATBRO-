@@ -13,7 +13,7 @@ import {
   where,
   type Timestamp,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes, deleteObject } from "firebase/storage";
+import { compressImageFile } from "./image-compress";
 import type { LocalizedFaq, LocalizedText, PostBlock } from "./post-content";
 import {
   blocksPlainText,
@@ -29,7 +29,7 @@ import {
   type SiteSettings,
   type SiteSettingsInput,
 } from "./site-settings";
-import { getDb, getStorageBucket } from "./firebase";
+import { getDb } from "./firebase";
 import { createAuthUserAsAdmin, resetStaffUserAuthPassword } from "./admin-auth";
 import type { AdminPermissions, StaffRole } from "./admin-permissions";
 import {
@@ -121,7 +121,8 @@ export type AdminInvite = {
 export type GalleryImage = {
   id: string;
   url: string;
-  storagePath: string;
+  /** @deprecated Legacy Firebase Storage path — kept for old records only. */
+  storagePath?: string;
   name: string;
   alt: LocalizedText;
   caption: LocalizedText;
@@ -730,30 +731,37 @@ export async function listUsers() {
     .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
 }
 
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const MAX_IMAGE_INPUT_BYTES = 8 * 1024 * 1024;
 
-async function uploadImageFile(file: File, uid: string, folder: "covers" | "gallery") {
-  if (file.size > MAX_IMAGE_BYTES) {
+async function prepareImageDataUrl(file: File, profile: "gallery" | "post") {
+  if (file.size > MAX_IMAGE_INPUT_BYTES) {
     throw new Error("file-too-large");
   }
-  const safe = file.name.replace(/[^\w.\-]+/g, "-").slice(-80);
-  const storagePath = `${folder}/${uid}/${Date.now()}-${safe}`;
-  const fileRef = ref(getStorageBucket(), storagePath);
-  await uploadBytes(fileRef, file, { contentType: file.type || "image/jpeg" });
-  const url = await getDownloadURL(fileRef);
-  return { url, storagePath };
+  const { dataUrl, mimeType, byteLength } = await compressImageFile(file, profile);
+  return { dataUrl, mimeType, byteLength };
 }
 
-export async function uploadCover(file: File, uid: string) {
-  const { url } = await uploadImageFile(file, uid, "covers");
-  return url;
+export async function uploadCover(file: File, _uid: string) {
+  const { dataUrl } = await prepareImageDataUrl(file, "post");
+  return dataUrl;
+}
+
+function resolveGalleryUrl(id: string, data: Record<string, unknown>) {
+  const stored = String(data.url ?? "");
+  if (stored.startsWith("http://") || stored.startsWith("https://") || stored.startsWith("data:")) {
+    return stored;
+  }
+  const dataUrl = String(data.dataUrl ?? "");
+  if (dataUrl.startsWith("data:")) return dataUrl;
+  return stored;
 }
 
 function mapGalleryImage(id: string, data: Record<string, unknown>): GalleryImage {
+  const storagePath = data.storagePath ? String(data.storagePath) : undefined;
   return {
     id,
-    url: String(data.url ?? ""),
-    storagePath: String(data.storagePath ?? ""),
+    url: resolveGalleryUrl(id, data),
+    storagePath,
     name: String(data.name ?? ""),
     alt: mapLocalizedField(data.alt),
     caption: mapLocalizedField(data.caption),
@@ -770,11 +778,14 @@ export async function listGalleryImages() {
 }
 
 export async function uploadGalleryImage(file: File, uid: string, input: Partial<GalleryInput> = {}) {
-  const { url, storagePath } = await uploadImageFile(file, uid, "gallery");
+  const { dataUrl, mimeType, byteLength } = await prepareImageDataUrl(file, "gallery");
   const name = input.name?.trim() || file.name.replace(/\.[^.]+$/, "").slice(0, 120);
   const created = await addDoc(collection(getDb(), "gallery"), {
-    url,
-    storagePath,
+    dataUrl,
+    url: dataUrl,
+    mimeType,
+    byteLength,
+    storageSource: "firestore",
     name,
     alt: input.alt ?? emptyLocalized(),
     caption: input.caption ?? emptyLocalized(),
@@ -782,8 +793,8 @@ export async function uploadGalleryImage(file: File, uid: string, input: Partial
     createdAt: serverTimestamp(),
   });
   return mapGalleryImage(created.id, {
-    url,
-    storagePath,
+    dataUrl,
+    url: dataUrl,
     name,
     alt: input.alt ?? emptyLocalized(),
     caption: input.caption ?? emptyLocalized(),
@@ -800,14 +811,7 @@ export async function updateGalleryImage(id: string, input: Partial<GalleryInput
   await updateDoc(doc(getDb(), "gallery", id), payload);
 }
 
-export async function deleteGalleryImage(item: Pick<GalleryImage, "id" | "storagePath">) {
-  if (item.storagePath) {
-    try {
-      await deleteObject(ref(getStorageBucket(), item.storagePath));
-    } catch {
-      // File may already be gone; still remove metadata.
-    }
-  }
+export async function deleteGalleryImage(item: Pick<GalleryImage, "id">) {
   await deleteDoc(doc(getDb(), "gallery", item.id));
 }
 
