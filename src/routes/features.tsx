@@ -10,7 +10,8 @@ import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { StoreButtons } from "../components/store-buttons";
 import { useLang } from "../lib/i18n";
-import { SITE_ORIGIN, SERVICE_LOGIN_URLS, pageHead } from "../lib/site";
+import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { useSiteSettings } from "../lib/site-settings-context";
 
 export const Route = createFileRoute("/features")({
   head: () =>
@@ -140,7 +141,7 @@ function ServiceSection({
   flipImage: boolean;
 }) {
   const bg = tone === "mute" ? "bg-surface-2 dark:bg-surface-2/70" : "bg-background dark:bg-transparent";
-  const showLogin = Boolean(loginCta && loginLabel);
+  const showLogin = Boolean(loginCta && loginLabel && loginHref);
 
   return (
     <section id={id} className={`scroll-mt-[120px] ${bg} py-10 sm:py-14 lg:py-20`}>
@@ -185,17 +186,11 @@ function ServiceSection({
               </div>
             ) : null}
 
-            {showLogin ? (
+            {showLogin && loginHref ? (
               <div className="mt-10 flex justify-center">
-                {loginHref ? (
-                  <Btn href={loginHref} variant="gold">
-                    {loginLabel} <CtaArrow />
-                  </Btn>
-                ) : (
-                  <Btn variant="gold" disabled>
-                    {loginLabel}
-                  </Btn>
-                )}
+                <Btn href={loginHref} variant="gold">
+                  {loginLabel} <CtaArrow />
+                </Btn>
               </div>
             ) : null}
           </div>
@@ -207,6 +202,7 @@ function ServiceSection({
 
 function FeaturesPage() {
   const { dir, t } = useLang();
+  const { serviceLogins } = useSiteSettings();
   const p = t.featuresPage;
   const hash = useFeatureHash();
   const flipImage = dir === "ltr";
@@ -277,7 +273,7 @@ function FeaturesPage() {
 
       {GROUPS.map((group, i) => {
         const copy = p[group.key];
-        const loginHref = group.id === "marinas" ? SERVICE_LOGIN_URLS.marinas : "";
+        const loginHref = group.id === "marinas" ? serviceLogins.marinas : "";
         return (
           <ServiceSection
             key={group.id}

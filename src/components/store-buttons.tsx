@@ -1,7 +1,7 @@
 ﻿import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useLang } from "../lib/i18n";
-import { STORES } from "../lib/site";
+import { useSiteSettings } from "../lib/site-settings-context";
 
 function AppleMark({ className = "size-[15px]" }: { className?: string }) {
   return (
@@ -73,9 +73,10 @@ export function StoreButtons({
   playStoreUrl?: string;
 }) {
   const { t } = useLang();
+  const { stores: siteStores } = useSiteSettings();
   const s = t.stores;
-  const appStore = appStoreUrl ?? STORES.appStore;
-  const playStore = playStoreUrl ?? STORES.playStore;
+  const appStore = appStoreUrl ?? siteStores.appStore;
+  const playStore = playStoreUrl ?? siteStores.playStore;
   const compact = size === "sm";
   const large = size === "lg";
   const onHero = tone === "hero";

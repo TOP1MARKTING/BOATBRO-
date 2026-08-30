@@ -9,7 +9,8 @@ import { Photo, type PhotoName } from "../components/photo";
 import { StoreButtons } from "../components/store-buttons";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
-import { CONTACT, SITE_ORIGIN, SERVICE_LOGIN_URLS, pageHead } from "../lib/site";
+import { CONTACT, SITE_ORIGIN, pageHead } from "../lib/site";
+import { useSiteSettings } from "../lib/site-settings-context";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -30,7 +31,8 @@ const actionPill =
 
 function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
   const { t } = useLang();
-  const loginHref = id === "marinas" ? SERVICE_LOGIN_URLS.marinas : "";
+  const { serviceLogins } = useSiteSettings();
+  const loginHref = id === "marinas" ? serviceLogins.marinas : "";
   const showStores = id === "guests" || id === "owners";
 
   return (
