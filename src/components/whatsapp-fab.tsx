@@ -1,14 +1,15 @@
-import { CONTACT } from "../lib/site";
 import { useLang } from "../lib/i18n";
+import { useSiteSettings } from "../lib/site-settings-context";
 import { WhatsAppIcon } from "./whatsapp-icon";
 
 export function WhatsAppFab() {
   const { lang, t } = useLang();
+  const { contact } = useSiteSettings();
   const isAr = lang === "ar";
 
   return (
     <a
-      href={CONTACT.whatsapp}
+      href={contact.whatsapp}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={t.cta.whatsapp}

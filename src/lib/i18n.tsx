@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { dictionaries, type Dictionary } from "./copy";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { type Dictionary } from "./copy";
+import type { Lang } from "./page-content";
+import { usePageContent } from "./page-content-context";
 
-export type Lang = "ar" | "en";
-
-const STORAGE_KEY = "boatpro-lang";
+export type { Lang };const STORAGE_KEY = "boatpro-lang";
 
 type LangContextValue = {
   lang: Lang;
@@ -22,6 +22,7 @@ function readStoredLang(): Lang {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  const { dictionary } = usePageContent();
   const [lang, setLangState] = useState<Lang>("ar");
 
   useEffect(() => {
@@ -38,12 +39,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLang = (next: Lang) => setLangState(next);
   const toggle = () => setLangState((prev) => (prev === "ar" ? "en" : "ar"));
 
+  const t = useMemo(() => dictionary(lang), [dictionary, lang]);
+
   return (
     <LangContext.Provider
       value={{
         lang,
         dir: lang === "ar" ? "rtl" : "ltr",
-        t: dictionaries[lang],
+        t,
         setLang,
         toggle,
       }}

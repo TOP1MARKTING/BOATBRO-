@@ -2,6 +2,7 @@
 import { Shield } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AdminContactsPanel } from "../components/admin/admin-contacts-panel";
+import { AdminContentPanel } from "../components/admin/admin-content-panel";
 import { AdminGalleryPanel } from "../components/admin/admin-gallery-panel";
 import { AdminOverviewPanel } from "../components/admin/admin-overview-panel";
 import { AdminPostsPanel } from "../components/admin/admin-posts-panel";
@@ -55,7 +56,11 @@ function AdminPage() {
     setError("");
     setLoading(true);
     try {
-      const [p, c, u] = await Promise.all([listAllPosts(), listContacts(), listUsers()]);
+      const [p, c, u] = await Promise.all([
+        canAccessTab("posts") || canAccessTab("overview") ? listAllPosts() : Promise.resolve([]),
+        canAccessTab("contacts") ? listContacts() : Promise.resolve([]),
+        isSuperAdmin ? listUsers() : Promise.resolve([]),
+      ]);
       setPosts(p);
       setContacts(c);
       setUsers(u);
@@ -97,6 +102,7 @@ function AdminPage() {
     overview: t.admin.overview,
     posts: t.admin.posts,
     gallery: t.admin.gallery,
+    content: t.admin.content,
     contacts: t.admin.contacts,
     users: t.admin.users,
     settings: t.admin.settings,
@@ -163,7 +169,7 @@ function AdminPage() {
           </p>
         ) : null}
 
-        {loading && tab !== "gallery" && tab !== "profile" && tab !== "settings" ? (
+        {loading && tab !== "gallery" && tab !== "profile" && tab !== "settings" && tab !== "content" ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-32 animate-pulse rounded-2xl bg-card/80" />
@@ -172,12 +178,22 @@ function AdminPage() {
         ) : null}
 
         {!loading && tab === "overview" ? (
-          <AdminOverviewPanel posts={posts} contacts={contacts} users={users} t={t} lang={lang} onOpen={setTab} />
+          <AdminOverviewPanel
+            posts={posts}
+            contacts={contacts}
+            users={users}
+            t={t}
+            lang={lang}
+            onOpen={setTab}
+            canAccessTab={canAccessTab}
+            isSuperAdmin={isSuperAdmin}
+          />
         ) : null}
         {!loading && tab === "posts" && canAccessTab("posts") ? (
           <AdminPostsPanel posts={posts} onChange={load} lang={lang} t={t} author={user.displayName || user.email || ""} uid={user.uid} />
         ) : null}
         {tab === "gallery" && canAccessTab("gallery") ? <AdminGalleryPanel uid={user.uid} t={t} /> : null}
+        {tab === "content" && canAccessTab("content") ? <AdminContentPanel t={t} /> : null}
         {!loading && tab === "contacts" && canAccessTab("contacts") ? (
           <AdminContactsPanel contacts={contacts} onChange={load} t={t} lang={lang} />
         ) : null}

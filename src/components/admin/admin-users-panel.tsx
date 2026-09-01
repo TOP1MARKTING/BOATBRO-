@@ -26,6 +26,7 @@ function permissionLabels(t: ReturnType<typeof import("../../lib/i18n").useLang>
     overview: t.admin.overview,
     posts: t.admin.posts,
     gallery: t.admin.gallery,
+    content: t.admin.content,
     contacts: t.admin.contacts,
     users: t.admin.users,
     settings: t.admin.settings,

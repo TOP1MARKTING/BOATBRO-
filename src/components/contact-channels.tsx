@@ -1,18 +1,19 @@
 import { Mail, MapPin } from "lucide-react";
 import { WhatsAppIcon } from "./whatsapp-icon";
 import { useLang } from "../lib/i18n";
-import { CONTACT } from "../lib/site";
+import { useSiteSettings } from "../lib/site-settings-context";
 
 export function ContactChannels({ className = "" }: { className?: string }) {
   const { t } = useLang();
+  const { contact } = useSiteSettings();
   const c = t.contact;
 
   const cards = [
     {
       key: "whatsapp",
-      href: CONTACT.whatsapp,
+      href: contact.whatsapp,
       label: c.whatsapp,
-      value: CONTACT.phoneDisplay,
+      value: contact.phoneDisplay,
       hint: c.whatsappHint,
       icon: "whatsapp" as const,
       external: true,
@@ -23,9 +24,9 @@ export function ContactChannels({ className = "" }: { className?: string }) {
     },
     {
       key: "email",
-      href: CONTACT.mailto,
+      href: contact.mailto,
       label: c.email,
-      value: CONTACT.email,
+      value: contact.email,
       hint: c.emailHint,
       icon: "mail" as const,
       external: true,

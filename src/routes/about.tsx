@@ -7,14 +7,16 @@ import { PageHero } from "../components/page-hero";
 import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
-import { CONTACT, SITE_ORIGIN, pageHead } from "../lib/site";
+import { useCmsImage } from "../lib/page-content-context";
+import { useSiteSettings } from "../lib/site-settings-context";
+import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { dictionaries } from "../lib/copy";
 
 export const Route = createFileRoute("/about")({
   head: () =>
     pageHead({
-      title: "عن بوت برو | الرؤية والرسالة في السوق البحري السعودي",
-      description:
-        "قصة بوت برو ورؤيتها ورسالتها: جسر بين عشق البحر وتمكين الأعمال البحرية في المملكة والمنطقة، من مكتب جدة.",
+      title: dictionaries.ar.seo.aboutTitle,
+      description: dictionaries.ar.seo.aboutDesc,
       path: "/about",
     }),
   component: AboutPage,
@@ -22,6 +24,9 @@ export const Route = createFileRoute("/about")({
 
 function AboutPage() {
   const { dir, t } = useLang();
+  const { contact } = useSiteSettings();
+  const heroImage = useCmsImage("about", "hero", "hero-about");
+  const storyImage = useCmsImage("about", "story", "luxury-marina");
 
   return (
     <>
@@ -49,7 +54,7 @@ function AboutPage() {
 
       <PageHero
         dir={dir}
-        image="hero-about"
+        image={heroImage}
         chip={t.aboutPage.chip}
         title={t.aboutPage.h1}
         lead={t.aboutPage.lead}
@@ -65,7 +70,7 @@ function AboutPage() {
           </div>
           <div className="overflow-hidden rounded-[1.75rem] lg:col-span-6">
             <Photo
-              name="luxury-marina"
+              name={storyImage}
               alt=""
               className="aspect-[16/10] w-full object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -162,16 +167,16 @@ function AboutPage() {
               {t.contact.country}
             </p>
           </div>
-          <a href={CONTACT.mailto} className="rounded-[1.3rem] border border-border bg-card p-5 hover:border-gold">
+          <a href={contact.mailto} className="rounded-[1.3rem] border border-border bg-card p-5 hover:border-gold">
             <p className="text-[13px] font-medium text-gold-ink">{t.contact.email}</p>
             <p className="mt-2 font-display text-lg text-navy" dir="ltr">
-              {CONTACT.email}
+              {contact.email}
             </p>
           </a>
-          <a href={CONTACT.whatsapp} className="rounded-[1.3rem] border border-border bg-card p-5 hover:border-gold">
+          <a href={contact.whatsapp} className="rounded-[1.3rem] border border-border bg-card p-5 hover:border-gold">
             <p className="text-[13px] font-medium text-gold-ink">{t.contact.whatsapp}</p>
             <p className="mt-2 font-display text-lg text-navy" dir="ltr">
-              {CONTACT.phoneDisplay}
+              {contact.phoneDisplay}
             </p>
           </a>
         </div>

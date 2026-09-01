@@ -29,7 +29,12 @@ import {
   type SiteSettings,
   type SiteSettingsInput,
 } from "./site-settings";
-import { getDb } from "./firebase";
+import {
+  CMS_PAGES,
+  mergePageDocument,
+  type CmsPageDocument,
+  type CmsPageId,
+} from "./page-content";
 import { createAuthUserAsAdmin, resetStaffUserAuthPassword } from "./admin-auth";
 import type { AdminPermissions, StaffRole } from "./admin-permissions";
 import {
@@ -38,6 +43,7 @@ import {
   parsePermissions,
   staffRoleFromPermissions,
 } from "./admin-permissions";
+import { getDb } from "./firebase";
 
 function toDate(value: unknown) {
   if (value && typeof value === "object" && "toDate" in value) {
@@ -788,6 +794,41 @@ export async function saveSiteSettings(input: SiteSettingsInput) {
     doc(getDb(), "siteSettings", SITE_SETTINGS_ID),
     {
       ...normalized,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
+
+export async function getPageContent(pageId: CmsPageId): Promise<CmsPageDocument> {
+  const snap = await getDoc(doc(getDb(), "pageContent", pageId));
+  if (!snap.exists()) return mergePageDocument(pageId, null);
+  const data = snap.data();
+  return mergePageDocument(pageId, {
+    ar: (data.ar as Record<string, unknown> | undefined) ?? {},
+    en: (data.en as Record<string, unknown> | undefined) ?? {},
+    images: (data.images as CmsPageDocument["images"] | undefined) ?? {},
+    updatedAt: toDate(data.updatedAt),
+  });
+}
+
+export async function getAllPageContent(): Promise<Record<CmsPageId, CmsPageDocument>> {
+  const entries = await Promise.all(
+    CMS_PAGES.map(async (page) => [page.id, await getPageContent(page.id)] as const),
+  );
+  return Object.fromEntries(entries) as Record<CmsPageId, CmsPageDocument>;
+}
+
+export async function savePageContent(
+  pageId: CmsPageId,
+  input: Pick<CmsPageDocument, "ar" | "en" | "images">,
+) {
+  await setDoc(
+    doc(getDb(), "pageContent", pageId),
+    {
+      ar: input.ar,
+      en: input.en,
+      images: input.images,
       updatedAt: serverTimestamp(),
     },
     { merge: true },

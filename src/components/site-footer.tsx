@@ -104,19 +104,32 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-7 flex flex-col items-center gap-1.5 border-t border-white/10 pt-4 text-center text-[11px] leading-5 text-white/45 sm:mt-12 sm:flex-row sm:justify-between sm:gap-3 sm:pt-6 sm:text-start sm:text-[12px] sm:leading-6">
-          <p className="max-w-[18rem] sm:max-w-none">
-            <Link
-              to="/login"
-              search={{ to: "admin" }}
-              aria-label={lang === "ar" ? "دخول الإدارة" : "Staff login"}
-              className="rounded-sm text-white/45 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+        <div className="mt-7 flex flex-col items-center gap-2 border-t border-white/10 pt-4 text-center text-[11px] leading-5 text-white/45 sm:mt-12 sm:gap-3 sm:pt-6 sm:text-[12px] sm:leading-6">
+          <div className="flex w-full flex-col items-center gap-1.5 sm:flex-row sm:justify-between sm:text-start">
+            <p className="max-w-[18rem] sm:max-w-none">
+              <Link
+                to="/login"
+                search={{ to: "admin" }}
+                aria-label={lang === "ar" ? "دخول الإدارة" : "Staff login"}
+                className="rounded-sm text-white/45 transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+              >
+                ©
+              </Link>
+              <span> {t.footer.copy.replace(/^©\s*/, "")}</span>
+            </p>
+            <p className="font-display tracking-[0.18em] text-white/35">BOATPRO</p>
+          </div>
+          <p className="text-[13px] leading-6 text-white/80 sm:text-[15px] sm:leading-7">
+            {t.footer.designedBy}{" "}
+            <a
+              href="https://www.top1markting.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-gold transition-colors hover:text-white"
             >
-              ©
-            </Link>
-            <span> {t.footer.copy.replace(/^©\s*/, "")}</span>
+              Top1Markting
+            </a>
           </p>
-          <p className="font-display tracking-[0.18em] text-white/35">BOATPRO</p>
         </div>
       </div>
     </footer>

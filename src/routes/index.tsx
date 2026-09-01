@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Compass, Ship, Waves } from "lucide-react";
+import { useEffect, useMemo } from "react";
 import { Logo, SHELL } from "../components/brand";
 import { ContactChannels } from "../components/contact-channels";
 import { JsonLd } from "../components/json-ld";
@@ -9,15 +10,214 @@ import { Photo, type PhotoName } from "../components/photo";
 import { StoreButtons } from "../components/store-buttons";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
-import { CONTACT, SITE_ORIGIN, pageHead } from "../lib/site";
+import type { Lang } from "../lib/page-content";
+import { useCmsImage } from "../lib/page-content-context";
 import { useSiteSettings } from "../lib/site-settings-context";
+import { SITE_ORIGIN, absoluteUrl, pageHead } from "../lib/site";
+
+const HOME_SCHEMA_PHONE = "+966502554747";
+const HOME_OG_IMAGE = `${SITE_ORIGIN}/og.jpg`;
+
+const HOME_SEO = {
+  ar: {
+    title: "بوت برو | BoatPro - منصة القوارب واليخوت والخدمات البحرية",
+    description:
+      "بوت برو منصة بحرية تربط الباحثين عن القوارب واليخوت والرحلات البحرية بملاك القوارب واليخوت والمراسي ومقدمي الخدمات البحرية في السعودية والخليج والأسواق البحرية الدولية.",
+  },
+  en: {
+    title: "BoatPro | Boat & Yacht Rental, Booking & Marine Services",
+    description:
+      "BoatPro connects guests, boat and yacht owners, marinas and marine service providers through a seamless platform for boat rentals, yacht charters, bookings and marine services.",
+  },
+} as const;
+
+const HOME_SERVICES: Record<Lang, readonly string[]> = {
+  ar: [
+    "تأجير قوارب",
+    "تأجير يخوت",
+    "حجز قوارب",
+    "حجز يخوت",
+    "استئجار قوارب",
+    "استئجار يخوت",
+    "رحلات صيد",
+    "رحلات غوص",
+    "رياضات مائية",
+    "تجارب بحرية",
+    "تسويق قوارب",
+    "تسويق يخوت",
+    "إدارة الحجوزات",
+    "تحصيل المدفوعات",
+    "الخدمات اللوجستية البحرية",
+    "حجز المراسي",
+    "خدمات الوقود",
+    "خدمات الصيانة",
+    "خدمات المراسي",
+    "حجز المرسى",
+    "حجز أرصفة",
+    "خدمات الوقود البحرية",
+    "صيانة القوارب",
+    "صيانة اليخوت",
+    "مقدّمو الخدمات البحرية",
+  ],
+  en: [
+    "Boat Rental",
+    "Yacht Rental",
+    "Boat Booking",
+    "Yacht Booking",
+    "Boat Charter",
+    "Yacht Charter",
+    "Fishing Trips",
+    "Diving Trips",
+    "Water Sports",
+    "Marine Experiences",
+    "Boat Marketing",
+    "Yacht Marketing",
+    "Booking Management",
+    "Payment Collection",
+    "Marine Logistics",
+    "Marina Booking",
+    "Fuel Services",
+    "Maintenance Services",
+    "Marina Services",
+    "Marina Booking",
+    "Berth Booking",
+    "Marine Fuel Services",
+    "Boat Maintenance",
+    "Yacht Maintenance",
+    "Marine Service Providers",
+  ],
+};
+
+type HomeImageAltKey = "hero" | "what" | "partner" | "audience0" | "audience1" | "audience2";
+
+const HOME_IMAGE_ALTS: Record<HomeImageAltKey, Record<Lang, string>> = {
+  hero: {
+    ar: "تأجير وحجز القوارب واليخوت عبر بوت برو",
+    en: "Boat and yacht rental and booking with BoatPro",
+  },
+  what: {
+    ar: "منصة بوت برو للقوارب واليخوت والخدمات البحرية",
+    en: "BoatPro platform for boats, yachts and marine services",
+  },
+  partner: {
+    ar: "شراكات المراسي ومقدمي الخدمات البحرية مع بوت برو",
+    en: "Marina and marine service partnerships with BoatPro",
+  },
+  audience0: {
+    ar: "تأجير وحجز القوارب واليخوت ورحلات بحرية للضيوف",
+    en: "Boat and yacht rental, booking and marine trips for guests",
+  },
+  audience1: {
+    ar: "تسويق وإدارة القوارب واليخوت لملاك الأصول البحرية",
+    en: "Boat and yacht marketing and management for owners",
+  },
+  audience2: {
+    ar: "حلول المراسي ومقدمي الخدمات البحرية",
+    en: "Marina and marine service provider solutions",
+  },
+};
+
+function homeImageAlt(key: HomeImageAltKey, lang: Lang) {
+  return HOME_IMAGE_ALTS[key][lang];
+}
+
+function useHomeOpenGraph(seo: (typeof HOME_SEO)[Lang], lang: Lang) {
+  useEffect(() => {
+    const pageUrl = absoluteUrl("/");
+    const ogLocale = lang === "ar" ? "ar_SA" : "en";
+
+    const upsertMeta = (attr: "name" | "property", key: string, content: string) => {
+      let tag = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute(attr, key);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+
+    upsertMeta("property", "og:title", seo.title);
+    upsertMeta("property", "og:description", seo.description);
+    upsertMeta("property", "og:type", "website");
+    upsertMeta("property", "og:url", pageUrl);
+    upsertMeta("property", "og:image", HOME_OG_IMAGE);
+    upsertMeta("property", "og:locale", ogLocale);
+    upsertMeta("property", "og:site_name", "BoatPro");
+    upsertMeta("name", "twitter:card", "summary_large_image");
+    upsertMeta("name", "twitter:title", seo.title);
+    upsertMeta("name", "twitter:description", seo.description);
+    upsertMeta("name", "twitter:image", HOME_OG_IMAGE);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", pageUrl);
+  }, [seo, lang]);
+}
+
+function buildHomeJsonLd(lang: Lang, seo: (typeof HOME_SEO)[Lang], email: string) {
+  const inLanguage = lang === "ar" ? "ar-SA" : "en";
+  const pageUrl = absoluteUrl("/");
+
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": `${SITE_ORIGIN}/#organization`,
+      name: "BoatPro",
+      alternateName: "بوت برو",
+      url: SITE_ORIGIN,
+      logo: `${SITE_ORIGIN}/logo.png`,
+      email,
+      telephone: HOME_SCHEMA_PHONE,
+      description: seo.description,
+      areaServed: [
+        { "@type": "Country", name: "Saudi Arabia" },
+        { "@type": "AdministrativeArea", name: "Gulf Cooperation Council" },
+        { "@type": "Continent", name: "Europe" },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${SITE_ORIGIN}/#website`,
+      name: "BoatPro",
+      url: SITE_ORIGIN,
+      inLanguage,
+      publisher: { "@id": `${SITE_ORIGIN}/#organization` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: seo.title,
+      description: seo.description,
+      inLanguage,
+      isPartOf: { "@id": `${SITE_ORIGIN}/#website` },
+      about: { "@id": `${SITE_ORIGIN}/#organization` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: lang === "ar" ? "خدمات بوت برو البحرية" : "BoatPro marine services",
+      itemListElement: HOME_SERVICES[lang].map((name, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name,
+      })),
+    },
+  ];
+}
 
 export const Route = createFileRoute("/")({
   head: () =>
     pageHead({
-      title: "بوت برو | منصّة حجز اليخوت والأعمال البحرية",
-      description:
-        "بوت برو منصّة تقنية بحرية للضيوف وملاك اليخوت والمراسي: اكتشف التجربة، احجزها، أو أدر أصلك البحري من تطبيق واحد في المملكة.",
+      title: HOME_SEO.ar.title,
+      description: HOME_SEO.ar.description,
       path: "/",
     }),
   component: HomePage,
@@ -61,45 +261,36 @@ function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
   );
 }
 
+const AUDIENCE_ALT_KEYS: HomeImageAltKey[] = ["audience0", "audience1", "audience2"];
+
 function HomePage() {
-  const { dir, t } = useLang();
+  const { dir, t, lang } = useLang();
+  const seo = HOME_SEO[lang];
+  const { contact } = useSiteSettings();
+  const heroImage = useCmsImage("home", "hero", "luxury-sailing");
+  const whatImage = useCmsImage("home", "what", "night-yacht");
+  const partnerImage = useCmsImage("home", "partner", "luxury-night");
+  const audienceImage0 = useCmsImage("home", "audience0", "audience-guests");
+  const audienceImage1 = useCmsImage("home", "audience1", "audience-owners");
+  const audienceImage2 = useCmsImage("home", "audience2", "audience-marinas");
+  const audienceImages = [audienceImage0, audienceImage1, audienceImage2] as const;
+  const jsonLd = useMemo(
+    () => buildHomeJsonLd(lang, seo, contact.email),
+    [lang, seo, contact.email],
+  );
+
+  useHomeOpenGraph(seo, lang);
 
   return (
     <>
-      <PageMeta title={t.seo.homeTitle} description={t.seo.homeDesc} />
+      <PageMeta title={seo.title} description={seo.description} />
       <MarketingShell dir={dir}>
-      <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "بوت برو",
-            alternateName: "BoatPro",
-            url: SITE_ORIGIN,
-            logo: `${SITE_ORIGIN}/logo.png`,
-            email: CONTACT.email,
-            telephone: "+966502554747",
-            address: {
-              "@type": "PostalAddress",
-              streetAddress: "طريق الأمير سلطان، حي الروضة، برج المرجانه",
-              addressLocality: "جدة",
-              addressCountry: "SA",
-            },
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: "BoatPro",
-            url: SITE_ORIGIN,
-            inLanguage: "ar",
-          },
-        ]}
-      />
+      <JsonLd data={jsonLd} />
 
       <section className="relative isolate h-[100svh] max-h-[100svh] overflow-hidden bg-navy-deep">
         <Photo
-          name="luxury-sailing"
-          alt={t.home.hero.imageAlt}
+          name={heroImage}
+          alt={homeImageAlt("hero", lang)}
           className="absolute inset-0 h-full w-full scale-[1.03] object-cover object-[center_40%]"
           sizes="100vw"
           eager
@@ -168,8 +359,8 @@ function HomePage() {
           <div className="relative lg:col-span-7">
             <div className="relative overflow-hidden rounded-[1.75rem] shadow-[0_24px_60px_-32px_rgba(15,40,70,0.45)]">
               <Photo
-                name="night-yacht"
-                alt=""
+                name={whatImage}
+                alt={homeImageAlt("what", lang)}
                 className="aspect-[16/10] w-full object-cover"
                 sizes="(max-width: 1024px) 100vw, 58vw"
                 width={960}
@@ -193,7 +384,7 @@ function HomePage() {
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {t.home.audiences.cards.map((card, i) => {
             const Icon = AUDIENCE_ICONS[i] ?? Waves;
-            const photo = AUDIENCE_PHOTOS[i] ?? "luxury-dive";
+            const photo = audienceImages[i] ?? AUDIENCE_PHOTOS[i] ?? "luxury-dive";
             return (
               <article
                 key={card.id}
@@ -202,7 +393,7 @@ function HomePage() {
                 <div className="relative aspect-[5/4] overflow-hidden">
                   <Photo
                     name={photo}
-                    alt=""
+                    alt={homeImageAlt(AUDIENCE_ALT_KEYS[i] ?? "audience0", lang)}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 33vw"
                     width={960}
@@ -255,8 +446,8 @@ function HomePage() {
         <div className={SHELL}>
           <div className="relative overflow-hidden rounded-[1.75rem]">
             <Photo
-              name="luxury-night"
-              alt=""
+              name={partnerImage}
+              alt={homeImageAlt("partner", lang)}
               className="absolute inset-0 h-full w-full object-cover"
               sizes="100vw"
               width={1440}
@@ -305,7 +496,7 @@ function HomePage() {
             <Btn to="/contact" variant="gold">
               {t.cta.talk} <CtaArrow />
             </Btn>
-            <Btn href={CONTACT.whatsapp} variant="ghost">
+            <Btn href={contact.whatsapp} variant="ghost">
               {t.cta.whatsapp}
             </Btn>
           </div>

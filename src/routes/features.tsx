@@ -10,15 +10,16 @@ import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { StoreButtons } from "../components/store-buttons";
 import { useLang } from "../lib/i18n";
+import { usePageContent } from "../lib/page-content-context";
 import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { dictionaries } from "../lib/copy";
 import { useSiteSettings } from "../lib/site-settings-context";
 
 export const Route = createFileRoute("/features")({
   head: () =>
     pageHead({
-      title: "خدمات بوت برو للضيوف وملاك اليخوت والمراسي",
-      description:
-        "خدمات بوت برو حسب نوع المستخدم: اكتشاف وحجز للضيوف، إدارة وتحصيل للملاك، وفرص تشغيل للمراسي.",
+      title: dictionaries.ar.seo.featuresTitle,
+      description: dictionaries.ar.seo.featuresDesc,
       path: "/features",
     }),
   component: FeaturesPage,
@@ -200,12 +201,19 @@ function ServiceSection({
   );
 }
 
+function cmsGroupImageKey(group: "guests" | "owners" | "marinas", index: number) {
+  const prefix = group === "guests" ? "guest" : group === "owners" ? "owner" : "marina";
+  return `${prefix}${index}`;
+}
+
 function FeaturesPage() {
   const { dir, t } = useLang();
+  const { image } = usePageContent();
   const { serviceLogins } = useSiteSettings();
   const p = t.featuresPage;
   const hash = useFeatureHash();
   const flipImage = dir === "ltr";
+  const heroImage = image("features", "hero", "hero-features");
 
   return (
     <>
@@ -233,7 +241,7 @@ function FeaturesPage() {
 
       <PageHero
         dir={dir}
-        image="hero-features"
+        image={heroImage}
         chip={p.chip}
         title={p.h1}
         lead={p.lead}
@@ -274,6 +282,9 @@ function FeaturesPage() {
       {GROUPS.map((group, i) => {
         const copy = p[group.key];
         const loginHref = group.id === "marinas" ? serviceLogins.marinas : "";
+        const images = group.images.map((fallback, idx) =>
+          image("features", cmsGroupImageKey(group.id, idx), fallback),
+        );
         return (
           <ServiceSection
             key={group.id}
@@ -288,7 +299,7 @@ function FeaturesPage() {
             loginHref={loginHref || undefined}
             loginLabel={p.loginCta}
             items={copy.items}
-            images={group.images}
+            images={images}
             tone={i % 2 === 0 ? "plain" : "mute"}
             flipImage={flipImage}
           />

@@ -1,26 +1,16 @@
-import {
-  Outlet,
-  Link,
-  createRootRoute,
-  useRouter,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
-
-import appCss from "../styles.css?url";
+import { HeadContent, Link, Outlet, createRootRoute, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AuthProvider } from "../lib/auth";
+import { PageContentProvider } from "../lib/page-content-context";
 import { SiteSettingsProvider } from "../lib/site-settings-context";
 import { LanguageProvider, useLang } from "../lib/i18n";
-import { ThemeProvider, THEME_BOOT_SCRIPT } from "../lib/theme";
+import { ThemeProvider } from "../lib/theme";
 import { ScrollToTop } from "../components/scroll-to-top";
 
 function NotFoundComponent() {
   const { t, lang } = useLang();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <title>{lang === "ar" ? "الصفحة غير موجودة | بوت برو" : "Page not found | BoatPro"}</title>
-      <meta name="robots" content="noindex, nofollow" />
       <div className="max-w-md text-center">
         <h1 className="font-display text-7xl text-gold">{lang === "ar" ? "٤٠٤" : "404"}</h1>
         <h2 className="mt-4 font-display text-xl text-foreground">{t.notFound.title}</h2>
@@ -39,7 +29,6 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
     console.error(error);
@@ -48,14 +37,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">
-          تعذّر تحميل الصفحة
-        </h1>
+        <h1 className="text-xl font-semibold text-foreground">تعذّر تحميل الصفحة</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           حدث خطأ غير متوقع. يمكنك المحاولة مرة أخرى أو العودة للرئيسية.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
+            type="button"
             onClick={() => {
               router.invalidate();
               reset();
@@ -76,6 +64,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+function AppShell() {
+  return (
+    <>
+      <HeadContent />
+      <ScrollToTop />
+      <Outlet />
+    </>
+  );
+}
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -87,52 +85,23 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-title", content: "BoatPro" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap",
-      },
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/logo.png" },
     ],
   }),
-  shellComponent: RootShell,
-  component: RootComponent,
+  component: () => (
+    <ThemeProvider>
+      <PageContentProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <SiteSettingsProvider>
+              <AppShell />
+            </SiteSettingsProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </PageContentProvider>
+    </ThemeProvider>
+  ),
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
-      </head>
-      <body className="bg-background text-foreground">
-        <ThemeProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <SiteSettingsProvider>{children}</SiteSettingsProvider>
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
-function RootComponent() {
-  return (
-    <>
-      <ScrollToTop />
-      <Outlet />
-    </>
-  );
-}

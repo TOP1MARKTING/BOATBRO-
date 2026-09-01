@@ -43,6 +43,7 @@ export function AdminProfilePanel({
     permissions.overview ? t.admin.overview : null,
     permissions.posts ? t.admin.posts : null,
     permissions.gallery ? t.admin.gallery : null,
+    permissions.content ? t.admin.content : null,
     permissions.contacts ? t.admin.contacts : null,
     permissions.users ? t.admin.users : null,
     permissions.settings ? t.admin.settings : null,

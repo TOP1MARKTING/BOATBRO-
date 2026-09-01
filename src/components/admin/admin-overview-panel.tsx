@@ -13,6 +13,8 @@ export function AdminOverviewPanel({
   t,
   lang,
   onOpen,
+  canAccessTab,
+  isSuperAdmin,
 }: {
   posts: BlogPost[];
   contacts: ContactRecord[];
@@ -20,7 +22,12 @@ export function AdminOverviewPanel({
   t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
   lang: "ar" | "en";
   onOpen: (tab: AdminTab) => void;
+  canAccessTab: (tab: AdminTab) => boolean;
+  isSuperAdmin: boolean;
 }) {
+  const showPosts = canAccessTab("posts");
+  const showContacts = canAccessTab("contacts");
+  const showUsers = isSuperAdmin;
   const newContacts = contacts.filter((c) => c.status === "new").length;
   const published = posts.filter((p) => p.published).length;
   const drafts = posts.filter((p) => !p.published).length;
@@ -41,34 +48,45 @@ export function AdminOverviewPanel({
     <div>
       <p className="mb-6 max-w-2xl text-sm leading-7 text-muted-foreground">{t.admin.body}</p>
 
-      {lowSeoPosts > 0 ? (
+      {showPosts && lowSeoPosts > 0 ? (
         <p className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
           {t.admin.seoAlert.replace("{count}", String(lowSeoPosts))}
         </p>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <AdminStatCard label={t.admin.postsCount} value={posts.length} onClick={() => onOpen("posts")} />
-        <AdminStatCard label={t.admin.publishedCount} value={published} onClick={() => onOpen("posts")} />
-        <AdminStatCard label={t.admin.draftsCount} value={drafts} onClick={() => onOpen("posts")} />
-        <AdminStatCard
-          label={t.admin.seoNeedsWork}
-          value={lowSeoPosts}
-          tone={lowSeoPosts ? "warn" : "default"}
-          onClick={() => onOpen("posts")}
-        />
-        <AdminStatCard
-          label={t.admin.contactsCount}
-          value={contacts.length}
-          hint={newContacts ? `${newContacts} ${t.admin.newCount}` : undefined}
-          onClick={() => onOpen("contacts")}
-        />
-        <AdminStatCard label={t.admin.newCount} value={newContacts} onClick={() => onOpen("contacts")} />
-        <AdminStatCard label={t.admin.usersCount} value={users.length} onClick={() => onOpen("users")} />
-        <AdminStatCard label={t.admin.featuredCount} value={featuredCount} onClick={() => onOpen("posts")} />
+        {showPosts ? (
+          <>
+            <AdminStatCard label={t.admin.postsCount} value={posts.length} onClick={() => onOpen("posts")} />
+            <AdminStatCard label={t.admin.publishedCount} value={published} onClick={() => onOpen("posts")} />
+            <AdminStatCard label={t.admin.draftsCount} value={drafts} onClick={() => onOpen("posts")} />
+            <AdminStatCard
+              label={t.admin.seoNeedsWork}
+              value={lowSeoPosts}
+              tone={lowSeoPosts ? "warn" : "default"}
+              onClick={() => onOpen("posts")}
+            />
+            <AdminStatCard label={t.admin.featuredCount} value={featuredCount} onClick={() => onOpen("posts")} />
+          </>
+        ) : null}
+        {showContacts ? (
+          <>
+            <AdminStatCard
+              label={t.admin.contactsCount}
+              value={contacts.length}
+              hint={newContacts ? `${newContacts} ${t.admin.newCount}` : undefined}
+              onClick={() => onOpen("contacts")}
+            />
+            <AdminStatCard label={t.admin.newCount} value={newContacts} onClick={() => onOpen("contacts")} />
+          </>
+        ) : null}
+        {showUsers ? (
+          <AdminStatCard label={t.admin.usersCount} value={users.length} onClick={() => onOpen("users")} />
+        ) : null}
       </div>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      <div className={`mt-8 grid gap-4 ${showPosts && showContacts ? "lg:grid-cols-2" : ""}`}>
+        {showContacts ? (
         <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-navy">{t.admin.contacts}</h3>
@@ -100,7 +118,9 @@ export function AdminOverviewPanel({
             </ul>
           )}
         </section>
+        ) : null}
 
+        {showPosts ? (
         <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-navy">{t.admin.posts}</h3>
@@ -132,6 +152,7 @@ export function AdminOverviewPanel({
             </ul>
           )}
         </section>
+        ) : null}
       </div>
     </div>
   );

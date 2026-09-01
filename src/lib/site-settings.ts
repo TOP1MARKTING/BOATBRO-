@@ -114,18 +114,37 @@ export function mapSiteSettings(data: Record<string, unknown> | null | undefined
   };
 }
 
+function phoneToTel(phone: string): string {
+  const trimmed = phone.trim();
+  if (!trimmed) return CONTACT.tel;
+  if (trimmed.startsWith("tel:")) return trimmed;
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return CONTACT.tel;
+  if (digits.startsWith("966")) return `tel:+${digits}`;
+  if (digits.startsWith("0")) return `tel:+966${digits.slice(1)}`;
+  return `tel:+${digits}`;
+}
+
 export function resolvedContact(settings: SiteSettings) {
-  const email = settings.contact.email || CONTACT.email;
-  const phone = settings.contact.phone || CONTACT.phoneDisplay;
-  const whatsapp = settings.contact.whatsapp || CONTACT.whatsapp;
-  const tel = phone === CONTACT.phoneDisplay ? CONTACT.tel : phone.startsWith("tel:") ? phone : CONTACT.tel;
+  const email = settings.contact.email.trim() || CONTACT.email;
+  const phone = settings.contact.phone.trim() || CONTACT.phoneDisplay;
+  const whatsapp = settings.contact.whatsapp.trim() || CONTACT.whatsapp;
   return {
     email,
     mailto: `mailto:${email}`,
     phoneDisplay: phone,
-    tel,
+    tel: phoneToTel(phone),
     whatsapp,
   };
+}
+
+/** E.164-style telephone string for JSON-LD from a display phone. */
+export function jsonLdTelephone(phoneDisplay: string): string {
+  const digits = phoneDisplay.replace(/\D/g, "");
+  if (!digits) return "+966502554747";
+  if (digits.startsWith("966")) return `+${digits}`;
+  if (digits.startsWith("0")) return `+966${digits.slice(1)}`;
+  return `+${digits}`;
 }
 
 export function activeSocialLinks(social: SocialLinks) {

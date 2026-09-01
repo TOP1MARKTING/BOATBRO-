@@ -8,14 +8,15 @@ import { PageHero } from "../../components/page-hero";
 import { listPublishedPosts, type BlogPost } from "../../lib/db";
 import { blocksPlainText, pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
+import { useCmsImage } from "../../lib/page-content-context";
 import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
+import { dictionaries } from "../../lib/copy";
 
 export const Route = createFileRoute("/blog/")({
   head: () =>
     pageHead({
-      title: "مدونة بوت برو | إدارة اليخوت والمراسي",
-      description:
-        "مقالات من بوت برو عن إدارة اليخوت، تشغيل المراسي، والملكية البحرية في المملكة والخليج.",
+      title: dictionaries.ar.blog.seoTitle,
+      description: dictionaries.ar.blog.seoDesc,
       path: "/blog",
     }),
   component: BlogPage,
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/blog/")({
 
 function BlogPage() {
   const { dir, lang, t } = useLang();
+  const heroImage = useCmsImage("blog", "hero", "hero-blog");
   const [posts, setPosts] = useState<BlogPost[] | null>(null);
 
   useEffect(() => {
@@ -57,7 +59,7 @@ function BlogPage() {
 
       <PageHero
         dir={dir}
-        image="hero-blog"
+        image={heroImage}
         chip={t.blog.chip}
         title={t.blog.title}
         lead={t.blog.body}

@@ -1,6 +1,6 @@
 export type StaffRole = "user" | "editor" | "moderator" | "admin";
 
-export type AdminTab = "overview" | "posts" | "gallery" | "contacts" | "users" | "settings" | "profile";
+export type AdminTab = "overview" | "posts" | "gallery" | "content" | "contacts" | "users" | "settings" | "profile";
 
 export type AdminPermissions = Record<AdminTab, boolean>;
 
@@ -8,6 +8,7 @@ export const ADMIN_TAB_ORDER: AdminTab[] = [
   "overview",
   "posts",
   "gallery",
+  "content",
   "contacts",
   "users",
   "settings",
@@ -21,6 +22,7 @@ export const EMPTY_PERMISSIONS: AdminPermissions = {
   overview: false,
   posts: false,
   gallery: false,
+  content: false,
   contacts: false,
   users: false,
   settings: false,
@@ -31,6 +33,7 @@ export const FULL_PERMISSIONS: AdminPermissions = {
   overview: true,
   posts: true,
   gallery: true,
+  content: true,
   contacts: true,
   users: true,
   settings: true,
@@ -40,7 +43,7 @@ export const FULL_PERMISSIONS: AdminPermissions = {
 /** Legacy presets — used when migrating old accounts without a permissions map. */
 const ROLE_PRESETS: Record<StaffRole, AdminPermissions> = {
   user: { ...EMPTY_PERMISSIONS },
-  editor: { ...EMPTY_PERMISSIONS, overview: true, posts: true, gallery: true, profile: true },
+  editor: { ...EMPTY_PERMISSIONS, overview: true, posts: true, gallery: true, content: true, profile: true },
   moderator: { ...EMPTY_PERMISSIONS, overview: true, contacts: true, profile: true },
   admin: { ...FULL_PERMISSIONS },
 };
@@ -67,6 +70,7 @@ export function parsePermissions(
       overview: readPermissionFlag(row.overview),
       posts: readPermissionFlag(row.posts),
       gallery: readPermissionFlag(row.gallery),
+      content: readPermissionFlag(row.content),
       contacts: readPermissionFlag(row.contacts),
       users: readPermissionFlag(row.users),
       settings: readPermissionFlag(row.settings),

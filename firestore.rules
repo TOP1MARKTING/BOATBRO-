@@ -54,7 +54,7 @@ service cloud.firestore {
             || (
               !('permissions' in userDoc())
               && (
-                (key == 'posts' || key == 'gallery') && (userDoc().adminRole == 'admin' || userDoc().adminRole == 'editor')
+                (key == 'posts' || key == 'gallery' || key == 'content') && (userDoc().adminRole == 'admin' || userDoc().adminRole == 'editor')
                 || key == 'contacts' && (userDoc().adminRole == 'admin' || userDoc().adminRole == 'moderator')
                 || key == 'overview' && userDoc().adminRole != 'user'
                 || key == 'users' && userDoc().adminRole == 'admin'
@@ -183,6 +183,16 @@ service cloud.firestore {
     match /gallery/{id} {
       allow read: if isStaff();
       allow create, update, delete: if canEditGallery();
+    }
+
+    function canEditContent() {
+      return hasPermission('content');
+    }
+
+    match /pageContent/{pageId} {
+      allow read: if true;
+      allow create, update: if canEditContent();
+      allow delete: if false;
     }
 
     match /siteSettings/{id} {

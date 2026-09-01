@@ -7,14 +7,16 @@ import { PageMeta } from "../components/page-meta";
 import { PageHero } from "../components/page-hero";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
-import { CONTACT, SITE_ORIGIN, pageHead } from "../lib/site";
+import { useCmsImage } from "../lib/page-content-context";
+import { useSiteSettings } from "../lib/site-settings-context";
+import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { dictionaries } from "../lib/copy";
 
 export const Route = createFileRoute("/contact")({
   head: () =>
     pageHead({
-      title: "تواصل مع بوت برو | شراكات ودعم",
-      description:
-        "راسل فريق بوت برو للشراكات أو الدعم: واتساب، بريد، ومكتب جدة. نموذج تواصل حسب نوعك كضيف أو مالك أو مرسى.",
+      title: dictionaries.ar.seo.contactTitle,
+      description: dictionaries.ar.seo.contactDesc,
       path: "/contact",
     }),
   component: ContactPage,
@@ -22,7 +24,9 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const { dir, t } = useLang();
+  const { contact } = useSiteSettings();
   const c = t.contact;
+  const heroImage = useCmsImage("contact", "hero", "hero-contact");
 
   return (
     <>
@@ -49,7 +53,7 @@ function ContactPage() {
 
       <PageHero
         dir={dir}
-        image="hero-contact"
+        image={heroImage}
         chip={c.chip}
         title={c.h1}
         lead={c.lead}
@@ -114,7 +118,7 @@ function ContactPage() {
             <p className="mt-4 text-base leading-8 text-muted-foreground">{c.body}</p>
           </div>
           <div className="mt-8 flex flex-wrap gap-3 lg:mt-0">
-            <Btn href={CONTACT.whatsapp} variant="gold">
+            <Btn href={contact.whatsapp} variant="gold">
               {t.cta.whatsapp} <CtaArrow />
             </Btn>
             <Btn to="/app" variant="line">

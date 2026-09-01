@@ -77,7 +77,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 
 type EditorLabels = ReturnType<typeof buildEditorLabels>;
 
-function buildEditorLabels(t: ReturnType<typeof import("../lib/i18n").useLang>["t"]) {
+function buildEditorLabels(t: ReturnType<typeof import("../../lib/i18n").useLang>["t"]) {
   return {
     slug: t.admin.slug,
     slugHint: t.admin.slugHint,
@@ -152,7 +152,7 @@ export function AdminPostEditor({
   busy: boolean;
   message: string;
   uid: string;
-  t: ReturnType<typeof import("../lib/i18n").useLang>["t"];
+  t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
   seoLabels: React.ComponentProps<typeof AdminPostSeo>["labels"];
 }) {
   const labels = useMemo(() => buildEditorLabels(t), [t]);

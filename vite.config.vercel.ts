@@ -1,0 +1,47 @@
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import { nitro } from "nitro/vite";
+import { defineConfig } from "vite";
+import tsConfigPaths from "vite-tsconfig-paths";
+
+export default defineConfig({
+  server: {
+    host: "::",
+    port: 55228,
+    strictPort: true,
+  },
+  resolve: {
+    alias: {
+      "@": `${process.cwd()}/src`,
+      "./api-transport.server-fn.stub.js": `${process.cwd()}/src/lib/api-transport.server-fn.ts`,
+      "./api-transport.server-fn.stub": `${process.cwd()}/src/lib/api-transport.server-fn.ts`,
+    },
+    dedupe: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "@tanstack/react-query",
+      "@tanstack/query-core",
+    ],
+  },
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+    ],
+  },
+  plugins: [
+    tailwindcss(),
+    tsConfigPaths({ projects: ["./tsconfig.json"] }),
+    tanstackStart({
+      server: { entry: "server" },
+    }),
+    viteReact(),
+    nitro(),
+  ],
+});

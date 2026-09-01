@@ -8,13 +8,13 @@ import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
 import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { dictionaries } from "../lib/copy";
 
 export const Route = createFileRoute("/app")({
   head: () =>
     pageHead({
-      title: "تطبيق بوت برو | تجربة الضيف ومالك اليخت",
-      description:
-        "تعرّف على تطبيق بوت برو: الرئيسية، العروض، التصنيفات، الحجز، والثقة — لقطات حقيقية من واجهة التطبيق على الآيفون والأندرويد.",
+      title: dictionaries.ar.seo.appTitle,
+      description: dictionaries.ar.seo.appDesc,
       path: "/app",
     }),
   component: AppPage,

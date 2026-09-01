@@ -114,17 +114,17 @@ export function AdminSettingsPanel({
         <AdminSection title={t.admin.contactSettings} hint={t.admin.contactSettingsHint}>
           <div className="grid gap-4 md:grid-cols-2">
             <SettingsField
-              label={t.admin.settingContact}
+              label="Email"
               value={form.contact.email}
               onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, email: value } }))}
             />
             <SettingsField
-              label={t.admin.settingWhatsApp}
+              label="Phone (display)"
               value={form.contact.phone}
               onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, phone: value } }))}
             />
             <SettingsField
-              label="WhatsApp URL"
+              label="WhatsApp link"
               value={form.contact.whatsapp}
               placeholder="https://wa.me/..."
               onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, whatsapp: value } }))}

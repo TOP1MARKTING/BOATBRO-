@@ -16,10 +16,8 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
-import { Route as ApiAdminSetUserPasswordRouteImport } from './routes/api/admin/set-user-password'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -56,11 +54,6 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -69,11 +62,6 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAdminSetUserPasswordRoute = ApiAdminSetUserPasswordRouteImport.update({
-  id: '/api/admin/set-user-password',
-  path: '/api/admin/set-user-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -85,10 +73,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
-  '/api/admin/set-user-password': typeof ApiAdminSetUserPasswordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -98,10 +84,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog': typeof BlogIndexRoute
-  '/api/admin/set-user-password': typeof ApiAdminSetUserPasswordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,10 +96,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
-  '/api/admin/set-user-password': typeof ApiAdminSetUserPasswordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,10 +109,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/features'
     | '/login'
-    | '/sitemap.xml'
     | '/blog/$slug'
     | '/blog/'
-    | '/api/admin/set-user-password'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,10 +120,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/features'
     | '/login'
-    | '/sitemap.xml'
     | '/blog/$slug'
     | '/blog'
-    | '/api/admin/set-user-password'
   id:
     | '__root__'
     | '/'
@@ -153,10 +131,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/features'
     | '/login'
-    | '/sitemap.xml'
     | '/blog/$slug'
     | '/blog/'
-    | '/api/admin/set-user-password'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,10 +143,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   FeaturesRoute: typeof FeaturesRoute
   LoginRoute: typeof LoginRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
-  ApiAdminSetUserPasswordRoute: typeof ApiAdminSetUserPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -224,13 +198,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -245,13 +212,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/admin/set-user-password': {
-      id: '/api/admin/set-user-password'
-      path: '/api/admin/set-user-password'
-      fullPath: '/api/admin/set-user-password'
-      preLoaderRoute: typeof ApiAdminSetUserPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -263,21 +223,9 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   FeaturesRoute: FeaturesRoute,
   LoginRoute: LoginRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
-  ApiAdminSetUserPasswordRoute: ApiAdminSetUserPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

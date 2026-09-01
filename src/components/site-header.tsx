@@ -1,9 +1,9 @@
-﻿import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, Phone, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLang } from "../lib/i18n";
 import { NAV } from "../lib/nav";
-import { CONTACT } from "../lib/site";
+import { useSiteSettings } from "../lib/site-settings-context";
 import { Logo, SHELL } from "./brand";
 import { LangToggle } from "./lang-toggle";
 import { ThemeToggle } from "./theme-toggle";
@@ -15,6 +15,7 @@ function isActive(pathname: string, to: string) {
 
 export function SiteHeader() {
   const { lang, t } = useLang();
+  const { contact } = useSiteSettings();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -73,7 +74,7 @@ export function SiteHeader() {
             <ThemeToggle />
             <LangToggle />
             <a
-              href={CONTACT.tel}
+              href={contact.tel}
               className="hidden rounded-full border border-gold/55 px-5 py-2.5 text-[13px] font-medium text-gold-ink transition-colors hover:bg-gold hover:text-white lg:inline-flex"
               aria-label={t.cta.callUs}
             >
@@ -137,7 +138,7 @@ export function SiteHeader() {
 
           <div className="flex flex-col gap-2.5 border-t border-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <a
-              href={CONTACT.tel}
+              href={contact.tel}
               onClick={() => setMenuOpen(false)}
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-gold text-sm font-medium text-white hover:bg-gold/85"
             >
