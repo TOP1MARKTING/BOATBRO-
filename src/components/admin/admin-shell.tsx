@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import {
+  Anchor,
+  Crown,
   ExternalLink,
   FileText,
   ImageIcon,
@@ -9,6 +11,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  Sparkles,
   UserCircle,
   Users,
   X,
@@ -67,16 +70,23 @@ export function AdminShell({
   children: ReactNode;
 }) {
   const sidebar = (
-    <aside className="flex h-full w-[260px] flex-col bg-[#0b1220] text-white">
-      <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
+    <aside className="relative flex h-full w-[272px] flex-col overflow-hidden bg-[linear-gradient(180deg,#0a1628_0%,#0d1b33_55%,#111c30_100%)] text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(200,169,106,0.12),transparent_55%)]"
+      />
+      <div className="relative flex items-center gap-3 border-b border-[#C8A96A]/20 px-5 py-5">
         <Logo size="sm" />
         <div className="min-w-0">
-          <p className="font-display text-[15px] font-semibold tracking-wide">BoatPro</p>
-          <p className="text-[11px] text-white/55">{chipLabel}</p>
+          <p className="font-display text-[15px] font-semibold tracking-[0.12em]">BoatPro</p>
+          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#C8A96A]/85">
+            <Anchor size={11} strokeWidth={1.75} />
+            {chipLabel}
+          </p>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="relative min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3">
         {navItems.map(({ id, icon: Icon }) => {
           const active = tab === id;
           const badge = id === "contacts" ? contactBadge : 0;
@@ -85,16 +95,24 @@ export function AdminShell({
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`relative flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-start text-[13px] font-medium transition-colors ${
+              className={`relative flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-start text-[13px] font-medium transition-all ${
                 active
-                  ? "border-s-[3px] border-s-[#C8A96A] bg-white/10 text-white"
-                  : "border-s-[3px] border-s-transparent text-white/65 hover:bg-white/6 hover:text-white"
+                  ? "border border-[#C8A96A]/35 bg-[linear-gradient(135deg,rgba(200,169,106,0.22),rgba(200,169,106,0.08))] text-white shadow-[0_10px_24px_-16px_rgba(200,169,106,0.55)]"
+                  : "border border-transparent text-white/60 hover:border-white/10 hover:bg-white/[0.05] hover:text-white"
               }`}
             >
-              <Icon size={18} className={active ? "text-[#C8A96A]" : "text-white/45"} />
+              <span
+                className={`inline-flex size-8 items-center justify-center rounded-xl ${
+                  active
+                    ? "bg-[#C8A96A]/20 text-[#E6D3A3]"
+                    : "bg-white/[0.04] text-white/45"
+                }`}
+              >
+                <Icon size={16} strokeWidth={1.75} />
+              </span>
               <span className="flex-1">{tabLabels[id]}</span>
               {badge > 0 ? (
-                <span className="rounded-full bg-[#C8A96A] px-2 py-0.5 text-[11px] font-semibold text-[#0b1220]">
+                <span className="rounded-full bg-[#C8A96A] px-2 py-0.5 text-[11px] font-semibold text-[#0a1628]">
                   {badge}
                 </span>
               ) : null}
@@ -103,20 +121,20 @@ export function AdminShell({
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-3">
+      <div className="relative shrink-0 border-t border-[#C8A96A]/15 p-3">
         <Link
           to="/"
-          className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[13px] text-white/65 transition-colors hover:bg-white/6 hover:text-white"
+          className="flex items-center gap-3 rounded-2xl px-3.5 py-3 text-[13px] text-white/60 transition-colors hover:bg-white/[0.05] hover:text-[#E6D3A3]"
         >
-          <ExternalLink size={18} className="text-white/45" />
+          <ExternalLink size={16} strokeWidth={1.75} className="text-[#C8A96A]/70" />
           {siteLabel}
         </Link>
         <button
           type="button"
           onClick={onLogout}
-          className="mt-1 flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-start text-[13px] text-white/65 transition-colors hover:bg-white/6 hover:text-white"
+          className="mt-1 flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-3 text-start text-[13px] font-medium text-white/85 transition-colors hover:border-rose-400/35 hover:bg-rose-500/10 hover:text-rose-200"
         >
-          <LogOut size={18} className="text-white/45" />
+          <LogOut size={16} strokeWidth={1.75} className="text-rose-300/80" />
           {logoutLabel}
         </button>
       </div>
@@ -132,7 +150,7 @@ export function AdminShell({
           <div className="fixed inset-0 z-50 lg:hidden">
             <button
               type="button"
-              className="absolute inset-0 bg-black/45"
+              className="absolute inset-0 bg-black/55 backdrop-blur-sm"
               aria-label="Close"
               onClick={() => setSidebarOpen(false)}
             />
@@ -141,7 +159,7 @@ export function AdminShell({
         ) : null}
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-md">
+          <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
             <div className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
               <div className="flex min-w-0 items-center gap-3">
                 <button
@@ -152,9 +170,15 @@ export function AdminShell({
                 >
                   {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
                 </button>
-                <h1 className="truncate font-display text-lg font-semibold text-navy sm:text-xl">
-                  {tabLabels[tab]}
-                </h1>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#A8894E] uppercase">
+                    <Sparkles size={11} strokeWidth={1.75} />
+                    BoatPro
+                  </p>
+                  <h1 className="truncate font-display text-lg font-semibold tracking-tight text-navy sm:text-xl">
+                    {tabLabels[tab]}
+                  </h1>
+                </div>
               </div>
               <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                 <ThemeToggle />
@@ -162,16 +186,21 @@ export function AdminShell({
                 <button
                   type="button"
                   onClick={() => setTab("profile")}
-                  className="hidden items-center gap-2 rounded-full border border-border bg-surface-2 py-1.5 pe-3.5 ps-1.5 sm:flex"
+                  className="hidden items-center gap-2 rounded-full border border-[#C8A96A]/25 bg-card py-1.5 pe-3.5 ps-1.5 shadow-sm sm:flex"
                 >
-                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-navy-deep text-[11px] font-semibold text-white">
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-navy-deep text-[11px] font-semibold text-[#E6D3A3]">
                     {(userEmail?.[0] ?? "A").toUpperCase()}
                   </span>
                   <div className="min-w-0 max-w-[180px] text-start">
                     <p className="truncate text-[12px] font-medium text-navy" dir="ltr">
                       {userEmail}
                     </p>
-                    {isSuperAdmin ? <p className="text-[10px] text-gold-ink">{superAdminLabel}</p> : null}
+                    {isSuperAdmin ? (
+                      <p className="flex items-center gap-1 text-[10px] text-[#A8894E]">
+                        <Crown size={10} strokeWidth={1.75} />
+                        {superAdminLabel}
+                      </p>
+                    ) : null}
                   </div>
                 </button>
               </div>

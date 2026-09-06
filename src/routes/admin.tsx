@@ -1,5 +1,4 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
-import { Shield } from "lucide-react";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AdminContactsPanel } from "../components/admin/admin-contacts-panel";
 import { AdminContentPanel } from "../components/admin/admin-content-panel";
@@ -31,6 +30,7 @@ export const Route = createFileRoute("/admin")({
 
 function AdminPage() {
   const { dir, lang, t } = useLang();
+  const navigate = useNavigate();
   const {
     user,
     ready,
@@ -59,7 +59,7 @@ function AdminPage() {
       const [p, c, u] = await Promise.all([
         canAccessTab("posts") || canAccessTab("overview") ? listAllPosts() : Promise.resolve([]),
         canAccessTab("contacts") ? listContacts() : Promise.resolve([]),
-        isSuperAdmin ? listUsers() : Promise.resolve([]),
+        isSuperAdmin || canAccessTab("users") ? listUsers() : Promise.resolve([]),
       ]);
       setPosts(p);
       setContacts(c);
@@ -85,17 +85,28 @@ function AdminPage() {
 
   useEffect(() => {
     if (!ready || !isAdmin) return;
-    if (tab === "users" && !isSuperAdmin) setTab(defaultAdminTab);
-    else if (!canAccessTab(tab)) setTab(defaultAdminTab);
-  }, [ready, isAdmin, tab, canAccessTab, defaultAdminTab, isSuperAdmin]);
+    if (!canAccessTab(tab)) setTab(defaultAdminTab);
+  }, [ready, isAdmin, tab, canAccessTab, defaultAdminTab]);
 
   useEffect(() => {
     setSidebarOpen(false);
   }, [tab]);
 
+  useEffect(() => {
+    if (!ready) return;
+    if (!user || !isAdmin) {
+      void navigate({ to: "/", replace: true });
+    }
+  }, [ready, user, isAdmin, navigate]);
+
+  const onLogout = async () => {
+    await logout();
+    await navigate({ to: "/", replace: true });
+  };
+
   const navItems = useMemo(
-    () => ADMIN_NAV_ITEMS.filter((item) => (item.id === "users" ? isSuperAdmin : canAccessTab(item.id))),
-    [canAccessTab, isSuperAdmin],
+    () => ADMIN_NAV_ITEMS.filter((item) => canAccessTab(item.id)),
+    [canAccessTab],
   );
 
   const tabLabels: Record<AdminTab, string> = {
@@ -109,35 +120,12 @@ function AdminPage() {
     profile: t.admin.profile,
   };
 
-  if (!ready) {
+  if (!ready || !user || !isAdmin) {
     return (
-      <main dir={dir} className="grid min-h-svh place-items-center bg-surface-2">
+      <main dir={dir} className="grid min-h-svh place-items-center bg-background">
         <div className="text-center">
-          <div className="mx-auto size-10 animate-pulse rounded-full bg-navy/10" />
+          <div className="mx-auto size-12 animate-pulse rounded-full border border-[#C8A96A]/40 bg-[#C8A96A]/15" />
           <p className="mt-4 text-sm text-muted-foreground">{t.admin.loading}</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return (
-      <main dir={dir} className="grid min-h-svh place-items-center bg-surface-2 px-6">
-        <PageMeta title={`${t.admin.denied} | BoatPro`} />
-        <div className="w-full max-w-md rounded-[1.75rem] border border-border bg-card p-8 text-center shadow-sm">
-          <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-navy/5 text-navy">
-            <Shield size={22} />
-          </span>
-          <p className="mt-5 text-[12px] font-medium tracking-[0.18em] text-gold-ink">{t.admin.chip}</p>
-          <h1 className="mt-3 font-display text-3xl font-semibold text-navy">{t.admin.denied}</h1>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">{t.admin.deniedBody}</p>
-          <Link
-            to="/login"
-            search={{ to: "admin" }}
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-gold px-7 text-sm font-medium text-white hover:bg-gold/90"
-          >
-            {t.admin.login}
-          </Link>
         </div>
       </main>
     );
@@ -161,7 +149,7 @@ function AdminPage() {
         logoutLabel={t.auth.logout}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
-        onLogout={() => void logout()}
+        onLogout={() => void onLogout()}
       >
         {error ? (
           <p className="mb-6 rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -197,8 +185,16 @@ function AdminPage() {
         {!loading && tab === "contacts" && canAccessTab("contacts") ? (
           <AdminContactsPanel contacts={contacts} onChange={load} t={t} lang={lang} />
         ) : null}
-        {!loading && tab === "users" && isSuperAdmin ? (
-          <AdminUsersPanel users={users} currentUid={user.uid} isSuperAdmin={isSuperAdmin} onChange={load} t={t} lang={lang} />
+        {!loading && tab === "users" && canAccessTab("users") ? (
+          <AdminUsersPanel
+            users={users}
+            currentUid={user.uid}
+            isSuperAdmin={isSuperAdmin}
+            canManageUsersAccess={canAccessTab("users")}
+            onChange={load}
+            t={t}
+            lang={lang}
+          />
         ) : null}
         {tab === "settings" && canAccessTab("settings") ? (
           <AdminSettingsPanel t={t} onSaved={() => void refreshSiteSettings()} />

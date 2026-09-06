@@ -8,7 +8,7 @@ import {
   type GalleryImage,
 } from "../../lib/db";
 import type { LocalizedText } from "../../lib/post-content";
-import { ADMIN_FIELD_CLS, AdminPanelShell } from "./shared";
+import { ADMIN_BTN_GHOST, ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY, ADMIN_CARD_CLS, ADMIN_FIELD_CLS, AdminEmptyState, AdminFlash, AdminPanelShell } from "./shared";
 
 function BilingualMini({
   label,
@@ -121,7 +121,7 @@ export function AdminGalleryPanel({
         <div>
           <p className="text-sm text-muted-foreground">{t.admin.galleryHint}</p>
         </div>
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-[13px] font-medium text-white hover:bg-gold/90">
+        <label className={`${ADMIN_BTN_PRIMARY} cursor-pointer`}>
           <Upload size={16} />
           {uploading ? t.admin.galleryUploading : t.admin.galleryUpload}
           <input
@@ -135,25 +135,17 @@ export function AdminGalleryPanel({
         </label>
       </div>
 
-      {error ? (
-        <p className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
-      {message ? (
-        <p className="rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-gold-ink">{message}</p>
-      ) : null}
+      {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
+      {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
 
       {loading ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-2xl bg-muted" />
+            <div key={i} className="aspect-square animate-pulse rounded-[1.35rem] bg-muted" />
           ))}
         </div>
       ) : images.length === 0 ? (
-        <p className="rounded-2xl border border-border bg-card px-8 py-16 text-center text-sm text-muted-foreground">
-          {t.admin.galleryEmpty}
-        </p>
+        <AdminEmptyState message={t.admin.galleryEmpty} />
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {images.map((image) => (
@@ -190,7 +182,7 @@ function GalleryCard({
   const dirty = alt.ar !== image.alt.ar || alt.en !== image.alt.en || caption.ar !== image.caption.ar || caption.en !== image.caption.en;
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <article className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
       <div className="aspect-[4/3] overflow-hidden bg-muted">
         <img src={image.url} alt={alt.ar || alt.en || image.name} className="h-full w-full object-cover" />
       </div>
@@ -199,28 +191,16 @@ function GalleryCard({
         <BilingualMini label={t.admin.imageAlt} value={alt} onChange={setAlt} />
         <BilingualMini label={t.admin.imageCaption} value={caption} onChange={setCaption} />
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onCopy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-[12px] hover:border-gold"
-          >
+          <button type="button" onClick={onCopy} className={ADMIN_BTN_SECONDARY}>
             <Copy size={14} />
             {t.admin.galleryCopyUrl}
           </button>
           {dirty ? (
-            <button
-              type="button"
-              onClick={() => onSaveMeta(alt, caption)}
-              className="rounded-full bg-navy-deep px-3 py-1.5 text-[12px] text-white"
-            >
+            <button type="button" onClick={() => onSaveMeta(alt, caption)} className={ADMIN_BTN_PRIMARY}>
               {t.admin.save}
             </button>
           ) : null}
-          <button
-            type="button"
-            onClick={onDelete}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] text-destructive hover:bg-destructive/10"
-          >
+          <button type="button" onClick={onDelete} className={ADMIN_BTN_GHOST}>
             <Trash2 size={14} />
             {t.admin.delete}
           </button>

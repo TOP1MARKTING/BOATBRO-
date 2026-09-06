@@ -11,14 +11,27 @@ import {
 import {
   EMPTY_PERMISSIONS,
   ADMIN_TAB_ORDER,
+  assignableTabsFor,
   canEditUserAccess,
-  canManageUsers,
+  sanitizeAssignablePermissions,
   type AdminPermissions,
   type AdminTab,
 } from "../../lib/admin-permissions";
 import { isSuperAdminEmail } from "../../lib/admin";
 import { mapAuthError } from "../../lib/auth";
-import { ADMIN_FIELD_CLS, AdminPanelShell, AdminSection } from "./shared";
+import {
+  ADMIN_BADGE_ACTIVE,
+  ADMIN_BADGE_MUTED,
+  ADMIN_BTN_GHOST,
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_CARD_CLS,
+  ADMIN_FIELD_CLS,
+  AdminEmptyState,
+  AdminFlash,
+  AdminPanelShell,
+  AdminSection,
+} from "./shared";
 import { AdminPermissionsPicker } from "./admin-permissions-picker";
 
 function permissionLabels(t: ReturnType<typeof import("../../lib/i18n").useLang>["t"]): Record<AdminTab, string> {
@@ -45,8 +58,9 @@ function UserAccessCard({
   superAdmin,
   editable,
   isEditing,
-  isSuperAdmin,
-  currentUid,
+  canDelete,
+  assignableTabs,
+  showPasswordTools,
   busy,
   t,
   onEdit,
@@ -66,8 +80,9 @@ function UserAccessCard({
   superAdmin: boolean;
   editable: boolean;
   isEditing: boolean;
-  isSuperAdmin: boolean;
-  currentUid: string;
+  canDelete: boolean;
+  assignableTabs: readonly AdminTab[];
+  showPasswordTools: boolean;
   busy: boolean;
   t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
   onEdit: () => void;
@@ -85,15 +100,14 @@ function UserAccessCard({
   const initial = (user.name || user.email || "?").trim().charAt(0).toUpperCase();
   const activePerms = ADMIN_TAB_ORDER.filter((tab) => user.permissions[tab]).map((tab) => labels[tab]);
   const passwordValue = storedPassword || t.admin.passwordUnknown;
-  const canDelete = isSuperAdmin && !superAdmin && user.id !== currentUid;
 
   const statusCls = !user.active
     ? "bg-destructive/10 text-destructive"
     : superAdmin
       ? "bg-navy-deep text-white"
       : user.role === "admin"
-        ? "bg-gold/15 text-gold-ink"
-        : "bg-navy/5 text-muted-foreground";
+        ? ADMIN_BADGE_ACTIVE
+        : ADMIN_BADGE_MUTED;
 
   const statusLabel = !user.active
     ? t.admin.inactiveAccount
@@ -102,10 +116,10 @@ function UserAccessCard({
       : t.admin.roleStaff;
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_12px_40px_-28px_rgba(15,40,70,0.35)]">
+    <article className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
       <div className="grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="flex min-w-0 items-start gap-4">
-          <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-navy/8 text-[15px] font-semibold text-navy">
+          <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl border border-[#C8A96A]/30 bg-[#C8A96A]/10 text-[15px] font-semibold text-[#A8894E]">
             {initial}
           </span>
           <div className="min-w-0 flex-1">
@@ -123,14 +137,14 @@ function UserAccessCard({
 
             {!superAdmin && activePerms.length > 0 ? (
               <div className="mt-3">
-                <p className="mb-2 text-[11px] font-semibold tracking-[0.12em] text-gold-ink uppercase">
+                <p className="mb-2 text-[11px] font-semibold tracking-[0.12em] text-[#A8894E] uppercase">
                   {t.admin.permissionsLabel}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {activePerms.map((item) => (
                     <span
                       key={item}
-                      className="inline-flex rounded-full border border-gold/25 bg-gold/5 px-2.5 py-1 text-[11px] font-medium text-gold-ink"
+                      className="inline-flex rounded-full border border-[#C8A96A]/25 bg-[#C8A96A]/5 px-2.5 py-1 text-[11px] font-medium text-[#A8894E]"
                     >
                       {item}
                     </span>
@@ -141,8 +155,8 @@ function UserAccessCard({
               <p className="mt-2 text-[12px] text-muted-foreground">{t.admin.superAdmin}</p>
             ) : null}
 
-            {!superAdmin ? (
-              <div className="mt-4 rounded-xl border border-border bg-surface-2/60 px-3 py-2.5">
+            {!superAdmin && showPasswordTools ? (
+              <div className="mt-4 rounded-xl border border-[#C8A96A]/18 bg-surface-2/60 px-3 py-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
                     {t.auth.password}
@@ -151,7 +165,7 @@ function UserAccessCard({
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-gold-ink hover:underline"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#A8894E] hover:underline"
                     >
                       {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
                       {showPassword ? t.admin.hidePassword : t.admin.showPassword}
@@ -171,17 +185,13 @@ function UserAccessCard({
             <button
               type="button"
               onClick={() => (isEditing ? onCancelEdit() : onEdit())}
-              className="rounded-full border border-border bg-card px-4 py-2 text-[12px] font-medium text-navy transition-colors hover:border-gold/40"
+              className={ADMIN_BTN_SECONDARY}
             >
               {isEditing ? t.admin.cancel : t.admin.editAccess}
             </button>
           ) : null}
           {canDelete ? (
-            <button
-              type="button"
-              onClick={onDelete}
-              className="inline-flex items-center gap-1.5 rounded-full border border-destructive/20 bg-destructive/5 px-4 py-2 text-[12px] font-medium text-destructive transition-colors hover:bg-destructive/10"
-            >
+            <button type="button" onClick={onDelete} className={ADMIN_BTN_GHOST}>
               <Trash2 size={13} />
               {t.admin.delete}
             </button>
@@ -196,56 +206,50 @@ function UserAccessCard({
             onChange={setEditPermissions}
             labels={labels}
             hint={t.admin.permissionsPickerHint}
+            tabs={assignableTabs}
           />
 
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label>
-              <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.currentPassword}</span>
-              <input
-                readOnly
-                dir="ltr"
-                className={`${ADMIN_FIELD_CLS} bg-muted/50 font-mono`}
-                value={storedPassword || t.admin.passwordUnknown}
-              />
-            </label>
-            <label>
-              <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.newPassword}</span>
-              <input
-                type="text"
-                dir="ltr"
-                minLength={6}
-                autoComplete="new-password"
-                placeholder={t.admin.newPasswordHint}
-                className={`${ADMIN_FIELD_CLS} font-mono`}
-                value={editPassword}
-                onChange={(e) => setEditPassword(e.target.value)}
-              />
-            </label>
-          </div>
+          {showPasswordTools ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label>
+                <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.currentPassword}</span>
+                <input
+                  readOnly
+                  dir="ltr"
+                  className={`${ADMIN_FIELD_CLS} bg-muted/50 font-mono`}
+                  value={storedPassword || t.admin.passwordUnknown}
+                />
+              </label>
+              <label>
+                <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.newPassword}</span>
+                <input
+                  type="text"
+                  dir="ltr"
+                  minLength={6}
+                  autoComplete="new-password"
+                  placeholder={t.admin.newPasswordHint}
+                  className={`${ADMIN_FIELD_CLS} font-mono`}
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                />
+              </label>
+            </div>
+          ) : null}
 
-          <label className="mt-5 inline-flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-[13px]">
+          <label className="mt-5 inline-flex cursor-pointer items-center gap-3 rounded-xl border border-[#C8A96A]/25 bg-card px-4 py-3 text-[13px]">
             <input
               type="checkbox"
-              className="size-4 rounded border-border accent-gold"
+              className="size-4 rounded border-border accent-[#C8A96A]"
               checked={editActive}
               onChange={(e) => setEditActive(e.target.checked)}
             />
             <span className="font-medium text-navy">{t.admin.activeAccount}</span>
           </label>
           <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={onSave}
-              className="rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
+            <button type="button" disabled={busy} onClick={onSave} className={ADMIN_BTN_PRIMARY}>
               {busy ? t.admin.loading : t.admin.save}
             </button>
-            <button
-              type="button"
-              onClick={onCancelEdit}
-              className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-navy"
-            >
+            <button type="button" onClick={onCancelEdit} className={ADMIN_BTN_SECONDARY}>
               {t.admin.cancel}
             </button>
           </div>
@@ -259,6 +263,7 @@ export function AdminUsersPanel({
   users,
   currentUid,
   isSuperAdmin,
+  canManageUsersAccess,
   onChange,
   t,
   lang,
@@ -266,11 +271,17 @@ export function AdminUsersPanel({
   users: UserRecord[];
   currentUid: string;
   isSuperAdmin: boolean;
+  canManageUsersAccess: boolean;
   onChange: () => Promise<void>;
   t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
   lang: "ar" | "en";
 }) {
   const labels = useMemo(() => permissionLabels(t), [t]);
+  const assignableTabs = useMemo(() => assignableTabsFor(isSuperAdmin), [isSuperAdmin]);
+  const visibleUsers = useMemo(
+    () => (isSuperAdmin ? users : users.filter((u) => !isSuperAdminEmail(u.email))),
+    [users, isSuperAdmin],
+  );
   const [credentials, setCredentials] = useState<Record<string, string>>({});
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -284,10 +295,10 @@ export function AdminUsersPanel({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const canManage = canManageUsers(isSuperAdmin);
+  const canManage = canManageUsersAccess;
 
   const loadCredentials = async () => {
-    if (!canManage) return;
+    if (!isSuperAdmin) return;
     try {
       setCredentials(await listUserCredentials());
     } catch {
@@ -297,11 +308,11 @@ export function AdminUsersPanel({
 
   useEffect(() => {
     void loadCredentials();
-  }, [canManage]);
+  }, [isSuperAdmin]);
 
   const startEdit = (user: UserRecord) => {
     setEditingId(user.id);
-    setEditPermissions({ ...user.permissions });
+    setEditPermissions(sanitizeAssignablePermissions({ ...user.permissions }, isSuperAdmin));
     setEditActive(user.active);
     setEditPassword("");
     setError("");
@@ -334,7 +345,7 @@ export function AdminUsersPanel({
         name: newName,
         email,
         password: newPassword,
-        permissions: newPermissions,
+        permissions: sanitizeAssignablePermissions(newPermissions, isSuperAdmin),
         active: newActive,
       });
       setNewName("");
@@ -366,7 +377,10 @@ export function AdminUsersPanel({
   };
 
   const onSaveAccess = async (user: UserRecord) => {
-    if (!canEditUserAccess(isSuperAdmin, user.email, isSuperAdminEmail(user.email), user.id === currentUid)) {
+    if (!canEditUserAccess(canManage, isSuperAdminEmail(user.email), user.id === currentUid, {
+      isSuperAdmin,
+      targetPermissions: user.permissions,
+    })) {
       return;
     }
     setBusy(true);
@@ -374,10 +388,14 @@ export function AdminUsersPanel({
     setMessage("");
     try {
       await setUserAccess(user.id, {
-        permissions: editPermissions,
+        permissions: sanitizeAssignablePermissions(editPermissions, isSuperAdmin),
         active: editActive,
       });
       if (editPassword.trim()) {
+        if (!isSuperAdmin) {
+          setError(t.admin.passwordServerOff);
+          return;
+        }
         await resetStaffUserPassword(user.id, editPassword.trim());
       }
       setEditingId(null);
@@ -393,7 +411,13 @@ export function AdminUsersPanel({
   };
 
   const onDeleteUser = async (user: UserRecord) => {
-    if (!isSuperAdmin || isSuperAdminEmail(user.email) || user.id === currentUid) return;
+    if (!canManage || isSuperAdminEmail(user.email) || user.id === currentUid) return;
+    if (
+      !isSuperAdmin &&
+      (user.permissions.users || user.permissions.settings)
+    ) {
+      return;
+    }
     if (!confirm(t.admin.confirmDeleteUser)) return;
     try {
       await deleteUserProfile(user.id);
@@ -408,7 +432,7 @@ export function AdminUsersPanel({
   if (!canManage) {
     return (
       <AdminPanelShell title={t.admin.users} hideTitle>
-        <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">{t.admin.roleDenied}</p>
+        <p className={`${ADMIN_CARD_CLS} px-4 py-3 text-sm text-muted-foreground`}>{t.admin.roleDenied}</p>
       </AdminPanelShell>
     );
   }
@@ -420,7 +444,7 @@ export function AdminUsersPanel({
           <p className="text-[13px] leading-7 text-muted-foreground">{t.admin.permissionsGuide}</p>
         </AdminSection>
 
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <section className={`${ADMIN_CARD_CLS} p-5 sm:p-6`}>
           <h3 className="font-display text-lg font-semibold text-navy">{t.admin.addUser}</h3>
           <p className="mt-1 text-[12px] leading-6 text-muted-foreground">{t.admin.addUserHint}</p>
           <form onSubmit={(e) => void onCreateUser(e)} className="mt-5 space-y-5">
@@ -455,43 +479,53 @@ export function AdminUsersPanel({
                 onChange={setNewPermissions}
                 labels={labels}
                 hint={t.admin.permissionsPickerHint}
+                tabs={assignableTabs}
               />
             </div>
 
-            <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface-2/60 px-4 py-3 text-[13px]">
+            <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-[#C8A96A]/25 bg-surface-2/60 px-4 py-3 text-[13px]">
               <input
                 type="checkbox"
-                className="size-4 rounded border-border accent-gold"
+                className="size-4 rounded border-border accent-[#C8A96A]"
                 checked={newActive}
                 onChange={(e) => setNewActive(e.target.checked)}
               />
               <span className="font-medium text-navy">{t.admin.activeAccount}</span>
             </label>
 
-            <button type="submit" disabled={busy} className="rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60">
+            <button type="submit" disabled={busy} className={ADMIN_BTN_PRIMARY}>
               {busy ? t.admin.loading : t.admin.createUser}
             </button>
           </form>
         </section>
 
-        {error ? <p className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p> : null}
-        {message ? <p className="rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-gold-ink">{message}</p> : null}
+        {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
+        {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
 
         <div className="space-y-4">
-          {users.length === 0 ? (
-            <p className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">{t.admin.noUsers}</p>
+          {visibleUsers.length === 0 ? (
+            <AdminEmptyState message={t.admin.noUsers} />
           ) : (
-            users.map((u) => (
+            visibleUsers.map((u) => (
               <UserAccessCard
                 key={u.id}
                 user={u}
                 labels={labels}
-                storedPassword={credentials[u.id]}
+                {...(credentials[u.id] ? { storedPassword: credentials[u.id] } : {})}
                 superAdmin={isSuperAdminEmail(u.email)}
-                editable={canEditUserAccess(isSuperAdmin, u.email, isSuperAdminEmail(u.email), u.id === currentUid)}
+                editable={canEditUserAccess(canManage, isSuperAdminEmail(u.email), u.id === currentUid, {
+                  isSuperAdmin,
+                  targetPermissions: u.permissions,
+                })}
                 isEditing={editingId === u.id}
-                isSuperAdmin={isSuperAdmin}
-                currentUid={currentUid}
+                canDelete={
+                  canManage &&
+                  !isSuperAdminEmail(u.email) &&
+                  u.id !== currentUid &&
+                  (isSuperAdmin || !(u.permissions.users || u.permissions.settings))
+                }
+                assignableTabs={assignableTabs}
+                showPasswordTools={isSuperAdmin}
                 busy={busy}
                 t={t}
                 onEdit={() => startEdit(u)}

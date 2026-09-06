@@ -1,6 +1,16 @@
 import { useMemo, useState } from "react";
 import { deleteContact, setContactStatus, type ContactRecord } from "../../lib/db";
-import { ADMIN_FIELD_CLS, AdminFilterBar, AdminPanelShell } from "./shared";
+import {
+  ADMIN_BADGE_ACTIVE,
+  ADMIN_BADGE_MUTED,
+  ADMIN_BTN_GHOST,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_CARD_CLS,
+  ADMIN_FIELD_CLS,
+  AdminEmptyState,
+  AdminFilterBar,
+  AdminPanelShell,
+} from "./shared";
 
 type StatusFilter = "all" | "new" | "handled";
 
@@ -56,23 +66,15 @@ export function AdminContactsPanel({
       </AdminFilterBar>
 
       <div className="space-y-4">
-        {filtered.length === 0 ? (
-          <p className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">
-            {t.admin.noContacts}
-          </p>
-        ) : null}
+        {filtered.length === 0 ? <AdminEmptyState message={t.admin.noContacts} /> : null}
         {filtered.map((item) => (
-          <article key={item.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <article key={item.id} className={`${ADMIN_CARD_CLS} p-5 sm:p-6`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="font-display text-xl font-semibold text-navy">{item.name}</p>
-                <p className="mt-1 text-[12px] font-medium text-gold-ink">{item.userType}</p>
+                <p className="mt-1 text-[12px] font-medium text-[#A8894E]">{item.userType}</p>
               </div>
-              <span
-                className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                  item.status === "new" ? "bg-gold/15 text-gold-ink" : "bg-navy/5 text-muted-foreground"
-                }`}
-              >
+              <span className={item.status === "new" ? ADMIN_BADGE_ACTIVE : ADMIN_BADGE_MUTED}>
                 {item.status === "new" ? t.admin.newCount : t.admin.handled}
               </span>
             </div>
@@ -88,7 +90,7 @@ export function AdminContactsPanel({
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 type="button"
-                className="rounded-full border border-gold/50 px-4 py-2 text-[12px] font-medium text-gold-ink hover:bg-gold hover:text-white"
+                className={ADMIN_BTN_SECONDARY}
                 onClick={() =>
                   void setContactStatus(item.id, item.status === "new" ? "handled" : "new").then(onChange)
                 }
@@ -97,7 +99,7 @@ export function AdminContactsPanel({
               </button>
               <button
                 type="button"
-                className="text-[12px] text-destructive"
+                className={ADMIN_BTN_GHOST}
                 onClick={() => {
                   if (confirm(t.admin.confirmDelete)) void deleteContact(item.id).then(onChange);
                 }}

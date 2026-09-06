@@ -13,7 +13,13 @@ import {
 } from "../../lib/page-content";
 import { usePageContent } from "../../lib/page-content-context";
 import { SchemaContentEditor } from "./schema-content-editor";
-import { AdminPanelShell } from "./shared";
+import {
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_CARD_CLS,
+  AdminFlash,
+  AdminPanelShell,
+} from "./shared";
 
 function cloneEditorState(doc: CmsPageDocument) {
   return {
@@ -68,9 +74,13 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
     setError("");
     void getPageContent(selected)
       .then(applyDoc)
-      .catch(() => setError(t.admin.error))
+      .catch((err) => {
+        if (import.meta.env.DEV) console.error("[content-panel:load]", err);
+        const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+        setError(code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error);
+      })
       .finally(() => setRefreshing(false));
-  }, [selected, applyDoc, t.admin.error]);
+  }, [selected, applyDoc, t.admin.error, t.cta.firestoreDenied]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -82,8 +92,10 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
       await savePageContent(selected, { ar, en, images });
       await refresh();
       setMessage(t.admin.cmsSaved);
-    } catch {
-      setError(t.admin.error);
+    } catch (err) {
+      if (import.meta.env.DEV) console.error("[content-panel:save]", err);
+      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      setError(code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error);
     } finally {
       setBusy(false);
     }
@@ -99,10 +111,10 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
               key={page.id}
               type="button"
               onClick={() => openPage(page.id)}
-              className="rounded-2xl border border-border bg-card p-5 text-start transition-colors hover:border-gold/45 hover:bg-card/90"
+              className={`${ADMIN_CARD_CLS} p-5 text-start transition-all hover:-translate-y-0.5 hover:border-[#C8A96A]/45`}
             >
-              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-navy/5 text-navy">
-                <FileText size={18} />
+              <span className="inline-flex size-10 items-center justify-center rounded-xl border border-[#C8A96A]/30 bg-[#C8A96A]/10 text-[#A8894E]">
+                <FileText size={18} strokeWidth={1.75} />
               </span>
               <p className="mt-4 font-display text-lg font-semibold text-navy">{cmsPageLabel(page.id, t)}</p>
               <p className="mt-1 text-sm text-muted-foreground">{page.path}</p>
@@ -111,7 +123,7 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
           <button
             type="button"
             onClick={() => openPage("shared")}
-            className="rounded-2xl border border-dashed border-border bg-card/50 p-5 text-start transition-colors hover:border-gold/45 sm:col-span-2 xl:col-span-3"
+            className={`${ADMIN_CARD_CLS} border-dashed p-5 text-start transition-colors hover:border-[#C8A96A]/45 sm:col-span-2 xl:col-span-3`}
           >
             <p className="font-display text-lg font-semibold text-navy">{cmsPageLabel("shared", t)}</p>
             <p className="mt-1 text-sm text-muted-foreground">{t.admin.cmsSharedHint}</p>
@@ -128,7 +140,7 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
         <button
           type="button"
           onClick={() => setSelected(null)}
-          className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-foreground hover:border-gold/45"
+          className={ADMIN_BTN_SECONDARY}
         >
           <ArrowLeft size={16} />
           {t.admin.cmsBack}
@@ -140,16 +152,8 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
         <p className="mb-4 text-sm text-muted-foreground">{t.admin.loading}</p>
       ) : null}
       <form onSubmit={(e) => void onSubmit(e)} className="space-y-6">
-        {error ? (
-          <p className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-            {error}
-          </p>
-        ) : null}
-        {message ? (
-          <p className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-            {message}
-          </p>
-        ) : null}
+        {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
+        {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
 
         {selected ? (
           <SchemaContentEditor
@@ -165,19 +169,10 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
         ) : null}
 
         <div className="flex flex-wrap gap-3">
-          <button
-            type="submit"
-            disabled={busy || refreshing}
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-6 text-sm font-medium text-white hover:bg-gold/90 disabled:opacity-60"
-          >
+          <button type="submit" disabled={busy || refreshing} className={ADMIN_BTN_PRIMARY}>
             {busy ? t.auth.working : t.admin.save}
           </button>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => setSelected(null)}
-            className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-6 text-sm font-medium text-foreground hover:border-gold/45"
-          >
+          <button type="button" disabled={busy} onClick={() => setSelected(null)} className={ADMIN_BTN_SECONDARY}>
             {t.admin.cancel}
           </button>
         </div>

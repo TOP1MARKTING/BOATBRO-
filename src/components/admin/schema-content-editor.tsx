@@ -190,7 +190,7 @@ function EditorSection({
     <details
       open={open}
       onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-      className="group rounded-2xl border border-border bg-card/50"
+      className="group rounded-[1.35rem] border border-[#C8A96A]/18 bg-card/50"
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded-2xl px-5 py-4 font-display text-base font-semibold text-navy marker:content-none [&::-webkit-details-marker]:hidden">
         <ChevronDown

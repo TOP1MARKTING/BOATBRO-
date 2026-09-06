@@ -93,9 +93,24 @@ service cloud.firestore {
         && (!('profile' in perms) || perms.profile is bool);
     }
 
+    function canManageUsers() {
+      return isSuperAdmin() || hasPermission('users');
+    }
+
+    function staffAssignablePermissions(perms) {
+      return validPermissionsMap(perms)
+        && perms.users != true
+        && perms.settings != true;
+    }
+
     function targetIsSuperAdmin() {
       return resource.data.email is string
         && resource.data.email.lower() == 'admin@boatpro.club';
+    }
+
+    function creatingSuperAdminEmail() {
+      return request.resource.data.email is string
+        && request.resource.data.email.lower() == 'admin@boatpro.club';
     }
 
     match /users/{userId} {
@@ -106,6 +121,14 @@ service cloud.firestore {
           && request.resource.data.name is string
           && request.resource.data.role is string
           && validPermissionsMap(request.resource.data.permissions)
+        )
+        || (
+          canManageUsers()
+          && !creatingSuperAdminEmail()
+          && request.resource.data.email is string
+          && request.resource.data.name is string
+          && request.resource.data.role is string
+          && staffAssignablePermissions(request.resource.data.permissions)
         )
         || (
           isSignedIn() && request.auth.uid == userId
@@ -127,6 +150,14 @@ service cloud.firestore {
           && (!('permissions' in request.resource.data) || validPermissionsMap(request.resource.data.permissions))
         )
         || (
+          canManageUsers()
+          && !targetIsSuperAdmin()
+          && request.auth.uid != userId
+          && resource.data.permissions.users != true
+          && resource.data.permissions.settings != true
+          && (!('permissions' in request.resource.data) || staffAssignablePermissions(request.resource.data.permissions))
+        )
+        || (
           isSignedIn()
           && request.auth.uid == userId
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'adminRole', 'permissions', 'active'])
@@ -139,11 +170,24 @@ service cloud.firestore {
           && request.resource.data.permissions == get(/databases/$(database)/documents/adminInvites/$(authEmail())).data.permissions
           && request.resource.data.active == get(/databases/$(database)/documents/adminInvites/$(authEmail())).data.active
         );
-      allow delete: if isSuperAdmin() && !targetIsSuperAdmin();
+      allow delete: if (
+          isSuperAdmin()
+          && !targetIsSuperAdmin()
+          && request.auth.uid != userId
+        )
+        || (
+          canManageUsers()
+          && !targetIsSuperAdmin()
+          && request.auth.uid != userId
+          && resource.data.permissions.users != true
+          && resource.data.permissions.settings != true
+        );
     }
 
     match /userCredentials/{userId} {
-      allow read, create, update, delete: if isSuperAdmin();
+      allow read: if isSuperAdmin();
+      allow create, update: if isSuperAdmin() || canManageUsers();
+      allow delete: if isSuperAdmin() || canManageUsers();
     }
 
     match /adminInvites/{email} {

@@ -148,6 +148,64 @@ export function deepMergeContent<T>(base: T, override: unknown): T {
   return result as T;
 }
 
+/**
+ * Cloud Firestore does not support nested arrays (an array containing another array).
+ * This recursively converts nested arrays into `{ _tuple: [...] }` objects before saving,
+ * and strips any `undefined` properties.
+ */
+export function sanitizeForFirestore<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (Array.isArray(item)) {
+        return { _tuple: sanitizeForFirestore(item) };
+      }
+      return sanitizeForFirestore(item);
+    }) as unknown as T;
+  }
+  if (isPlainObject(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (v !== undefined) {
+        out[k] = sanitizeForFirestore(v);
+      }
+    }
+    return out as T;
+  }
+  return value;
+}
+
+/**
+ * Reconstructs nested arrays encoded with `{ _tuple: [...] }` when loading from Firestore.
+ */
+export function restoreFromFirestore<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (
+        isPlainObject(item) &&
+        "_tuple" in item &&
+        Array.isArray((item as { _tuple: unknown })._tuple)
+      ) {
+        return restoreFromFirestore((item as { _tuple: unknown })._tuple);
+      }
+      return restoreFromFirestore(item);
+    }) as unknown as T;
+  }
+  if (isPlainObject(value)) {
+    const obj = value as Record<string, unknown>;
+    if ("_tuple" in obj && Array.isArray(obj._tuple)) {
+      return restoreFromFirestore(obj._tuple) as T;
+    }
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      out[k] = restoreFromFirestore(v);
+    }
+    return out as T;
+  }
+  return value;
+}
+
 function pickSeoSlice(dict: Dictionary, seoKeys: string[]) {
   if (!seoKeys.length) return {};
   const slice: Record<string, string> = {};

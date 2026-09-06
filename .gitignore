@@ -30,3 +30,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build archives and test results
+*.zip
+test-results/
+boatpro-*.png

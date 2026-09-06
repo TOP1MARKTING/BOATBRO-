@@ -122,18 +122,46 @@ export function canAccessAdmin(
   return active && hasAnyPermission(permissions);
 }
 
-export function canManageUsers(isSuperAdmin: boolean) {
-  return isSuperAdmin;
+export function canManageUsers(isSuperAdmin: boolean, permissions?: AdminPermissions | null) {
+  return isSuperAdmin || permissions?.users === true;
+}
+
+/** Tabs a staff user-manager may assign (cannot escalate to users/settings). */
+export function assignableTabsFor(isSuperAdmin: boolean): AdminTab[] {
+  if (isSuperAdmin) return ASSIGNABLE_TABS;
+  return ASSIGNABLE_TABS.filter((tab) => tab !== "users" && tab !== "settings");
+}
+
+/** Strip privilege-escalation flags when a non-super manager assigns access. */
+export function sanitizeAssignablePermissions(
+  permissions: AdminPermissions,
+  isSuperAdmin: boolean,
+): AdminPermissions {
+  const next = normalizeStaffPermissions(permissions);
+  if (!isSuperAdmin) {
+    next.users = false;
+    next.settings = false;
+  }
+  return next;
 }
 
 export function canEditUserAccess(
-  isSuperAdmin: boolean,
-  targetEmail: string,
+  canManage: boolean,
   targetIsSuper: boolean,
   isSelf: boolean,
+  options?: {
+    isSuperAdmin?: boolean;
+    targetPermissions?: AdminPermissions | null;
+  },
 ) {
-  if (!isSuperAdmin) return false;
+  if (!canManage) return false;
   if (isSelf || targetIsSuper) return false;
+  if (
+    !options?.isSuperAdmin &&
+    (options?.targetPermissions?.users === true || options?.targetPermissions?.settings === true)
+  ) {
+    return false;
+  }
   return true;
 }
 

@@ -163,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       staffRole,
       permissions,
       canAccessTab: (tab) => permissions[tab],
-      canManageUsers: canManageUsers(isSuperAdmin),
+      canManageUsers: canManageUsers(isSuperAdmin, permissions),
       defaultAdminTab,
       login: async (email, password) => {
         await signInWithEmailAndPassword(getFirebaseAuth(), email.trim(), password);

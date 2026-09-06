@@ -11,7 +11,18 @@ import {
 } from "../../lib/db";
 import { analyzePostSeo } from "../../lib/post-seo";
 import { AdminPostEditor } from "./admin-post-editor";
-import { ADMIN_FIELD_CLS, AdminFilterBar, AdminPanelShell } from "./shared";
+import {
+  ADMIN_BADGE_ACTIVE,
+  ADMIN_BADGE_MUTED,
+  ADMIN_BTN_GHOST,
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_CARD_CLS,
+  ADMIN_FIELD_CLS,
+  AdminEmptyState,
+  AdminFilterBar,
+  AdminPanelShell,
+} from "./shared";
 
 type PublishFilter = "all" | "published" | "draft";
 
@@ -92,11 +103,7 @@ export function AdminPostsPanel({
       title={t.admin.posts}
       hideTitle
       action={
-        <button
-          type="button"
-          onClick={openNew}
-          className="rounded-full bg-gold px-5 py-2.5 text-[13px] font-medium text-white hover:bg-gold/90"
-        >
+        <button type="button" onClick={openNew} className={ADMIN_BTN_PRIMARY}>
           {t.admin.newPost}
         </button>
       }
@@ -136,13 +143,13 @@ export function AdminPostsPanel({
         />
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_12px_40px_-28px_rgba(15,40,70,0.4)]">
+      <div className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
         {filtered.length === 0 ? (
-          <p className="p-8 text-sm text-muted-foreground">{t.admin.noPosts}</p>
+          <AdminEmptyState message={t.admin.noPosts} />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
-              <thead className="border-b border-border bg-muted text-start text-[12px] text-muted-foreground">
+              <thead className="border-b border-[#C8A96A]/15 bg-[rgba(200,169,106,0.06)] text-start text-[12px] text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3.5 font-medium">{t.admin.titleField}</th>
                   <th className="px-5 py-3.5 font-medium">{t.admin.category}</th>
@@ -155,7 +162,10 @@ export function AdminPostsPanel({
                 {filtered.map((post) => {
                   const seo = analyzePostSeo(postToInput(post), checks, lang);
                   return (
-                    <tr key={post.id} className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/80">
+                    <tr
+                      key={post.id}
+                      className="border-b border-[#C8A96A]/10 transition-colors last:border-0 hover:bg-[rgba(200,169,106,0.05)]"
+                    >
                       <td className="px-5 py-4">
                         <p className="font-medium text-navy">{post.title}</p>
                         <p className="mt-1 text-[12px] text-muted-foreground">{post.slug}</p>
@@ -175,25 +185,17 @@ export function AdminPostsPanel({
                         </span>
                       </td>
                       <td className="px-5 py-4">
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                            post.published ? "bg-gold/15 text-gold-ink" : "bg-navy/5 text-muted-foreground"
-                          }`}
-                        >
+                        <span className={post.published ? ADMIN_BADGE_ACTIVE : ADMIN_BADGE_MUTED}>
                           {post.published ? t.admin.published : t.admin.draft}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-end">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(post)}
-                          className="rounded-full border border-gold/40 px-3.5 py-1.5 text-[12px] font-medium text-gold-ink hover:bg-gold hover:text-white"
-                        >
+                        <button type="button" onClick={() => openEdit(post)} className={ADMIN_BTN_SECONDARY}>
                           {t.admin.edit}
                         </button>
                         <button
                           type="button"
-                          className="ms-2 text-[12px] text-destructive hover:underline"
+                          className={`${ADMIN_BTN_GHOST} ms-2`}
                           onClick={() => {
                             if (confirm(t.admin.confirmDelete)) void deletePost(post.id).then(onChange);
                           }}

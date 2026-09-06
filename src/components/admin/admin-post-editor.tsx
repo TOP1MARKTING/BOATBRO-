@@ -17,9 +17,14 @@ import {
   type PostBlock,
 } from "../../lib/post-content";
 import { AdminPostSeo } from "./admin-post-seo";
+import {
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_CARD_CLS,
+  ADMIN_FIELD_CLS,
+} from "./shared";
 
-const fieldCls =
-  "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/15";
+const fieldCls = ADMIN_FIELD_CLS;
 
 function BilingualField({
   label,
@@ -273,7 +278,7 @@ export function AdminPostEditor({
   };
 
   return (
-    <form onSubmit={onSubmit} className="mb-6 space-y-5 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <form onSubmit={onSubmit} className={`mb-6 space-y-5 ${ADMIN_CARD_CLS} p-5 sm:p-6`}>
       <Section title={labels.title} hint={labels.slugHint}>
         <div className="space-y-4">
           <BilingualField
@@ -302,9 +307,9 @@ export function AdminPostEditor({
 
       <Section title={labels.contentSection} hint={labels.contentHint}>
         <div className="mb-4 flex flex-wrap gap-2">
-          <button type="button" onClick={() => addBlock(createParagraph())} className="rounded-full border border-border px-3 py-1.5 text-[12px] hover:border-gold">{labels.addParagraph}</button>
-          <button type="button" onClick={() => addBlock(createHeading(2))} className="rounded-full border border-border px-3 py-1.5 text-[12px] hover:border-gold">{labels.addHeading}</button>
-          <button type="button" onClick={() => addBlock(createQuote())} className="rounded-full border border-border px-3 py-1.5 text-[12px] hover:border-gold">{labels.addQuote}</button>
+          <button type="button" onClick={() => addBlock(createParagraph())} className={ADMIN_BTN_SECONDARY}>{labels.addParagraph}</button>
+          <button type="button" onClick={() => addBlock(createHeading(2))} className={ADMIN_BTN_SECONDARY}>{labels.addHeading}</button>
+          <button type="button" onClick={() => addBlock(createQuote())} className={ADMIN_BTN_SECONDARY}>{labels.addQuote}</button>
         </div>
 
         <div className="space-y-4">
@@ -319,7 +324,7 @@ export function AdminPostEditor({
             return (
               <div
                 key={block.id}
-                className={`rounded-xl border p-4 transition-colors ${selected ? "border-gold bg-gold/5" : "border-border bg-card"}`}
+                className={`rounded-xl border p-4 transition-colors ${selected ? "border-[#C8A96A] bg-[#C8A96A]/10" : "border-border bg-card"}`}
                 onClick={() => setCursorBlockId(block.id)}
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -390,7 +395,7 @@ export function AdminPostEditor({
 
       <Section title={labels.inlineImages} hint={labels.inlineImagesHint}>
         <div className="mb-3 flex flex-wrap gap-2">
-          <button type="button" onClick={() => setForm((prev) => ({ ...prev, blocks: [...prev.blocks, createImage(cursorBlockId || "end")] }))} className="rounded-full border border-gold/45 px-4 py-2 text-[12px] text-gold-ink">{labels.insertAtCursor}</button>
+          <button type="button" onClick={() => setForm((prev) => ({ ...prev, blocks: [...prev.blocks, createImage(cursorBlockId || "end")] }))} className={ADMIN_BTN_SECONDARY}>{labels.insertAtCursor}</button>
           <button type="button" onClick={() => setForm((prev) => ({ ...prev, blocks: [...prev.blocks, createImage("end")] }))} className="rounded-full border border-border px-4 py-2 text-[12px]">{labels.insertAtEnd}</button>
         </div>
         <div className="space-y-4">
@@ -403,11 +408,11 @@ export function AdminPostEditor({
               <div className="grid gap-3">
                 <input className={fieldCls} value={image.url} placeholder={labels.imageUrl} onChange={(e) => updateBlock(image.id, (b) => ({ ...b, url: e.target.value } as PostBlock))} />
                 <div className="flex flex-wrap gap-2">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[12px] hover:border-gold">
+                  <label className={`${ADMIN_BTN_SECONDARY} cursor-pointer`}>
                     <input type="file" accept="image/*" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadImage(f, (url) => updateBlock(image.id, (b) => ({ ...b, url } as PostBlock))); }} />
                     {labels.upload}
                   </label>
-                  <button type="button" onClick={() => openGallery(image.id)} className="rounded-full border border-gold/45 px-3 py-1.5 text-[12px] text-gold-ink hover:bg-gold/10">
+                  <button type="button" onClick={() => openGallery(image.id)} className={ADMIN_BTN_SECONDARY}>
                     {labels.pickFromGallery}
                   </button>
                 </div>
@@ -449,11 +454,11 @@ export function AdminPostEditor({
         <div className="grid gap-4">
           <input className={fieldCls} value={form.coverUrl} onChange={(e) => setForm((prev) => ({ ...prev, coverUrl: e.target.value }))} placeholder={labels.imageUrl} />
           <div className="flex flex-wrap gap-2">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border px-4 py-2 text-[12px] hover:border-gold">
+            <label className={`${ADMIN_BTN_SECONDARY} cursor-pointer`}>
               <input type="file" accept="image/*" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadImage(f, (url) => setForm((prev) => ({ ...prev, coverUrl: url }))); }} />
               {labels.upload}
             </label>
-            <button type="button" onClick={() => openGallery("cover")} className="rounded-full border border-gold/45 px-4 py-2 text-[12px] text-gold-ink hover:bg-gold/10">
+            <button type="button" onClick={() => openGallery("cover")} className={ADMIN_BTN_SECONDARY}>
               {labels.pickFromGallery}
             </button>
           </div>
@@ -465,12 +470,14 @@ export function AdminPostEditor({
         <AdminPostSeo form={form} setForm={setForm} fieldCls={fieldCls} labels={seoLabels} bilingual />
       </Section>
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-        <button type="submit" disabled={busy} className="rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60">
+      <div className="flex flex-wrap items-center gap-3 border-t border-[#C8A96A]/18 pt-4">
+        <button type="submit" disabled={busy} className={ADMIN_BTN_PRIMARY}>
           {busy ? t.auth.working : labels.save}
         </button>
-        <button type="button" onClick={onCancel} className="text-sm text-muted-foreground">{labels.cancel}</button>
-        {message ? <span className="text-sm text-gold-ink">{message}</span> : null}
+        <button type="button" onClick={onCancel} className="text-sm text-muted-foreground hover:text-navy">
+          {labels.cancel}
+        </button>
+        {message ? <span className="text-sm text-[#A8894E]">{message}</span> : null}
       </div>
 
       <GalleryPicker

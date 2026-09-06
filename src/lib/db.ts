@@ -32,6 +32,8 @@ import {
 import {
   CMS_PAGES,
   mergePageDocument,
+  restoreFromFirestore,
+  sanitizeForFirestore,
   type CmsPageDocument,
   type CmsPageId,
 } from "./page-content";
@@ -804,9 +806,11 @@ export async function getPageContent(pageId: CmsPageId): Promise<CmsPageDocument
   const snap = await getDoc(doc(getDb(), "pageContent", pageId));
   if (!snap.exists()) return mergePageDocument(pageId, null);
   const data = snap.data();
+  const arRaw = (data.ar as Record<string, unknown> | undefined) ?? {};
+  const enRaw = (data.en as Record<string, unknown> | undefined) ?? {};
   return mergePageDocument(pageId, {
-    ar: (data.ar as Record<string, unknown> | undefined) ?? {},
-    en: (data.en as Record<string, unknown> | undefined) ?? {},
+    ar: restoreFromFirestore(arRaw) as Record<string, unknown>,
+    en: restoreFromFirestore(enRaw) as Record<string, unknown>,
     images: (data.images as CmsPageDocument["images"] | undefined) ?? {},
     updatedAt: toDate(data.updatedAt),
   });
@@ -826,9 +830,9 @@ export async function savePageContent(
   await setDoc(
     doc(getDb(), "pageContent", pageId),
     {
-      ar: input.ar,
-      en: input.en,
-      images: input.images,
+      ar: sanitizeForFirestore(input.ar),
+      en: sanitizeForFirestore(input.en),
+      images: sanitizeForFirestore(input.images),
       updatedAt: serverTimestamp(),
     },
     { merge: true },

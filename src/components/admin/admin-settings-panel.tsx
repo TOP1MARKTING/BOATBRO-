@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { getSiteSettings, saveSiteSettings } from "../../lib/db";
 import { SOCIAL_KEYS, defaultSiteSettings, type SiteSettingsInput } from "../../lib/site-settings";
-import { ADMIN_FIELD_CLS, AdminPanelShell, AdminSection } from "./shared";
+import { ADMIN_BTN_PRIMARY, ADMIN_FIELD_CLS, AdminFlash, AdminPanelShell, AdminSection } from "./shared";
 
 function SettingsField({
   label,
@@ -161,14 +161,10 @@ export function AdminSettingsPanel({
           </div>
         </AdminSection>
 
-        {error ? <p className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p> : null}
-        {message ? <p className="rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-gold-ink">{message}</p> : null}
+        {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
+        {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded-full bg-gold px-7 py-3 text-sm font-medium text-white disabled:opacity-60"
-        >
+        <button type="submit" disabled={busy} className={ADMIN_BTN_PRIMARY}>
           {busy ? t.admin.loading : t.admin.save}
         </button>
       </form>

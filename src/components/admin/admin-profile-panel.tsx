@@ -7,7 +7,7 @@ import { getFirebaseAuth } from "../../lib/firebase";
 import type { AdminPermissions, StaffRole } from "../../lib/admin-permissions";
 import { isSuperAdminEmail } from "../../lib/admin";
 import { mapAuthError } from "../../lib/auth";
-import { ADMIN_FIELD_CLS, AdminSection, AdminPanelShell } from "./shared";
+import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY, ADMIN_FIELD_CLS, AdminFlash, AdminSection, AdminPanelShell } from "./shared";
 
 export function AdminProfilePanel({
   user,
@@ -115,7 +115,7 @@ export function AdminProfilePanel({
             </div>
             <div>
               <dt className="text-[12px] text-muted-foreground">{t.admin.role}</dt>
-              <dd className="font-medium text-gold-ink">{roleLabel}</dd>
+              <dd className="font-medium text-[#A8894E]">{roleLabel}</dd>
             </div>
             <div>
               <dt className="text-[12px] text-muted-foreground">{t.admin.limits}</dt>
@@ -164,11 +164,7 @@ export function AdminProfilePanel({
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </label>
-            <button
-              type="submit"
-              disabled={busy}
-              className="rounded-full bg-gold px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-            >
+            <button type="submit" disabled={busy} className={ADMIN_BTN_PRIMARY}>
               {busy ? t.admin.loading : t.admin.changePassword}
             </button>
           </form>
@@ -176,12 +172,12 @@ export function AdminProfilePanel({
             type="button"
             disabled={busy || !user.email}
             onClick={() => void onResetPassword()}
-            className="mt-4 rounded-full border border-gold/45 px-5 py-2.5 text-[13px] font-medium text-gold-ink hover:bg-gold hover:text-white disabled:opacity-60"
+            className={`mt-4 ${ADMIN_BTN_SECONDARY}`}
           >
             {t.admin.passwordReset}
           </button>
-          {message ? <p className="mt-3 text-sm text-gold-ink">{message}</p> : null}
-          {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
+          {message ? <div className="mt-3"><AdminFlash tone="ok">{message}</AdminFlash></div> : null}
+          {error ? <div className="mt-3"><AdminFlash tone="error">{error}</AdminFlash></div> : null}
         </AdminSection>
       </div>
     </AdminPanelShell>
