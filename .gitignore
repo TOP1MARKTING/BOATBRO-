@@ -35,3 +35,4 @@ dist-ssr
 *.zip
 test-results/
 boatpro-*.png
+assets/

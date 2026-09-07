@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { PHOTO_NAME_OPTIONS, isPhotoName, type CmsPageImages } from "../../lib/page-content";
 import { ADMIN_FIELD_CLS, AdminSection } from "./shared";
+import { CmsPhotoCardField } from "./cms-photo-picker";
 
 type BilingualEditorProps = {
   label: string;
@@ -308,28 +309,21 @@ export function ContentImageEditor({
   return (
     <AdminSection title="Images">
       <div className="grid gap-4 sm:grid-cols-2">
-        {keys.map((key) => (
-          <label key={key} className="block">
-            <span className="mb-1.5 block text-[11px] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-              {labels[key] ?? humanizeKey(key)}
-            </span>
-            <select
-              className={ADMIN_FIELD_CLS}
-              value={images[key] ?? defaults[key] ?? ""}
-              onChange={(e) => {
-                const next = { ...images };
-                if (isPhotoName(e.target.value)) next[key] = e.target.value;
+        {keys.map((key) => {
+          const currentVal = images[key] ?? defaults[key];
+          return (
+            <CmsPhotoCardField
+              key={key}
+              label={labels[key] ?? humanizeKey(key)}
+              value={currentVal}
+              defaultValue={defaults[key]}
+              onChange={(selectedPhoto) => {
+                const next = { ...images, [key]: selectedPhoto };
                 onChange(next);
               }}
-            >
-              {PHOTO_NAME_OPTIONS.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </label>
-        ))}
+            />
+          );
+        })}
       </div>
     </AdminSection>
   );

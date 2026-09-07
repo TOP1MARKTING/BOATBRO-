@@ -9,6 +9,7 @@ import type { CmsPageId, CmsPageImages } from "../../lib/page-content";
 import { PHOTO_NAME_OPTIONS, isPhotoName } from "../../lib/page-content";
 import { ADMIN_FIELD_CLS } from "./shared";
 import { writePath } from "./content-field-editor";
+import { CmsPhotoCardField } from "./cms-photo-picker";
 
 type BilingualEditorProps = {
   label: string;
@@ -149,27 +150,17 @@ function SchemaImageField({
   defaults: CmsPageImages;
   onChange: (next: CmsPageImages) => void;
 }) {
+  const currentVal = images[field.key] ?? defaults[field.key];
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-[11px] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-        {field.label}
-      </span>
-      <select
-        className={ADMIN_FIELD_CLS}
-        value={images[field.key] ?? defaults[field.key] ?? ""}
-        onChange={(e) => {
-          const next = { ...images };
-          if (isPhotoName(e.target.value)) next[field.key] = e.target.value;
-          onChange(next);
-        }}
-      >
-        {PHOTO_NAME_OPTIONS.map((name) => (
-          <option key={name} value={name}>
-            {name}
-          </option>
-        ))}
-      </select>
-    </label>
+    <CmsPhotoCardField
+      label={field.label}
+      value={currentVal}
+      defaultValue={defaults[field.key]}
+      onChange={(selectedPhoto) => {
+        const next = { ...images, [field.key]: selectedPhoto };
+        onChange(next);
+      }}
+    />
   );
 }
 
