@@ -65,18 +65,56 @@ function readHash(raw: string) {
   return decodeURIComponent(raw.replace(/^#/, "")).trim();
 }
 
-function useFeatureHash() {
+type ServiceTabId = "guests" | "owners" | "marinas";
+
+function isServiceTabId(value: string): value is ServiceTabId {
+  return value === "guests" || value === "owners" || value === "marinas";
+}
+
+/** Keep the sticky service tabs in sync with the section under the nav while scrolling. */
+function useActiveServiceTab() {
   const routerHash = useRouterState({ select: (s) => s.location.hash });
-  const [hash, setHash] = useState(() => readHash(routerHash));
+  const [activeId, setActiveId] = useState<ServiceTabId>(() => {
+    const initial = readHash(routerHash);
+    return isServiceTabId(initial) ? initial : "guests";
+  });
 
   useEffect(() => {
-    const sync = () => setHash(readHash(routerHash || window.location.hash));
-    sync();
-    window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
+    const fromHash = readHash(routerHash || window.location.hash);
+    if (isServiceTabId(fromHash)) setActiveId(fromHash);
   }, [routerHash]);
 
-  return hash;
+  useEffect(() => {
+    const ids = GROUPS.map((group) => group.id);
+
+    const syncFromScroll = () => {
+      const marker = 140;
+      let current: ServiceTabId = "guests";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - marker <= 0) current = id;
+      }
+      setActiveId((prev) => {
+        if (prev === current) return prev;
+        const nextHash = `#${current}`;
+        if (window.location.hash !== nextHash) {
+          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${nextHash}`);
+        }
+        return current;
+      });
+    };
+
+    syncFromScroll();
+    window.addEventListener("scroll", syncFromScroll, { passive: true });
+    window.addEventListener("resize", syncFromScroll);
+    return () => {
+      window.removeEventListener("scroll", syncFromScroll);
+      window.removeEventListener("resize", syncFromScroll);
+    };
+  }, []);
+
+  return activeId;
 }
 
 function ServiceCard({
@@ -121,6 +159,9 @@ function ServiceSection({
   loginCta,
   loginHref,
   loginLabel,
+  siteChip,
+  siteTitle,
+  siteBody,
   items,
   images,
   tone,
@@ -136,27 +177,32 @@ function ServiceSection({
   loginCta?: boolean;
   loginHref?: string;
   loginLabel?: string;
+  siteChip?: string;
+  siteTitle?: string;
+  siteBody?: string;
   items: [string, string][];
   images: PhotoName[];
   tone: "plain" | "mute";
   flipImage: boolean;
 }) {
-  const bg = tone === "mute" ? "bg-surface-2 dark:bg-surface-2/70" : "bg-background dark:bg-transparent";
-  const showLogin = Boolean(loginCta && loginLabel && loginHref);
+  const bg = tone === "mute" ? "bg-surface-2 bp-section-mute" : "bg-background bp-section-plain";
+  const showSiteBox = Boolean(loginCta && loginLabel && siteTitle && siteBody);
 
   return (
     <section id={id} className={`scroll-mt-[120px] ${bg} py-10 sm:py-14 lg:py-20`}>
       <div className={SHELL}>
-        <div className="rounded-[1.5rem] border-2 border-border bg-surface-2 p-1 sm:rounded-[1.75rem] sm:p-1.5 md:p-2">
-          <div className="rounded-[1.25rem] border border-border bg-card p-5 sm:rounded-[1.5rem] sm:p-8 lg:p-10">
-            <div className="mx-auto max-w-2xl text-center">
+        <div className="rounded-[1.5rem] border-2 border-border bg-surface-2 p-1 dark:border-sea/25 dark:bg-gradient-to-b dark:from-sea/15 dark:via-card/80 dark:to-card sm:rounded-[1.75rem] sm:p-1.5 md:p-2">
+          <div className="rounded-[1.25rem] border border-border bg-card p-5 dark:border-white/10 dark:bg-gradient-to-b dark:from-card dark:to-navy-deep/40 sm:rounded-[1.5rem] sm:p-8 lg:p-10">
+            <div className="mx-auto max-w-4xl text-center">
               <div className="flex items-center justify-center gap-2 text-gold-ink">
                 <Icon size={18} aria-hidden="true" />
                 <Kicker className="!text-gold-ink">{kicker}</Kicker>
               </div>
               <GoldLine className="mx-auto mt-4" />
-              <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">{title}</h2>
-              <p className="mt-4 text-base leading-8 text-muted-foreground">{intro}</p>
+              <h2 className="mt-5 whitespace-nowrap font-display text-[clamp(1.05rem,2.4vw+0.55rem,2.25rem)] font-semibold leading-snug text-navy">
+                {title}
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-muted-foreground">{intro}</p>
             </div>
 
             <div className="mt-10 flex flex-wrap justify-center gap-6">
@@ -175,23 +221,40 @@ function ServiceSection({
               ))}
             </div>
 
-            {closing ? (
+            {closing || downloadTitle || showSiteBox ? (
               <div className="mx-auto mt-10 max-w-3xl text-center">
-                <p className="text-base leading-8 text-muted-foreground">{closing}</p>
+                {closing ? <p className="text-base leading-8 text-muted-foreground">{closing}</p> : null}
+
                 {downloadTitle ? (
                   <div className="mt-8 rounded-[1.35rem] border border-border bg-surface-2 p-6 sm:p-7">
-                    <p className="font-display text-xl font-semibold text-navy">{downloadTitle}</p>
-                    <StoreButtons size="lg" className="mt-5 justify-center" />
+                    <StoreButtons size="lg" showNotice className="mt-0 justify-center" />
                   </div>
                 ) : null}
-              </div>
-            ) : null}
 
-            {showLogin && loginHref ? (
-              <div className="mt-10 flex justify-center">
-                <Btn href={loginHref} variant="gold">
-                  {loginLabel} <CtaArrow />
-                </Btn>
+                {showSiteBox ? (
+                  <div className={`${closing || downloadTitle ? "mt-8" : ""} rounded-[1.35rem] border border-border bg-surface-2 p-6 sm:p-7`}>
+                    {siteChip ? (
+                      <p className="text-[11px] font-semibold text-gold-ink dark:text-gold">{siteChip}</p>
+                    ) : null}
+                    <p className="mt-1 font-display text-[15px] font-semibold leading-6 text-navy dark:text-white sm:text-base">
+                      {siteTitle}
+                    </p>
+                    <p className="mt-1 text-[12px] leading-5 text-navy/70 dark:text-white/75 sm:text-[13px] sm:leading-6">
+                      {siteBody}
+                    </p>
+                    <div className="mt-5 flex justify-center">
+                      {loginHref ? (
+                        <Btn href={loginHref} variant="gold" className="min-h-11 min-w-[12rem] justify-center">
+                          {loginLabel} <CtaArrow />
+                        </Btn>
+                      ) : (
+                        <Btn type="button" disabled variant="gold" className="min-h-11 min-w-[12rem] justify-center">
+                          {loginLabel} <CtaArrow />
+                        </Btn>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -211,7 +274,7 @@ function FeaturesPage() {
   const { image } = usePageContent();
   const { serviceLogins } = useSiteSettings();
   const p = t.featuresPage;
-  const hash = useFeatureHash();
+  const activeTab = useActiveServiceTab();
   const flipImage = dir === "ltr";
   const heroImage = image("features", "hero", "hero-features");
 
@@ -254,7 +317,7 @@ function FeaturesPage() {
         <div className={`${SHELL} py-3.5`}>
           <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
             {GROUPS.map((group) => {
-              const active = hash === group.id;
+              const active = activeTab === group.id;
               const copy = p[group.key];
               const Icon = group.icon;
               return (
@@ -297,7 +360,10 @@ function FeaturesPage() {
             downloadTitle={copy.downloadTitle || undefined}
             loginCta={copy.loginCta}
             loginHref={loginHref || undefined}
-            loginLabel={p.loginCta}
+            loginLabel={group.id === "marinas" ? p.marinas.siteCta : p.loginCta}
+            siteChip={group.id === "marinas" ? p.marinas.siteChip : undefined}
+            siteTitle={group.id === "marinas" ? p.marinas.siteTitle : undefined}
+            siteBody={group.id === "marinas" ? p.marinas.siteBody : undefined}
             items={copy.items}
             images={images}
             tone={i % 2 === 0 ? "plain" : "mute"}
@@ -306,13 +372,13 @@ function FeaturesPage() {
         );
       })}
 
-      <Section tone="navy">
+      <Section tone="mute">
         <div className="mx-auto max-w-2xl text-center">
           <GoldLine className="mx-auto" />
-          <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-white md:text-4xl">{p.ctaTitle}</h2>
-          <p className="mt-4 text-lg leading-8 text-white/85">{p.ctaBody}</p>
+          <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">{p.ctaTitle}</h2>
+          <p className="mt-4 text-lg leading-8 text-muted-foreground">{p.ctaBody}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Btn to="/app" variant="ghost">
+            <Btn to="/app" variant="line">
               {t.cta.download} <CtaArrow />
             </Btn>
             <Btn to="/contact" variant="gold">

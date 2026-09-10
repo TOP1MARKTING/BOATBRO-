@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { getSiteSettings, saveSiteSettings } from "../../lib/db";
 import { SOCIAL_KEYS, defaultSiteSettings, type SiteSettingsInput } from "../../lib/site-settings";
+import { AdminLicensesSection } from "./admin-licenses-section";
 import { ADMIN_BTN_PRIMARY, ADMIN_FIELD_CLS, AdminFlash, AdminPanelShell, AdminSection } from "./shared";
 
 function SettingsField({
@@ -33,9 +34,11 @@ function SettingsField({
 }
 
 export function AdminSettingsPanel({
+  uid,
   t,
   onSaved,
 }: {
+  uid: string;
   t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
   onSaved?: () => void;
 }) {
@@ -91,83 +94,87 @@ export function AdminSettingsPanel({
 
   return (
     <AdminPanelShell title={t.admin.settings}>
-      <form onSubmit={(e) => void onSubmit(e)} className="space-y-6">
-        <AdminSection title={t.admin.socialLinks} hint={t.admin.socialLinksHint}>
-          <div className="grid gap-4">
-            {SOCIAL_KEYS.map((key) => (
+      <div className="space-y-6">
+        <form onSubmit={(e) => void onSubmit(e)} className="space-y-6">
+          <AdminSection title={t.admin.socialLinks} hint={t.admin.socialLinksHint}>
+            <div className="grid gap-4">
+              {SOCIAL_KEYS.map((key) => (
+                <SettingsField
+                  key={key}
+                  label={socialLabels[key]}
+                  value={form.social[key]}
+                  placeholder="https://"
+                  onChange={(value) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      social: { ...prev.social, [key]: value },
+                    }))
+                  }
+                />
+              ))}
+            </div>
+          </AdminSection>
+
+          <AdminSection title={t.admin.contactSettings} hint={t.admin.contactSettingsHint}>
+            <div className="grid gap-4 md:grid-cols-2">
               <SettingsField
-                key={key}
-                label={socialLabels[key]}
-                value={form.social[key]}
-                placeholder="https://"
-                onChange={(value) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    social: { ...prev.social, [key]: value },
-                  }))
-                }
+                label="Email"
+                value={form.contact.email}
+                onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, email: value } }))}
               />
-            ))}
-          </div>
-        </AdminSection>
+              <SettingsField
+                label="Phone (display)"
+                value={form.contact.phone}
+                onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, phone: value } }))}
+              />
+              <SettingsField
+                label="WhatsApp link"
+                value={form.contact.whatsapp}
+                placeholder="https://wa.me/..."
+                onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, whatsapp: value } }))}
+              />
+            </div>
+          </AdminSection>
 
-        <AdminSection title={t.admin.contactSettings} hint={t.admin.contactSettingsHint}>
-          <div className="grid gap-4 md:grid-cols-2">
-            <SettingsField
-              label="Email"
-              value={form.contact.email}
-              onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, email: value } }))}
-            />
-            <SettingsField
-              label="Phone (display)"
-              value={form.contact.phone}
-              onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, phone: value } }))}
-            />
-            <SettingsField
-              label="WhatsApp link"
-              value={form.contact.whatsapp}
-              placeholder="https://wa.me/..."
-              onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, whatsapp: value } }))}
-            />
-          </div>
-        </AdminSection>
+          <AdminSection title={t.admin.appLinks} hint={t.admin.appLinksHint}>
+            <div className="grid gap-4 md:grid-cols-2">
+              <SettingsField
+                label="App Store"
+                value={form.apps.appStore}
+                placeholder="https://"
+                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, appStore: value } }))}
+              />
+              <SettingsField
+                label="Play Store"
+                value={form.apps.playStore}
+                placeholder="https://"
+                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, playStore: value } }))}
+              />
+              <SettingsField
+                label={t.admin.settingGuestsLogin}
+                value={form.apps.guestsLogin}
+                placeholder="https://"
+                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, guestsLogin: value } }))}
+              />
+              <SettingsField
+                label={t.admin.settingMarinasLogin}
+                value={form.apps.marinasLogin}
+                placeholder="https://"
+                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, marinasLogin: value } }))}
+              />
+            </div>
+          </AdminSection>
 
-        <AdminSection title={t.admin.appLinks} hint={t.admin.appLinksHint}>
-          <div className="grid gap-4 md:grid-cols-2">
-            <SettingsField
-              label="App Store"
-              value={form.apps.appStore}
-              placeholder="https://"
-              onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, appStore: value } }))}
-            />
-            <SettingsField
-              label="Play Store"
-              value={form.apps.playStore}
-              placeholder="https://"
-              onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, playStore: value } }))}
-            />
-            <SettingsField
-              label={t.admin.settingGuestsLogin}
-              value={form.apps.guestsLogin}
-              placeholder="https://"
-              onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, guestsLogin: value } }))}
-            />
-            <SettingsField
-              label={t.admin.settingMarinasLogin}
-              value={form.apps.marinasLogin}
-              placeholder="https://"
-              onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, marinasLogin: value } }))}
-            />
-          </div>
-        </AdminSection>
+          {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
+          {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
 
-        {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
-        {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
+          <button type="submit" disabled={busy} className={ADMIN_BTN_PRIMARY}>
+            {busy ? t.admin.loading : t.admin.save}
+          </button>
+        </form>
 
-        <button type="submit" disabled={busy} className={ADMIN_BTN_PRIMARY}>
-          {busy ? t.admin.loading : t.admin.save}
-        </button>
-      </form>
+        <AdminLicensesSection uid={uid} t={t} />
+      </div>
     </AdminPanelShell>
   );
 }

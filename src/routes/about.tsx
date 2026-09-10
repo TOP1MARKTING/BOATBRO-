@@ -159,23 +159,28 @@ function AboutPage() {
         <h2 className="mt-6 font-display text-3xl font-semibold text-navy">{t.aboutPage.officeTitle}</h2>
         <p className="mt-4 max-w-xl text-base leading-8 text-muted-foreground">{t.aboutPage.close}</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-[1.3rem] border border-border bg-card p-5">
+          <div className="rounded-[1.3rem] border border-border/70 bg-card p-5 shadow-[0_8px_20px_-18px_rgba(15,40,70,0.35)]">
             <p className="text-[13px] font-medium text-gold-ink">{t.contact.office}</p>
-            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            <p className="mt-3 text-sm leading-7 text-navy">
               {t.contact.address}
-              <br />
-              {t.contact.country}
             </p>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">{t.contact.country}</p>
           </div>
-          <a href={contact.mailto} className="rounded-[1.3rem] border border-border bg-card p-5 hover:border-gold">
+          <a
+            href={contact.mailto}
+            className="rounded-[1.3rem] border border-border/70 bg-card p-5 shadow-[0_8px_20px_-18px_rgba(15,40,70,0.35)] transition-colors hover:border-gold"
+          >
             <p className="text-[13px] font-medium text-gold-ink">{t.contact.email}</p>
-            <p className="mt-2 font-display text-lg text-navy" dir="ltr">
+            <p className="mt-3 font-display text-lg leading-7 text-navy" dir="ltr">
               {contact.email}
             </p>
           </a>
-          <a href={contact.whatsapp} className="rounded-[1.3rem] border border-border bg-card p-5 hover:border-gold">
+          <a
+            href={contact.whatsapp}
+            className="rounded-[1.3rem] border border-border/70 bg-card p-5 shadow-[0_8px_20px_-18px_rgba(15,40,70,0.35)] transition-colors hover:border-gold"
+          >
             <p className="text-[13px] font-medium text-gold-ink">{t.contact.whatsapp}</p>
-            <p className="mt-2 font-display text-lg text-navy" dir="ltr">
+            <p className="mt-3 font-display text-lg leading-7 text-navy" dir="ltr">
               {contact.phoneDisplay}
             </p>
           </a>

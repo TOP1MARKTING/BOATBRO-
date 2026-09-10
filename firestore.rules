@@ -215,7 +215,11 @@ service cloud.firestore {
         && request.resource.data.content.size() > 0
         && request.resource.data.content.size() <= 2000
         && request.resource.data.userType.size() > 0
-        && request.resource.data.userType.size() <= 80;
+        && request.resource.data.userType.size() <= 80
+        && (!('address' in request.resource.data)
+          || (request.resource.data.address is string && request.resource.data.address.size() <= 160))
+        && (!('boatsCount' in request.resource.data)
+          || (request.resource.data.boatsCount is string && request.resource.data.boatsCount.size() <= 40));
       allow read, update, delete: if canEditContacts();
     }
 
@@ -227,6 +231,27 @@ service cloud.firestore {
     match /gallery/{id} {
       allow read: if isStaff();
       allow create, update, delete: if canEditGallery();
+    }
+
+    match /licenses/{id} {
+      allow read: if true;
+      allow create, update: if canEditSettings()
+        && request.resource.data.keys().hasAll(['name', 'number', 'authorityIconUrl', 'imageUrl', 'sortOrder'])
+        && request.resource.data.name is map
+        && request.resource.data.name.ar is string
+        && request.resource.data.name.en is string
+        && request.resource.data.name.ar.size() <= 160
+        && request.resource.data.name.en.size() <= 160
+        && (request.resource.data.name.ar.size() > 0 || request.resource.data.name.en.size() > 0)
+        && request.resource.data.number is string
+        && request.resource.data.number.size() > 0
+        && request.resource.data.number.size() <= 80
+        && request.resource.data.authorityIconUrl is string
+        && request.resource.data.authorityIconUrl.size() <= 140000
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() <= 700000
+        && request.resource.data.sortOrder is number;
+      allow delete: if canEditSettings();
     }
 
     function canEditContent() {

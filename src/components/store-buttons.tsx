@@ -1,7 +1,5 @@
-﻿import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useLang } from "../lib/i18n";
-import { useSiteSettings } from "../lib/site-settings-context";
 
 function AppleMark({ className = "size-[15px]" }: { className?: string }) {
   return (
@@ -25,34 +23,24 @@ function PlayMark({ className = "size-[15px]" }: { className?: string }) {
   );
 }
 
-function StoreLink({
-  href,
+function StoreBadge({
   label,
   className,
   children,
 }: {
-  href: string;
   label: string;
   className: string;
   children: ReactNode;
 }) {
-  if (href.startsWith("https://")) {
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={label}
-        className={className}
-      >
-        {children}
-      </a>
-    );
-  }
   return (
-    <Link to="/app" aria-label={label} className={className}>
+    <span
+      role="img"
+      aria-label={label}
+      aria-disabled="true"
+      className={`${className} pointer-events-none cursor-not-allowed select-none`}
+    >
       {children}
-    </Link>
+    </span>
   );
 }
 
@@ -61,8 +49,9 @@ export function StoreButtons({
   size = "md",
   equal = false,
   className = "",
-  appStoreUrl,
-  playStoreUrl,
+  appStoreUrl: _appStoreUrl,
+  playStoreUrl: _playStoreUrl,
+  showNotice = false,
 }: {
   tone?: "hero" | "page";
   size?: "md" | "sm" | "lg";
@@ -71,23 +60,22 @@ export function StoreButtons({
   className?: string;
   appStoreUrl?: string;
   playStoreUrl?: string;
+  /** Show coming-soon title above the store badges */
+  showNotice?: boolean;
 }) {
   const { t } = useLang();
-  const { stores: siteStores } = useSiteSettings();
   const s = t.stores;
-  const appStore = appStoreUrl ?? siteStores.appStore;
-  const playStore = playStoreUrl ?? siteStores.playStore;
   const compact = size === "sm";
   const large = size === "lg";
   const onHero = tone === "hero";
 
   const badge = [
-    "inline-flex items-center gap-2 rounded-full transition-all duration-300",
+    "inline-flex items-center gap-2 rounded-full",
     equal ? "w-full justify-center" : "w-auto shrink-0",
     compact ? "h-9 px-2.5 pe-3" : large ? "h-12 gap-2.5 px-3 pe-5 sm:h-[3.75rem] sm:gap-3 sm:px-4 sm:pe-7" : "h-10 px-2.5 pe-3.5",
     onHero
-      ? "border border-white/70 bg-navy-deep/55 text-white shadow-sm backdrop-blur-sm hover:border-gold hover:bg-gold"
-      : "border border-gold/40 bg-card text-navy hover:border-gold hover:bg-gold hover:text-white",
+      ? "border border-white/55 bg-navy-deep/45 text-white/85 opacity-90"
+      : "border border-gold/35 bg-card text-navy/80 opacity-90",
   ].join(" ");
 
   const iconBox = compact ? "size-7" : large ? "size-9 sm:size-11" : "size-7";
@@ -96,18 +84,16 @@ export function StoreButtons({
 
   const iconSvg = large ? "size-4 sm:size-5" : "size-[15px]";
 
-  return (
+  const buttons = (
     <div
-      className={`${
+      className={
         equal
-          ? "grid max-w-md grid-cols-2 gap-2.5 sm:gap-3"
+          ? "grid w-full max-w-md grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3"
           : `flex flex-wrap items-center gap-2 ${large ? "justify-center gap-2.5 sm:gap-4" : ""}`
-      } ${className}`}
+      }
     >
-      <StoreLink href={appStore} label={s.appleAria} className={`${badge} group`}>
-        <span
-          className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep text-white group-hover:bg-white/15 group-hover:text-white ${iconBox}`}
-        >
+      <StoreBadge label={`${s.appleAria} — ${s.comingChip}`} className={badge}>
+        <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep text-white ${iconBox}`}>
           <AppleMark className={iconSvg} />
         </span>
         <span className={`min-w-0 leading-none ${equal ? "text-center" : "text-start"}`}>
@@ -116,9 +102,9 @@ export function StoreButtons({
             {s.appleName}
           </span>
         </span>
-      </StoreLink>
-      <StoreLink href={playStore} label={s.googleAria} className={`${badge} group`}>
-        <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep group-hover:bg-white/15 ${iconBox}`}>
+      </StoreBadge>
+      <StoreBadge label={`${s.googleAria} — ${s.comingChip}`} className={badge}>
+        <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep ${iconBox}`}>
           <PlayMark className={iconSvg} />
         </span>
         <span className={`min-w-0 leading-none ${equal ? "text-center" : "text-start"}`}>
@@ -127,7 +113,58 @@ export function StoreButtons({
             {s.googleName}
           </span>
         </span>
-      </StoreLink>
+      </StoreBadge>
+    </div>
+  );
+
+  if (!showNotice) {
+    return <div className={className}>{buttons}</div>;
+  }
+
+  if (onHero && compact) {
+    return (
+      <div
+        className={`w-full rounded-xl border border-white/20 bg-white/[0.08] px-3 py-2.5 sm:px-4 sm:py-3 ${className}`}
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex shrink-0 rounded-full border border-gold/40 bg-gold/15 px-2 py-0.5 text-[10px] font-semibold leading-none text-gold">
+                {s.comingChip}
+              </span>
+              <p className="font-display text-[12px] font-semibold leading-5 text-white sm:text-[13px]">
+                {s.comingTitle}
+              </p>
+            </div>
+            <p className="mt-1 text-[11px] leading-4 text-white/75 sm:text-[12px] sm:leading-5">{s.comingBody}</p>
+          </div>
+          <div className="shrink-0 sm:ms-1">{buttons}</div>
+        </div>
+      </div>
+    );
+  }
+
+  const noticeAlign = equal || large || className.includes("justify-center") ? "text-center" : "text-start";
+  const titleCls = onHero
+    ? "font-display text-[15px] font-semibold leading-6 text-white sm:text-base"
+    : "font-display text-[15px] font-semibold leading-6 text-navy dark:text-white sm:text-base";
+  const bodyCls = onHero
+    ? "mt-1 text-[12px] leading-5 text-white/80 sm:text-[13px] sm:leading-6"
+    : "mt-1 text-[12px] leading-5 text-navy/70 dark:text-white/75 sm:text-[13px] sm:leading-6";
+  const chipCls = onHero
+    ? "text-[11px] font-semibold text-gold"
+    : "text-[11px] font-semibold text-gold-ink dark:text-gold";
+
+  return (
+    <div className={`flex w-full flex-col gap-3 ${className}`}>
+      <div className={noticeAlign}>
+        <p className={chipCls}>{s.comingChip}</p>
+        <p className={`mt-1 ${titleCls}`}>{s.comingTitle}</p>
+        <p className={bodyCls}>{s.comingBody}</p>
+      </div>
+      <div className={equal || large || className.includes("justify-center") ? "flex justify-center" : ""}>
+        {buttons}
+      </div>
     </div>
   );
 }

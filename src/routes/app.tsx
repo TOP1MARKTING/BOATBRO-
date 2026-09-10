@@ -60,7 +60,7 @@ function AppPage() {
             <p className="mx-auto mt-4 max-w-xl text-[15px] leading-7 text-white/80 sm:mt-5 sm:text-base sm:leading-8 lg:mx-0">
               {p.lead}
             </p>
-            <StoreButtons className="mt-6 justify-center sm:mt-8 lg:justify-start" />
+            <StoreButtons tone="hero" className="mt-6 justify-center sm:mt-8 lg:justify-start" showNotice />
           </div>
           <AppHeroPreview />
         </div>
@@ -98,9 +98,7 @@ function AppPage() {
 
       <Section tone="mute">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-semibold text-navy md:text-4xl">{p.storesTitle}</h2>
-          <p className="mt-4 text-base leading-8 text-muted-foreground">{p.storesBody}</p>
-          <StoreButtons size="lg" className="mt-6 justify-center sm:mt-8" />
+          <StoreButtons size="lg" showNotice className="mt-0 justify-center" />
         </div>
         <div className="mt-10 rounded-[1.5rem] border border-border bg-navy-deep px-6 py-8 text-center text-white sm:px-8 sm:py-10">
           <h3 className="font-display text-2xl font-semibold sm:text-3xl">{p.ctaTitle}</h3>

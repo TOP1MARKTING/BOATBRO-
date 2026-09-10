@@ -60,6 +60,7 @@ export type ContactRequest = {
   phone: string;
   email: string;
   address: string;
+  boatsCount: string;
   content: string;
   lang: "ar" | "en";
   uid: string | null;
@@ -386,6 +387,7 @@ export async function saveContactRequest(data: ContactRequest) {
     phone: data.phone.slice(0, 40),
     email: data.email.slice(0, 120),
     address: data.address.slice(0, 160),
+    boatsCount: data.boatsCount.slice(0, 40),
     content: data.content.slice(0, 2000),
     lang: data.lang === "en" ? "en" : "ar",
     uid: data.uid,
@@ -658,6 +660,7 @@ export async function listContacts() {
         phone: String(data.phone ?? ""),
         email: String(data.email ?? ""),
         address: String(data.address ?? ""),
+        boatsCount: String(data.boatsCount ?? ""),
         content: String(data.content ?? ""),
         lang: data.lang === "en" ? "en" as const : "ar" as const,
         uid: (data.uid as string | null) ?? null,
@@ -699,7 +702,7 @@ export async function listUsers() {
 
 const MAX_IMAGE_INPUT_BYTES = 8 * 1024 * 1024;
 
-async function prepareImageDataUrl(file: File, profile: "gallery" | "post") {
+async function prepareImageDataUrl(file: File, profile: "gallery" | "post" | "license" | "licenseIcon") {
   if (file.size > MAX_IMAGE_INPUT_BYTES) {
     throw new Error("file-too-large");
   }
@@ -779,6 +782,170 @@ export async function updateGalleryImage(id: string, input: Partial<GalleryInput
 
 export async function deleteGalleryImage(item: Pick<GalleryImage, "id">) {
   await deleteDoc(doc(getDb(), "gallery", item.id));
+}
+
+export type License = {
+  id: string;
+  name: LocalizedText;
+  number: string;
+  authorityIconUrl: string;
+  imageUrl: string;
+  sortOrder: number;
+  uploadedBy: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
+export type LicenseInput = {
+  name: LocalizedText;
+  number: string;
+  sortOrder?: number;
+};
+
+function resolveImageDataUrl(data: Record<string, unknown>, primary: string, fallback: string) {
+  const stored = String(data[primary] ?? "");
+  if (stored.startsWith("data:") || stored.startsWith("http://") || stored.startsWith("https://")) {
+    return stored;
+  }
+  const alt = String(data[fallback] ?? "");
+  if (alt.startsWith("data:") || alt.startsWith("http://") || alt.startsWith("https://")) {
+    return alt;
+  }
+  return "";
+}
+
+function mapLicense(id: string, data: Record<string, unknown>): License {
+  return {
+    id,
+    name: mapLocalizedField(data.name),
+    number: String(data.number ?? ""),
+    authorityIconUrl: resolveImageDataUrl(data, "authorityIconUrl", "authorityIconDataUrl"),
+    imageUrl: resolveImageDataUrl(data, "imageUrl", "imageDataUrl"),
+    sortOrder: typeof data.sortOrder === "number" ? data.sortOrder : Number(data.sortOrder ?? 0) || 0,
+    uploadedBy: String(data.uploadedBy ?? ""),
+    createdAt: toDate(data.createdAt),
+    updatedAt: toDate(data.updatedAt),
+  };
+}
+
+export async function listLicenses() {
+  const snap = await getDocs(query(collection(getDb(), "licenses"), limit(40)));
+  return snap.docs
+    .map((d) => mapLicense(d.id, d.data()))
+    .sort((a, b) => a.sortOrder - b.sortOrder || (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0));
+}
+
+export async function createLicense(
+  input: LicenseInput,
+  uid: string,
+  files: { authorityIcon?: File | null; image?: File | null } = {},
+) {
+  const nameAr = input.name.ar.trim();
+  const nameEn = input.name.en.trim();
+  const number = input.number.trim();
+  if ((!nameAr && !nameEn) || !number) {
+    throw new Error("invalid-license");
+  }
+
+  let authorityIconUrl = "";
+  let authorityIconMimeType = "";
+  let authorityIconByteLength = 0;
+  if (files.authorityIcon) {
+    const prepared = await prepareImageDataUrl(files.authorityIcon, "licenseIcon");
+    authorityIconUrl = prepared.dataUrl;
+    authorityIconMimeType = prepared.mimeType;
+    authorityIconByteLength = prepared.byteLength;
+  }
+
+  let imageUrl = "";
+  let imageMimeType = "";
+  let imageByteLength = 0;
+  if (files.image) {
+    const prepared = await prepareImageDataUrl(files.image, "license");
+    imageUrl = prepared.dataUrl;
+    imageMimeType = prepared.mimeType;
+    imageByteLength = prepared.byteLength;
+  }
+
+  const name = { ar: nameAr || nameEn, en: nameEn || nameAr };
+  const sortOrder = typeof input.sortOrder === "number" ? input.sortOrder : Date.now();
+  const created = await addDoc(collection(getDb(), "licenses"), {
+    name,
+    number: number.slice(0, 80),
+    authorityIconUrl,
+    authorityIconMimeType,
+    authorityIconByteLength,
+    imageUrl,
+    imageMimeType,
+    imageByteLength,
+    sortOrder,
+    uploadedBy: uid,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return mapLicense(created.id, {
+    name,
+    number: number.slice(0, 80),
+    authorityIconUrl,
+    imageUrl,
+    sortOrder,
+    uploadedBy: uid,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+}
+
+export async function updateLicense(
+  id: string,
+  input: Partial<LicenseInput> & {
+    clearAuthorityIcon?: boolean;
+    clearImage?: boolean;
+  },
+  files: { authorityIcon?: File | null; image?: File | null } = {},
+) {
+  const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
+
+  if (input.name) {
+    const nameAr = input.name.ar.trim();
+    const nameEn = input.name.en.trim();
+    if (!nameAr && !nameEn) throw new Error("invalid-license");
+    payload.name = { ar: nameAr || nameEn, en: nameEn || nameAr };
+  }
+  if (input.number !== undefined) {
+    const number = input.number.trim();
+    if (!number) throw new Error("invalid-license");
+    payload.number = number.slice(0, 80);
+  }
+  if (typeof input.sortOrder === "number") payload.sortOrder = input.sortOrder;
+
+  if (files.authorityIcon) {
+    const prepared = await prepareImageDataUrl(files.authorityIcon, "licenseIcon");
+    payload.authorityIconUrl = prepared.dataUrl;
+    payload.authorityIconMimeType = prepared.mimeType;
+    payload.authorityIconByteLength = prepared.byteLength;
+  } else if (input.clearAuthorityIcon) {
+    payload.authorityIconUrl = "";
+    payload.authorityIconMimeType = "";
+    payload.authorityIconByteLength = 0;
+  }
+
+  if (files.image) {
+    const prepared = await prepareImageDataUrl(files.image, "license");
+    payload.imageUrl = prepared.dataUrl;
+    payload.imageMimeType = prepared.mimeType;
+    payload.imageByteLength = prepared.byteLength;
+  } else if (input.clearImage) {
+    payload.imageUrl = "";
+    payload.imageMimeType = "";
+    payload.imageByteLength = 0;
+  }
+
+  await updateDoc(doc(getDb(), "licenses", id), payload);
+}
+
+export async function deleteLicense(id: string) {
+  await deleteDoc(doc(getDb(), "licenses", id));
 }
 
 const SITE_SETTINGS_ID = "public";

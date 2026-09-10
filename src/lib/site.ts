@@ -95,6 +95,26 @@ export function isValidPhone(raw: string) {
   return digits.length >= 8 && digits.length <= 15;
 }
 
+/** Normalize a phone to international digits (no +), preferring Saudi (+966) when local. */
+export function normalizePhoneDigits(raw: string) {
+  let digits = raw.trim().replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("0") && digits.length === 10) digits = `966${digits.slice(1)}`;
+  else if (digits.length === 9 && digits.startsWith("5")) digits = `966${digits}`;
+  return digits;
+}
+
+export function phoneToTelHref(raw: string) {
+  const digits = normalizePhoneDigits(raw);
+  return digits ? `tel:+${digits}` : `tel:${raw.trim()}`;
+}
+
+export function phoneToWhatsAppUrl(raw: string) {
+  const digits = normalizePhoneDigits(raw);
+  return digits ? `https://wa.me/${digits}` : "https://wa.me/";
+}
+
 export function readingMinutes(text: string) {
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 180));

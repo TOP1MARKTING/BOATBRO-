@@ -13,6 +13,7 @@ import type { BlogPost, ContactRecord, UserRecord } from "../../lib/db";
 import { isSuperAdminEmail } from "../../lib/admin";
 import type { AdminTab } from "../../lib/admin-permissions";
 import { buildAdminSeoLabels } from "../../lib/admin-labels";
+import { localizeContactUserType } from "../../lib/contact-user-type";
 import { postToInput } from "../../lib/db";
 import { analyzePostSeo } from "../../lib/post-seo";
 import { AdminStatCard } from "./shared";
@@ -125,7 +126,9 @@ export function AdminOverviewPanel({
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate font-medium text-navy">{c.name}</p>
-                      <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{c.userType}</p>
+                      <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                        {localizeContactUserType(c.userType, t)}
+                      </p>
                     </div>
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${

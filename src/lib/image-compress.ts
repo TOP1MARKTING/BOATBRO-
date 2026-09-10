@@ -1,8 +1,10 @@
-export type ImageCompressProfile = "gallery" | "post";
+export type ImageCompressProfile = "gallery" | "post" | "license" | "licenseIcon";
 
 const PROFILES: Record<ImageCompressProfile, { maxWidth: number; maxHeight: number; maxBytes: number }> = {
   gallery: { maxWidth: 1920, maxHeight: 1920, maxBytes: 700_000 },
   post: { maxWidth: 1400, maxHeight: 1400, maxBytes: 200_000 },
+  license: { maxWidth: 1400, maxHeight: 1400, maxBytes: 450_000 },
+  licenseIcon: { maxWidth: 256, maxHeight: 256, maxBytes: 80_000 },
 };
 
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);

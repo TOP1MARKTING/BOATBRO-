@@ -1,4 +1,4 @@
-﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AdminContactsPanel } from "../components/admin/admin-contacts-panel";
 import { AdminContentPanel } from "../components/admin/admin-content-panel";
@@ -197,7 +197,7 @@ function AdminPage() {
           />
         ) : null}
         {tab === "settings" && canAccessTab("settings") ? (
-          <AdminSettingsPanel t={t} onSaved={() => void refreshSiteSettings()} />
+          <AdminSettingsPanel uid={user.uid} t={t} onSaved={() => void refreshSiteSettings()} />
         ) : null}
         {tab === "profile" && canAccessTab("profile") ? (
           <AdminProfilePanel user={user} staffRole={staffRole} permissions={permissions} lang={lang} t={t} />

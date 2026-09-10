@@ -234,16 +234,20 @@ function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
   const { serviceLogins } = useSiteSettings();
   const loginHref = id === "marinas" ? serviceLogins.marinas : "";
   const showStores = id === "guests" || id === "owners";
+  const primary =
+    id === "owners"
+      ? { to: "/contact" as const, hash: "partner-form", label: t.cta.shareInterest }
+      : { to: "/features" as const, hash: id, label: t.cta.more };
 
   return (
     <div className="mt-auto flex flex-col gap-3 pt-5">
       <div className="flex flex-wrap gap-2">
         <Link
-          to="/features"
-          hash={id}
+          to={primary.to}
+          hash={primary.hash}
           className={`${actionPill} border border-gold/50 text-gold-ink hover:bg-gold hover:text-white`}
         >
-          {t.cta.more} <CtaArrow />
+          {primary.label} <CtaArrow />
         </Link>
         {loginHref ? (
           <a
@@ -252,11 +256,11 @@ function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
             rel="noopener noreferrer"
             className={`${actionPill} bg-gold text-white hover:bg-gold/85`}
           >
-            {t.featuresPage.loginCta} <CtaArrow />
+            {id === "marinas" ? t.featuresPage.marinas.siteCta : t.featuresPage.loginCta} <CtaArrow />
           </a>
         ) : null}
       </div>
-      {showStores ? <StoreButtons size="sm" /> : null}
+      {showStores ? <StoreButtons size="sm" showNotice /> : null}
     </div>
   );
 }
@@ -301,44 +305,49 @@ function HomePage() {
         <div className="absolute inset-0 bg-navy-deep/20 dark:bg-navy-deep/8" />
         <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/40 via-navy-deep/20 to-navy-deep/60 dark:from-navy-deep/25 dark:via-navy-deep/10 dark:to-navy-deep/40" />
         <div className="absolute inset-0 bg-gradient-to-l from-navy-deep/50 via-navy-deep/25 to-transparent dark:from-navy-deep/30 dark:via-navy-deep/12" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-navy-deep/70 to-transparent dark:from-navy-deep/45" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-navy-deep/70 to-transparent dark:from-navy-deep/45" />
 
-        <div className={`${SHELL} relative flex h-full items-center py-5 pt-[68px] sm:py-6 sm:pt-[80px] lg:pt-[88px]`}>
-          <div className="animate-fade-up w-full max-w-xl rounded-[1.35rem] border border-white/15 bg-navy-deep/45 p-4 text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)] backdrop-blur-md sm:max-w-2xl sm:p-6 lg:bg-navy-deep/40 lg:p-7">
-            <div className="flex items-center gap-3">
+        <div className={`${SHELL} relative flex h-full items-center justify-start py-3 pt-[64px] pb-4 sm:py-4 sm:pt-[72px] sm:pb-5 lg:pt-[76px]`}>
+          <div className="animate-fade-up me-auto w-full max-w-2xl rounded-[1.25rem] border border-white/15 bg-navy-deep/35 p-3.5 text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)] backdrop-blur-[2px] sm:max-w-3xl sm:p-5 lg:max-w-[52rem] lg:bg-navy-deep/30 lg:p-6">
+            <div className="flex items-center gap-2.5">
               <Logo />
               <div>
-                <p className="font-display text-[14px] tracking-[0.2em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
+                <p className="font-display text-[13px] tracking-[0.2em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] sm:text-[14px]">
                   BOATPRO
                 </p>
-                <p className="mt-0.5 text-[12px] text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+                <p className="mt-0.5 text-[11px] text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] sm:text-[12px]">
                   {t.home.hero.tagline}
                 </p>
               </div>
             </div>
 
-            <GoldLine className="mt-4 !bg-gold" />
+            <GoldLine className="mt-2.5 !bg-gold sm:mt-3" />
 
-            <h1 className="mt-4 font-display text-[clamp(1.65rem,3.8vw+1.2vh,3.1rem)] font-semibold leading-[1.28] drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
+            <h1 className="mt-2.5 font-display text-[clamp(1.35rem,2.6vw+1vh,2.35rem)] font-semibold leading-[1.22] drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)] sm:mt-3">
               <span className="block">{t.home.hero.title1}</span>
               <span className="block text-gradient-gold-soft">{t.home.hero.title2}</span>
               <span className="block text-gradient-gold-soft">{t.home.hero.title3}</span>
             </h1>
 
-            <p className="mt-3 max-w-xl text-[13px] leading-7 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.55)] sm:mt-4 sm:text-[15px] sm:leading-8">
+            <p className="mt-2 max-w-2xl text-[12px] leading-5 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.55)] sm:mt-2.5 sm:text-[14px] sm:leading-6">
               {t.home.hero.body}
             </p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:mt-5 sm:gap-3">
-              <Btn to="/app" variant="gold" className="min-h-11 px-6 py-2.5">
+            <div className="mt-2.5 flex w-full max-w-sm flex-col gap-2 sm:mt-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-2.5">
+              <Btn to="/app" variant="gold" className="min-h-10 w-full justify-center px-5 py-2 text-[13px] sm:w-auto sm:min-w-[10.5rem]">
                 {t.cta.download} <CtaArrow />
               </Btn>
-              <Btn to="/contact" variant="ghost" className="min-h-11 px-6 py-2.5">
-                {t.cta.talk}
+              <Btn
+                to="/contact"
+                hash="partner-form"
+                variant="ghost"
+                className="min-h-10 w-full justify-center border-white/55 bg-white/10 px-5 py-2 text-[13px] backdrop-blur-sm sm:w-auto sm:min-w-[10.5rem]"
+              >
+                {t.cta.partnerInterest} <CtaArrow />
               </Btn>
             </div>
 
-            <StoreButtons tone="hero" size="sm" className="mt-3 sm:mt-4" />
+            <StoreButtons tone="hero" size="sm" showNotice className="mt-2.5 sm:mt-3" />
           </div>
         </div>
       </section>
@@ -496,8 +505,8 @@ function HomePage() {
             <Btn to="/contact" variant="gold">
               {t.cta.talk} <CtaArrow />
             </Btn>
-            <Btn href={contact.whatsapp} variant="ghost">
-              {t.cta.whatsapp}
+            <Btn href={contact.whatsapp} variant="whatsapp">
+              {t.cta.whatsapp} <CtaArrow />
             </Btn>
           </div>
         </div>

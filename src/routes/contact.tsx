@@ -65,46 +65,41 @@ function ContactPage() {
         <h2 className="mt-6 max-w-2xl font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">
           {c.title1} {c.title2}
         </h2>
-        <p className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground">{c.body}</p>
+
+        <div
+          id="partner-form"
+          className="mt-10 scroll-mt-28 overflow-hidden rounded-[1.85rem] border border-[#C8A96A]/25 bg-gradient-to-br from-[#C8A96A]/10 via-surface-2 to-card p-1.5 shadow-[0_24px_48px_-32px_rgba(15,40,70,0.45)] sm:p-2"
+        >
+          <div className="rounded-[1.55rem] border border-border/60 bg-card/95 p-5 backdrop-blur-sm sm:p-7 lg:p-8">
+            <ContactForm />
+          </div>
+        </div>
 
         <ContactChannels className="mt-10" />
       </Section>
 
       <Section>
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
-          <div className="lg:col-span-4">
-            <Kicker>{c.chip}</Kicker>
-            <GoldLine className="mt-4" />
-            <h2 className="mt-6 font-display text-3xl font-semibold leading-snug text-navy">
-              {c.title1}
-              <br />
-              {c.title2}
-            </h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">{c.body}</p>
-            <div className="mt-8 space-y-3">
-              {c.paths.map(([title, body], i) => (
-                <article
-                  key={title}
-                  className="relative overflow-hidden rounded-[1.35rem] border border-border bg-card p-5 ps-6"
-                >
-                  <span className="absolute inset-y-0 start-0 w-1 bg-gold" aria-hidden="true" />
-                  <p className="font-display text-[12px] tracking-[0.14em] text-gold">
-                    {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="mt-2 font-display text-lg font-semibold text-navy">{title}</h3>
-                  <p className="mt-1 text-sm leading-7 text-muted-foreground">{body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:col-span-8">
-            <div className="rounded-[1.85rem] border border-border bg-surface-2 p-1.5 sm:p-2">
-              <div className="rounded-[1.6rem] bg-card p-5 sm:p-7 lg:p-8">
-                <ContactForm />
-              </div>
-            </div>
-          </div>
+        <Kicker>{c.chip}</Kicker>
+        <GoldLine className="mt-4" />
+        <h2 className="mt-6 max-w-2xl font-display text-3xl font-semibold leading-snug text-navy">
+          {c.title1}
+          <br />
+          {c.title2}
+        </h2>
+        <div className="mt-8 grid gap-3 md:grid-cols-3">
+          {c.paths.map(([title, body], i) => (
+            <article
+              key={title}
+              className="relative overflow-hidden rounded-[1.35rem] border border-border bg-card p-5 ps-6"
+            >
+              <span className="absolute inset-y-0 start-0 w-1 bg-gold" aria-hidden="true" />
+              <p className="font-display text-[12px] tracking-[0.14em] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </p>
+              <h3 className="mt-2 font-display text-lg font-semibold text-navy">{title}</h3>
+              <p className="mt-1 text-sm leading-7 text-muted-foreground">{body}</p>
+            </article>
+          ))}
         </div>
       </Section>
 
@@ -115,10 +110,10 @@ function ContactPage() {
             <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy">
               {c.title1} {c.title2}
             </h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">{c.body}</p>
+            <p className="mt-4 text-base leading-8 text-muted-foreground">{c.lead}</p>
           </div>
           <div className="mt-8 flex flex-wrap gap-3 lg:mt-0">
-            <Btn href={contact.whatsapp} variant="gold">
+            <Btn href={contact.whatsapp} variant="whatsapp">
               {t.cta.whatsapp} <CtaArrow />
             </Btn>
             <Btn to="/app" variant="line">
