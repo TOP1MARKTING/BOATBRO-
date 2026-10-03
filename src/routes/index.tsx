@@ -260,7 +260,7 @@ function AudienceActions({ id }: { id: "guests" | "owners" | "marinas" }) {
           </a>
         ) : null}
       </div>
-      {showStores ? <StoreButtons size="sm" showNotice /> : null}
+      {showStores ? <StoreButtons size="sm" showNotice app={id === "owners" ? "owners" : "guests"} /> : null}
     </div>
   );
 }

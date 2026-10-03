@@ -19,21 +19,28 @@ function envHttps(key: string) {
   return typeof value === "string" && value.startsWith("https://") ? value : "";
 }
 
-/** Official store URLs only — empty until published. Badges then open /app. */
-export const STORES = {
-  appStore: envHttps("VITE_APP_STORE_URL"),
-  playStore: envHttps("VITE_PLAY_STORE_URL"),
+export type StoreApp = "guests" | "owners";
+export type StoreLinks = { appStore: string; playStore: string };
+
+/** Official store URLs per app — empty until published (badges stay "coming soon"). */
+export const STORES: Record<StoreApp, StoreLinks> = {
+  /** تطبيق الباحثين عن مغامرة بحرية */
+  guests: {
+    appStore: envHttps("VITE_GUESTS_APP_STORE_URL"),
+    playStore: envHttps("VITE_GUESTS_PLAY_STORE_URL"),
+  },
+  /** تطبيق ملاك القوارب واليخوت ومقدمي الخدمات البحرية */
+  owners: {
+    appStore: envHttps("VITE_OWNERS_APP_STORE_URL"),
+    playStore: envHttps("VITE_OWNERS_PLAY_STORE_URL"),
+  },
 };
 
 /**
- * تسجيل الدخول لمواقع الخدمة (دومين مختلف عن الموقع التسويقي).
- * الصق الرابط مباشرة بدل "" أو عبر:
- * VITE_GUESTS_LOGIN_URL / VITE_MARINAS_LOGIN_URL
+ * موقع ملاك المراسي ومحطات الوقود ومراكز الصيانة (دومين مختلف عن الموقع التسويقي).
+ * يُضبط من لوحة التحكم أو عبر VITE_MARINAS_LOGIN_URL.
  */
 export const SERVICE_LOGIN_URLS = {
-  /** مغامرة بحرية / الضيوف */
-  guests: envHttps("VITE_GUESTS_LOGIN_URL") || "",
-  /** مراسي ومحطات الوقود */
   marinas: envHttps("VITE_MARINAS_LOGIN_URL") || "",
 } as const;
 

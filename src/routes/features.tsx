@@ -95,22 +95,25 @@ function useActiveServiceTab() {
         if (!el) continue;
         if (el.getBoundingClientRect().top - marker <= 0) current = id;
       }
-      setActiveId((prev) => {
-        if (prev === current) return prev;
-        const nextHash = `#${current}`;
-        if (window.location.hash !== nextHash) {
-          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${nextHash}`);
-        }
-        return current;
+      setActiveId((prev) => (prev === current ? prev : current));
+    };
+
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        syncFromScroll();
       });
     };
 
     syncFromScroll();
-    window.addEventListener("scroll", syncFromScroll, { passive: true });
-    window.addEventListener("resize", syncFromScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     return () => {
-      window.removeEventListener("scroll", syncFromScroll);
-      window.removeEventListener("resize", syncFromScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
@@ -227,7 +230,12 @@ function ServiceSection({
 
                 {downloadTitle ? (
                   <div className="mt-8 rounded-[1.35rem] border border-border bg-surface-2 p-6 sm:p-7">
-                    <StoreButtons size="lg" showNotice className="mt-0 justify-center" />
+                    <StoreButtons
+                      size="lg"
+                      showNotice
+                      className="mt-0 justify-center"
+                      app={id === "owners" ? "owners" : "guests"}
+                    />
                   </div>
                 ) : null}
 
@@ -269,12 +277,51 @@ function cmsGroupImageKey(group: "guests" | "owners" | "marinas", index: number)
   return `${prefix}${index}`;
 }
 
+function ServiceTabsNav() {
+  const { t } = useLang();
+  const p = t.featuresPage;
+  const activeTab = useActiveServiceTab();
+
+  return (
+    <nav
+      aria-label={p.tabsLabel}
+      className="sticky top-14 z-40 border-b border-border bg-background/95 backdrop-blur-md sm:top-16 lg:top-[72px]"
+    >
+      <div className={`${SHELL} py-3.5`}>
+        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+          {GROUPS.map((group) => {
+            const active = activeTab === group.id;
+            const copy = p[group.key];
+            const Icon = group.icon;
+            return (
+              <Link
+                key={group.id}
+                to="/features"
+                hash={group.id}
+                activeOptions={{ exact: true, includeHash: true }}
+                aria-current={active ? "location" : undefined}
+                className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-medium ${
+                  active
+                    ? "border border-navy bg-navy-deep text-white"
+                    : "border border-border bg-card text-navy transition-colors hover:border-gold hover:text-gold"
+                }`}
+              >
+                <Icon size={16} aria-hidden="true" />
+                {copy.tab}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function FeaturesPage() {
   const { dir, t } = useLang();
   const { image } = usePageContent();
   const { serviceLogins } = useSiteSettings();
   const p = t.featuresPage;
-  const activeTab = useActiveServiceTab();
   const flipImage = dir === "ltr";
   const heroImage = image("features", "hero", "hero-features");
 
@@ -310,37 +357,7 @@ function FeaturesPage() {
         lead={p.lead}
       />
 
-      <nav
-        aria-label={p.tabsLabel}
-        className="sticky top-14 z-40 border-b border-border bg-background/95 backdrop-blur-md sm:top-16 lg:top-[72px]"
-      >
-        <div className={`${SHELL} py-3.5`}>
-          <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
-            {GROUPS.map((group) => {
-              const active = activeTab === group.id;
-              const copy = p[group.key];
-              const Icon = group.icon;
-              return (
-                <Link
-                  key={group.id}
-                  to="/features"
-                  hash={group.id}
-                  activeOptions={{ exact: true, includeHash: true }}
-                  aria-current={active ? "location" : undefined}
-                  className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-medium ${
-                    active
-                      ? "border border-navy bg-navy-deep text-white"
-                      : "border border-border bg-card text-navy transition-colors hover:border-gold hover:text-gold"
-                  }`}
-                >
-                  <Icon size={16} aria-hidden="true" />
-                  {copy.tab}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
+      <ServiceTabsNav />
 
       {GROUPS.map((group, i) => {
         const copy = p[group.key];

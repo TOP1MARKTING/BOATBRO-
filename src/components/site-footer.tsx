@@ -7,7 +7,7 @@ import { useSiteSettings } from "../lib/site-settings-context";
 import { NAV } from "../lib/nav";
 import { Logo, SHELL } from "./brand";
 import { SocialLinksRow } from "./social-links";
-import { StoreButtons } from "./store-buttons";
+import { StoreAppRow } from "./store-buttons";
 
 function ProtectedLicenseImage({
   src,
@@ -53,6 +53,7 @@ function ProtectedLicenseImage({
 export function SiteFooter() {
   const { lang, t } = useLang();
   const { settings, contact, stores } = useSiteSettings();
+  const storesAllLive = Object.values(stores).every((links) => Boolean(links.appStore && links.playStore));
   const [licensesOpen, setLicensesOpen] = useState(false);
   const [licenses, setLicenses] = useState<License[] | null>(null);
   const [licensesLoading, setLicensesLoading] = useState(false);
@@ -171,20 +172,18 @@ export function SiteFooter() {
             <p className="text-[11px] font-medium text-gold sm:text-[12px]">{t.footer.app}</p>
             <div className="mx-auto mt-1 h-px w-8 bg-gold/50 sm:mx-0" />
             <div className="mt-2.5 w-full min-w-0 rounded-lg border border-white/15 bg-white/[0.06] p-3 text-start">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="rounded-full border border-gold/35 bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-gold">
-                  {t.stores.comingChip}
-                </span>
-                <p className="font-display text-[12px] font-semibold leading-5 text-white">{t.stores.comingTitle}</p>
+              {storesAllLive ? null : (
+                <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+                  <span className="rounded-full border border-gold/35 bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-gold">
+                    {t.stores.comingChip}
+                  </span>
+                  <p className="font-display text-[12px] font-semibold leading-5 text-white">{t.stores.appsTitle}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <StoreAppRow app="guests" label={t.stores.guestsApp} />
+                <StoreAppRow app="owners" label={t.stores.ownersApp} />
               </div>
-              <p className="mt-1.5 text-[10px] leading-4 text-white/70">{t.stores.comingBody}</p>
-              <StoreButtons
-                tone="hero"
-                size="sm"
-                appStoreUrl={stores.appStore}
-                playStoreUrl={stores.playStore}
-                className="mt-2.5 w-full"
-              />
             </div>
           </div>
         </div>

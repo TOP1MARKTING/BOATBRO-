@@ -60,7 +60,7 @@ function AppPage() {
             <p className="mx-auto mt-4 max-w-xl text-[15px] leading-7 text-white/80 sm:mt-5 sm:text-base sm:leading-8 lg:mx-0">
               {p.lead}
             </p>
-            <StoreButtons tone="hero" className="mt-6 justify-center sm:mt-8 lg:justify-start" showNotice />
+            <StoreButtons tone="hero" className="mx-auto mt-6 sm:mt-8 lg:mx-0" showNotice />
           </div>
           <AppHeroPreview />
         </div>

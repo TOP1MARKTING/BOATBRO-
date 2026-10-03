@@ -137,31 +137,44 @@ export function AdminSettingsPanel({
           </AdminSection>
 
           <AdminSection title={t.admin.appLinks} hint={t.admin.appLinksHint}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <SettingsField
-                label="App Store"
-                value={form.apps.appStore}
-                placeholder="https://"
-                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, appStore: value } }))}
-              />
-              <SettingsField
-                label="Play Store"
-                value={form.apps.playStore}
-                placeholder="https://"
-                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, playStore: value } }))}
-              />
-              <SettingsField
-                label={t.admin.settingGuestsLogin}
-                value={form.apps.guestsLogin}
-                placeholder="https://"
-                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, guestsLogin: value } }))}
-              />
-              <SettingsField
-                label={t.admin.settingMarinasLogin}
-                value={form.apps.marinasLogin}
-                placeholder="https://"
-                onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, marinasLogin: value } }))}
-              />
+            <div className="space-y-4">
+              {(
+                [
+                  ["guests", t.admin.settingGuestsApp, "guestsAppStore", "guestsPlayStore"],
+                  ["owners", t.admin.settingOwnersApp, "ownersAppStore", "ownersPlayStore"],
+                ] as const
+              ).map(([key, title, appStoreKey, playStoreKey]) => (
+                <fieldset key={key} className="rounded-2xl border border-border bg-surface-2/60 p-4 sm:p-5">
+                  <legend className="px-1 font-display text-[14px] font-semibold text-navy">{title}</legend>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <SettingsField
+                      label="App Store"
+                      value={form.apps[appStoreKey]}
+                      placeholder="https://"
+                      onChange={(value) =>
+                        setForm((prev) => ({ ...prev, apps: { ...prev.apps, [appStoreKey]: value } }))
+                      }
+                    />
+                    <SettingsField
+                      label="Play Store"
+                      value={form.apps[playStoreKey]}
+                      placeholder="https://"
+                      onChange={(value) =>
+                        setForm((prev) => ({ ...prev, apps: { ...prev.apps, [playStoreKey]: value } }))
+                      }
+                    />
+                  </div>
+                </fieldset>
+              ))}
+              <fieldset className="rounded-2xl border border-border bg-surface-2/60 p-4 sm:p-5">
+                <legend className="px-1 font-display text-[14px] font-semibold text-navy">{t.admin.settingMarinasSite}</legend>
+                <SettingsField
+                  label={t.admin.settingMarinasLogin}
+                  value={form.apps.marinasLogin}
+                  placeholder="https://"
+                  onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, marinasLogin: value } }))}
+                />
+              </fieldset>
             </div>
           </AdminSection>
 

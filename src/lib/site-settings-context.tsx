@@ -43,11 +43,16 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
       refresh,
       contact: resolvedContact(settings),
       stores: {
-        appStore: settings.apps.appStore || STORES.appStore,
-        playStore: settings.apps.playStore || STORES.playStore,
+        guests: {
+          appStore: settings.apps.guestsAppStore || STORES.guests.appStore,
+          playStore: settings.apps.guestsPlayStore || STORES.guests.playStore,
+        },
+        owners: {
+          appStore: settings.apps.ownersAppStore || STORES.owners.appStore,
+          playStore: settings.apps.ownersPlayStore || STORES.owners.playStore,
+        },
       },
       serviceLogins: {
-        guests: settings.apps.guestsLogin || SERVICE_LOGIN_URLS.guests,
         marinas: settings.apps.marinasLogin || SERVICE_LOGIN_URLS.marinas,
       },
     }),

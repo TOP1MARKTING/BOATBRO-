@@ -15,9 +15,10 @@ export type SiteSettingsInput = {
     whatsapp: string;
   };
   apps: {
-    appStore: string;
-    playStore: string;
-    guestsLogin: string;
+    guestsAppStore: string;
+    guestsPlayStore: string;
+    ownersAppStore: string;
+    ownersPlayStore: string;
     marinasLogin: string;
   };
 };
@@ -42,9 +43,10 @@ export function defaultSiteSettings(): SiteSettings {
       whatsapp: CONTACT.whatsapp,
     },
     apps: {
-      appStore: STORES.appStore,
-      playStore: STORES.playStore,
-      guestsLogin: SERVICE_LOGIN_URLS.guests,
+      guestsAppStore: STORES.guests.appStore,
+      guestsPlayStore: STORES.guests.playStore,
+      ownersAppStore: STORES.owners.appStore,
+      ownersPlayStore: STORES.owners.playStore,
       marinasLogin: SERVICE_LOGIN_URLS.marinas,
     },
     updatedAt: null,
@@ -72,9 +74,10 @@ export function normalizeSiteSettingsInput(input: SiteSettingsInput): SiteSettin
       whatsapp: normalizeExternalUrl(input.contact.whatsapp),
     },
     apps: {
-      appStore: normalizeExternalUrl(input.apps.appStore),
-      playStore: normalizeExternalUrl(input.apps.playStore),
-      guestsLogin: normalizeExternalUrl(input.apps.guestsLogin),
+      guestsAppStore: normalizeExternalUrl(input.apps.guestsAppStore),
+      guestsPlayStore: normalizeExternalUrl(input.apps.guestsPlayStore),
+      ownersAppStore: normalizeExternalUrl(input.apps.ownersAppStore),
+      ownersPlayStore: normalizeExternalUrl(input.apps.ownersPlayStore),
       marinasLogin: normalizeExternalUrl(input.apps.marinasLogin),
     },
   };
@@ -101,9 +104,10 @@ export function mapSiteSettings(data: Record<string, unknown> | null | undefined
       whatsapp: String(contact.whatsapp ?? base.contact.whatsapp),
     },
     apps: {
-      appStore: String(apps.appStore ?? base.apps.appStore),
-      playStore: String(apps.playStore ?? base.apps.playStore),
-      guestsLogin: String(apps.guestsLogin ?? base.apps.guestsLogin),
+      guestsAppStore: String(apps.guestsAppStore ?? apps.appStore ?? base.apps.guestsAppStore),
+      guestsPlayStore: String(apps.guestsPlayStore ?? apps.playStore ?? base.apps.guestsPlayStore),
+      ownersAppStore: String(apps.ownersAppStore ?? base.apps.ownersAppStore),
+      ownersPlayStore: String(apps.ownersPlayStore ?? base.apps.ownersPlayStore),
       marinasLogin: String(apps.marinasLogin ?? base.apps.marinasLogin),
     },
     updatedAt: data.updatedAt && typeof (data.updatedAt as { toDate?: () => Date }).toDate === "function"
