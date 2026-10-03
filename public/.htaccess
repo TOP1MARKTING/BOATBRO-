@@ -9,6 +9,9 @@
   # Leave the separate marina website directory untouched.
   RewriteRule ^www\.lunayairmarina\.com(/.*)?$ - [L]
 
+  # Marina / fuel / maintenance provider portal lives in its own directory.
+  RewriteRule ^Admin(/.*)?$ - [L]
+
   # Serve real files and directories (prerendered HTML, assets, media, etc.).
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

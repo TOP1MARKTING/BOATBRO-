@@ -41,7 +41,7 @@ export const STORES: Record<StoreApp, StoreLinks> = {
  * يُضبط من لوحة التحكم أو عبر VITE_MARINAS_LOGIN_URL.
  */
 export const SERVICE_LOGIN_URLS = {
-  marinas: envHttps("VITE_MARINAS_LOGIN_URL") || "",
+  marinas: envHttps("VITE_MARINAS_LOGIN_URL") || "https://boatpro.club/Admin/#/login",
 } as const;
 
 export type PageSeoInput = {
