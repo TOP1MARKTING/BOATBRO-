@@ -11,15 +11,16 @@ import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { StoreButtons } from "../components/store-buttons";
 import { useLang } from "../lib/i18n";
 import { usePageContent } from "../lib/page-content-context";
-import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { SITE_ORIGIN, pageHead, localizedUrl } from "../lib/site";
 import { dictionaries } from "../lib/copy";
 import { useSiteSettings } from "../lib/site-settings-context";
+import { getUrlLang } from "../lib/locale-url";
 
 export const Route = createFileRoute("/features")({
   head: () =>
     pageHead({
-      title: dictionaries.ar.seo.featuresTitle,
-      description: dictionaries.ar.seo.featuresDesc,
+      title: dictionaries[getUrlLang()].seo.featuresTitle,
+      description: dictionaries[getUrlLang()].seo.featuresDesc,
       path: "/features",
     }),
   component: FeaturesPage,
@@ -318,7 +319,7 @@ function ServiceTabsNav() {
 }
 
 function FeaturesPage() {
-  const { dir, t } = useLang();
+  const { dir, lang, t } = useLang();
   const { image } = usePageContent();
   const { serviceLogins } = useSiteSettings();
   const p = t.featuresPage;
@@ -335,15 +336,15 @@ function FeaturesPage() {
             "@context": "https://schema.org",
             "@type": "WebPage",
             name: p.h1,
-            url: `${SITE_ORIGIN}/features`,
+            url: localizedUrl("/features", lang),
             description: t.seo.featuresDesc,
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
-              { "@type": "ListItem", position: 2, name: t.crumbs.features, item: `${SITE_ORIGIN}/features` },
+              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
+              { "@type": "ListItem", position: 2, name: t.crumbs.features, item: localizedUrl("/features", lang) },
             ],
           },
         ]}

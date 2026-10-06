@@ -14,6 +14,12 @@ const distDir = path.resolve(__dirname, "../dist");
 const port = Number(process.env.PRERENDER_PORT || 4173);
 
 const PUBLIC_ROUTES = ["/", "/about", "/features", "/app", "/contact", "/blog"];
+const LOCALES = ["ar", "en"];
+
+/** `/about` → `/ar/about/`, `/` → `/ar/` (dist/index.html stays the SPA shell for /admin and fallbacks). */
+function localize(route, lang) {
+  return route === "/" ? `/${lang}/` : `/${lang}${route}/`;
+}
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -80,7 +86,9 @@ async function main() {
   }
 
   const slugs = await fetchPublishedBlogSlugs();
-  const routes = [...PUBLIC_ROUTES, ...slugs.map((slug) => `/blog/${slug}`)];
+  const routes = [...PUBLIC_ROUTES, ...slugs.map((slug) => `/blog/${slug}`)].flatMap((route) =>
+    LOCALES.map((lang) => localize(route, lang)),
+  );
 
   const server = createStaticServer();
   await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));

@@ -9,21 +9,22 @@ import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
 import { useCmsImage } from "../lib/page-content-context";
 import { useSiteSettings } from "../lib/site-settings-context";
-import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { SITE_ORIGIN, pageHead, localizedUrl } from "../lib/site";
 import { dictionaries } from "../lib/copy";
+import { getUrlLang } from "../lib/locale-url";
 
 export const Route = createFileRoute("/about")({
   head: () =>
     pageHead({
-      title: dictionaries.ar.seo.aboutTitle,
-      description: dictionaries.ar.seo.aboutDesc,
+      title: dictionaries[getUrlLang()].seo.aboutTitle,
+      description: dictionaries[getUrlLang()].seo.aboutDesc,
       path: "/about",
     }),
   component: AboutPage,
 });
 
 function AboutPage() {
-  const { dir, t } = useLang();
+  const { dir, lang, t } = useLang();
   const { contact } = useSiteSettings();
   const heroImage = useCmsImage("about", "hero", "hero-about");
   const storyImage = useCmsImage("about", "story", "luxury-marina");
@@ -38,15 +39,15 @@ function AboutPage() {
             "@context": "https://schema.org",
             "@type": "AboutPage",
             name: t.aboutPage.h1,
-            url: `${SITE_ORIGIN}/about`,
+            url: localizedUrl("/about", lang),
             isPartOf: { "@type": "WebSite", name: "BoatPro", url: SITE_ORIGIN },
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
-              { "@type": "ListItem", position: 2, name: t.crumbs.about, item: `${SITE_ORIGIN}/about` },
+              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
+              { "@type": "ListItem", position: 2, name: t.crumbs.about, item: localizedUrl("/about", lang) },
             ],
           },
         ]}

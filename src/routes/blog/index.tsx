@@ -9,14 +9,15 @@ import { listPublishedPosts, postCoverUrl, postPlainText, type BlogPost } from "
 import { pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
 import { useCmsImage } from "../../lib/page-content-context";
-import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
+import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes, localizedUrl } from "../../lib/site";
 import { dictionaries } from "../../lib/copy";
+import { getUrlLang } from "../../lib/locale-url";
 
 export const Route = createFileRoute("/blog/")({
   head: () =>
     pageHead({
-      title: dictionaries.ar.blog.seoTitle,
-      description: dictionaries.ar.blog.seoDesc,
+      title: dictionaries[getUrlLang()].blog.seoTitle,
+      description: dictionaries[getUrlLang()].blog.seoDesc,
       path: "/blog",
     }),
   component: BlogPage,
@@ -43,15 +44,15 @@ function BlogPage() {
             "@context": "https://schema.org",
             "@type": "Blog",
             name: t.blog.title,
-            url: `${SITE_ORIGIN}/blog`,
+            url: localizedUrl("/blog", lang),
             description: t.blog.body,
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
-              { "@type": "ListItem", position: 2, name: t.crumbs.blog, item: `${SITE_ORIGIN}/blog` },
+              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
+              { "@type": "ListItem", position: 2, name: t.crumbs.blog, item: localizedUrl("/blog", lang) },
             ],
           },
         ]}

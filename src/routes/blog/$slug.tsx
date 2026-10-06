@@ -8,8 +8,9 @@ import { Btn, CtaArrow } from "../../components/ui";
 import { getPostBySlug, listPublishedPosts, pickRelatedPosts, postCoverUrl, postPlainText } from "../../lib/db";
 import { pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
+import { getUrlLang } from "../../lib/locale-url";
 import { resolveMetaDescription, resolveMetaTitle, resolveOgImage } from "../../lib/post-seo";
-import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
+import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes, localizedUrl } from "../../lib/site";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
@@ -49,10 +50,11 @@ export const Route = createFileRoute("/blog/$slug")({
       tags: post.tags,
       featured: post.featured,
     };
-    const title = resolveMetaTitle(input, post.lang);
-    const description = resolveMetaDescription(input, post.lang).slice(0, 160);
+    const lang = getUrlLang();
+    const title = resolveMetaTitle(input, lang);
+    const description = resolveMetaDescription(input, lang).slice(0, 160);
     return pageHead({
-      title: `${title} | بوت برو`,
+      title: `${title} | ${lang === "ar" ? "بوت برو" : "BoatPro"}`,
       description,
       path: `/blog/${post.slug}`,
       image: resolveOgImage(input) || "/og.jpg",
@@ -108,16 +110,16 @@ function BlogPostPage() {
               name: "BoatPro",
               logo: { "@type": "ImageObject", url: `${SITE_ORIGIN}/logo.png` },
             },
-            mainEntityOfPage: `${SITE_ORIGIN}/blog/${post.slug}`,
+            mainEntityOfPage: localizedUrl(`/blog/${post.slug}`, lang),
             inLanguage: post.lang === "en" ? "en" : "ar",
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
-              { "@type": "ListItem", position: 2, name: t.crumbs.blog, item: `${SITE_ORIGIN}/blog` },
-              { "@type": "ListItem", position: 3, name: metaTitle, item: `${SITE_ORIGIN}/blog/${post.slug}` },
+              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
+              { "@type": "ListItem", position: 2, name: t.crumbs.blog, item: localizedUrl("/blog", lang) },
+              { "@type": "ListItem", position: 3, name: metaTitle, item: localizedUrl(`/blog/${post.slug}`, lang) },
             ],
           },
           ...(post.faq.length > 0

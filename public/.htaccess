@@ -6,11 +6,20 @@
   RewriteEngine On
   RewriteBase /
 
+  # One public host: www.boatpro.club → boatpro.club (keeps Search Console and the sitemap on a single site).
+  RewriteCond %{HTTP_HOST} ^www\.boatpro\.club$ [NC]
+  RewriteRule ^(.*)$ https://boatpro.club/$1 [R=301,L]
+
   # Leave the separate marina website directory untouched.
   RewriteRule ^www\.lunayairmarina\.com(/.*)?$ - [L]
 
   # Marina / fuel / maintenance provider portal lives in its own directory.
   RewriteRule ^Admin(/.*)?$ - [L]
+
+  # Public pages live under /ar/... and /en/...; the root and old unprefixed URLs move to Arabic.
+  RewriteRule ^$ /ar/ [R=301,L]
+  RewriteRule ^(about|features|app|contact|blog)/?$ /ar/$1/ [R=301,L]
+  RewriteRule ^blog/([^/]+)/?$ /ar/blog/$1/ [R=301,L]
 
   # Serve real files and directories (prerendered HTML, assets, media, etc.).
   RewriteCond %{REQUEST_FILENAME} -f [OR]

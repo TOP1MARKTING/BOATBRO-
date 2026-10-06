@@ -1,21 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://boatpro.club/</loc>
+    <loc>https://boatpro.club/ar/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/" />
   </url>
   <url>
-    <loc>https://boatpro.club/about</loc>
+    <loc>https://boatpro.club/en/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/" />
   </url>
   <url>
-    <loc>https://boatpro.club/features</loc>
+    <loc>https://boatpro.club/ar/about/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/about/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/about/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/about/" />
   </url>
   <url>
-    <loc>https://boatpro.club/app</loc>
+    <loc>https://boatpro.club/en/about/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/about/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/about/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/about/" />
   </url>
   <url>
-    <loc>https://boatpro.club/contact</loc>
+    <loc>https://boatpro.club/ar/features/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/features/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/features/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/features/" />
   </url>
   <url>
-    <loc>https://boatpro.club/blog</loc>
+    <loc>https://boatpro.club/en/features/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/features/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/features/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/features/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/ar/app/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/app/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/app/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/en/app/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/app/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/app/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/ar/contact/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/contact/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/contact/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/contact/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/en/contact/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/contact/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/contact/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/contact/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/ar/blog/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/blog/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/blog/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/blog/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/en/blog/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/blog/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/blog/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/blog/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/ar/blog/botpro-saudi-arabia-boat-yacht-booking/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/blog/botpro-saudi-arabia-boat-yacht-booking/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/blog/botpro-saudi-arabia-boat-yacht-booking/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/blog/botpro-saudi-arabia-boat-yacht-booking/" />
+  </url>
+  <url>
+    <loc>https://boatpro.club/en/blog/botpro-saudi-arabia-boat-yacht-booking/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://boatpro.club/ar/blog/botpro-saudi-arabia-boat-yacht-booking/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://boatpro.club/en/blog/botpro-saudi-arabia-boat-yacht-booking/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://boatpro.club/ar/blog/botpro-saudi-arabia-boat-yacht-booking/" />
   </url>
 </urlset>

@@ -7,21 +7,22 @@ import { StoreButtons } from "../components/store-buttons";
 import { SHELL } from "../components/brand";
 import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
-import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { SITE_ORIGIN, pageHead, localizedUrl } from "../lib/site";
 import { dictionaries } from "../lib/copy";
+import { getUrlLang } from "../lib/locale-url";
 
 export const Route = createFileRoute("/app")({
   head: () =>
     pageHead({
-      title: dictionaries.ar.seo.appTitle,
-      description: dictionaries.ar.seo.appDesc,
+      title: dictionaries[getUrlLang()].seo.appTitle,
+      description: dictionaries[getUrlLang()].seo.appDesc,
       path: "/app",
     }),
   component: AppPage,
 });
 
 function AppPage() {
-  const { dir, t } = useLang();
+  const { dir, lang, t } = useLang();
   const p = t.appPage;
 
   return (
@@ -36,15 +37,15 @@ function AppPage() {
             name: "BoatPro",
             applicationCategory: "TravelApplication",
             operatingSystem: "iOS, Android",
-            url: `${SITE_ORIGIN}/app`,
+            url: localizedUrl("/app", lang),
             description: p.lead,
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
-              { "@type": "ListItem", position: 2, name: t.crumbs.app, item: `${SITE_ORIGIN}/app` },
+              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
+              { "@type": "ListItem", position: 2, name: t.crumbs.app, item: localizedUrl("/app", lang) },
             ],
           },
         ]}

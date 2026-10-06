@@ -9,21 +9,22 @@ import { Btn, CtaArrow, GoldLine, Kicker, Section } from "../components/ui";
 import { useLang } from "../lib/i18n";
 import { useCmsImage } from "../lib/page-content-context";
 import { useSiteSettings } from "../lib/site-settings-context";
-import { SITE_ORIGIN, pageHead } from "../lib/site";
+import { SITE_ORIGIN, pageHead, localizedUrl } from "../lib/site";
 import { dictionaries } from "../lib/copy";
+import { getUrlLang } from "../lib/locale-url";
 
 export const Route = createFileRoute("/contact")({
   head: () =>
     pageHead({
-      title: dictionaries.ar.seo.contactTitle,
-      description: dictionaries.ar.seo.contactDesc,
+      title: dictionaries[getUrlLang()].seo.contactTitle,
+      description: dictionaries[getUrlLang()].seo.contactDesc,
       path: "/contact",
     }),
   component: ContactPage,
 });
 
 function ContactPage() {
-  const { dir, t } = useLang();
+  const { dir, lang, t } = useLang();
   const { contact } = useSiteSettings();
   const c = t.contact;
   const heroImage = useCmsImage("contact", "hero", "hero-contact");
@@ -38,14 +39,14 @@ function ContactPage() {
             "@context": "https://schema.org",
             "@type": "ContactPage",
             name: c.h1,
-            url: `${SITE_ORIGIN}/contact`,
+            url: localizedUrl("/contact", lang),
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: `${SITE_ORIGIN}/` },
-              { "@type": "ListItem", position: 2, name: t.crumbs.contact, item: `${SITE_ORIGIN}/contact` },
+              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
+              { "@type": "ListItem", position: 2, name: t.crumbs.contact, item: localizedUrl("/contact", lang) },
             ],
           },
         ]}

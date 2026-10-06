@@ -1,9 +1,10 @@
 import { HeadContent, Link, Outlet, createRootRoute, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { AuthProvider } from "../lib/auth";
 import { PageContentProvider } from "../lib/page-content-context";
 import { SiteSettingsProvider } from "../lib/site-settings-context";
 import { LanguageProvider, useLang } from "../lib/i18n";
+import { getUrlLang, localizePath } from "../lib/locale-url";
 import { ThemeProvider } from "../lib/theme";
 import { ScrollToTop } from "../components/scroll-to-top";
 
@@ -53,7 +54,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             حاول مرة أخرى
           </button>
           <a
-            href="/"
+            href={localizePath("/", getUrlLang())}
             className="inline-flex items-center justify-center rounded-xl border border-input bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
           >
             العودة للرئيسية
@@ -65,11 +66,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 function AppShell() {
+  const { lang, localized } = useLang();
   return (
     <>
       <HeadContent />
       <ScrollToTop />
-      <Outlet />
+      {/* Links cache their href per internal path, so public pages remount when /ar ↔ /en changes. */}
+      <Fragment key={localized ? lang : "static"}>
+        <Outlet />
+      </Fragment>
     </>
   );
 }

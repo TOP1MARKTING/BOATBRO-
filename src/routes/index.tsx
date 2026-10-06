@@ -13,7 +13,8 @@ import { useLang } from "../lib/i18n";
 import type { Lang } from "../lib/page-content";
 import { useCmsImage } from "../lib/page-content-context";
 import { useSiteSettings } from "../lib/site-settings-context";
-import { SITE_ORIGIN, absoluteUrl, pageHead } from "../lib/site";
+import { SITE_ORIGIN, localizedUrl, pageHead } from "../lib/site";
+import { getUrlLang } from "../lib/locale-url";
 
 const HOME_SCHEMA_PHONE = "+966502554747";
 const HOME_OG_IMAGE = `${SITE_ORIGIN}/og.jpg`;
@@ -123,7 +124,7 @@ function homeImageAlt(key: HomeImageAltKey, lang: Lang) {
 
 function useHomeOpenGraph(seo: (typeof HOME_SEO)[Lang], lang: Lang) {
   useEffect(() => {
-    const pageUrl = absoluteUrl("/");
+    const pageUrl = localizedUrl("/", lang);
     const ogLocale = lang === "ar" ? "ar_SA" : "en";
 
     const upsertMeta = (attr: "name" | "property", key: string, content: string) => {
@@ -160,7 +161,7 @@ function useHomeOpenGraph(seo: (typeof HOME_SEO)[Lang], lang: Lang) {
 
 function buildHomeJsonLd(lang: Lang, seo: (typeof HOME_SEO)[Lang], email: string) {
   const inLanguage = lang === "ar" ? "ar-SA" : "en";
-  const pageUrl = absoluteUrl("/");
+  const pageUrl = localizedUrl("/", lang);
 
   return [
     {
@@ -216,8 +217,8 @@ function buildHomeJsonLd(lang: Lang, seo: (typeof HOME_SEO)[Lang], email: string
 export const Route = createFileRoute("/")({
   head: () =>
     pageHead({
-      title: HOME_SEO.ar.title,
-      description: HOME_SEO.ar.description,
+      title: HOME_SEO[getUrlLang()].title,
+      description: HOME_SEO[getUrlLang()].description,
       path: "/",
     }),
   component: HomePage,

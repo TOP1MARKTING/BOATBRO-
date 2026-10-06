@@ -1,3 +1,6 @@
+import { DEFAULT_LOCALE, LOCALES, getUrlLang, localizePath } from "./locale-url";
+import type { Lang } from "./page-content";
+
 export const PRODUCTION_ORIGIN = "https://boatpro.club";
 
 export const SITE_ORIGIN = (
@@ -59,6 +62,11 @@ export function absoluteUrl(path: string) {
   return `${SITE_ORIGIN}${normalized === "/" ? "/" : normalized}`;
 }
 
+/** Absolute URL of a public page in the given language (`/about` → `https://…/en/about`). */
+export function localizedUrl(path: string, lang: Lang) {
+  return absoluteUrl(localizePath(path, lang));
+}
+
 export function pageHead({
   title,
   description,
@@ -67,7 +75,14 @@ export function pageHead({
   type = "website",
   noindex,
 }: PageSeoInput) {
-  const url = absoluteUrl(path);
+  const lang = getUrlLang();
+  const url = localizedUrl(path, lang);
+  const alternates = noindex
+    ? []
+    : [
+        ...LOCALES.map((code) => ({ rel: "alternate", hrefLang: code, href: localizedUrl(path, code) })),
+        { rel: "alternate", hrefLang: "x-default", href: localizedUrl(path, DEFAULT_LOCALE) },
+      ];
   const img =
     image && image.startsWith("http")
       ? image
@@ -83,7 +98,8 @@ export function pageHead({
       { property: "og:image", content: img },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:locale", content: "ar_SA" },
+      { property: "og:locale", content: lang === "ar" ? "ar_SA" : "en_US" },
+      { property: "og:locale:alternate", content: lang === "ar" ? "en_US" : "ar_SA" },
       { property: "og:site_name", content: "BoatPro" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },
@@ -91,7 +107,7 @@ export function pageHead({
       { name: "twitter:image", content: img },
       ...(noindex ? [{ name: "robots" as const, content: "noindex, nofollow" }] : []),
     ],
-    links: noindex ? [] : [{ rel: "canonical", href: url }],
+    links: noindex ? [] : [{ rel: "canonical", href: url }, ...alternates],
   };
 }
 
