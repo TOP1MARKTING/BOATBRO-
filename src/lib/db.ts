@@ -22,6 +22,7 @@ import {
   migrateLegacyBody,
   newBlockId,
 } from "./post-content";
+import { htmlPlainText } from "./post-html";
 import {
   defaultSiteSettings,
   mapSiteSettings,
@@ -81,6 +82,7 @@ export type BlogPost = {
   excerpt: string;
   body: string;
   coverUrl: string;
+  coverUrlEn: string;
   category: string;
   lang: "ar" | "en";
   published: boolean;
@@ -101,6 +103,8 @@ export type BlogPost = {
   metaDescriptionI18n: LocalizedText;
   focusKeywordI18n: LocalizedText;
   blocks: PostBlock[];
+  contentMode: PostContentMode;
+  contentHtml: LocalizedText;
   featured: boolean;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -151,6 +155,7 @@ export type PostInput = {
   excerpt: string;
   body: string;
   coverUrl: string;
+  coverUrlEn: string;
   category: string;
   lang: "ar" | "en";
   published: boolean;
@@ -171,8 +176,12 @@ export type PostInput = {
   metaDescriptionI18n: LocalizedText;
   focusKeywordI18n: LocalizedText;
   blocks: PostBlock[];
+  contentMode: PostContentMode;
+  contentHtml: LocalizedText;
   featured: boolean;
 };
+
+export type PostContentMode = "blocks" | "html";
 
 function mapLocalizedField(value: unknown, fallback = ""): LocalizedText {
   if (value && typeof value === "object") {
@@ -257,8 +266,20 @@ function mapFaq(data: unknown): PostFaqItem[] {
     .slice(0, 8) as PostFaqItem[];
 }
 
+export function postPlainText(post: Pick<PostInput, "contentMode" | "contentHtml" | "blocks" | "body">, lang?: "ar" | "en") {
+  if (post.contentMode === "html") {
+    const html = lang ? post.contentHtml[lang] || post.contentHtml.ar || post.contentHtml.en : `${post.contentHtml.ar} ${post.contentHtml.en}`;
+    return htmlPlainText(html) || post.body;
+  }
+  return blocksPlainText(post.blocks) || post.body;
+}
+
+export function postCoverUrl(post: Pick<PostInput, "coverUrl" | "coverUrlEn">, lang: "ar" | "en") {
+  return (lang === "en" && post.coverUrlEn.trim()) || post.coverUrl;
+}
+
 function syncLegacyFields(input: PostInput): PostInput {
-  const body = blocksPlainText(input.blocks);
+  const body = postPlainText(input).slice(0, 20000);
   return {
     ...input,
     title: input.titleI18n.ar.trim() || input.titleI18n.en.trim() || input.title,
@@ -284,14 +305,18 @@ function mapPost(id: string, data: Record<string, unknown>): BlogPost {
   const metaDescriptionI18n = mapLocalizedFromLegacy(data, "metaDescription", "metaDescriptionI18n");
   const focusKeywordI18n = mapLocalizedFromLegacy(data, "focusKeyword", "focusKeywordI18n");
   const blocks = mapBlocks(data.blocks, body);
+  const contentHtml = data.contentHtml ? mapLocalizedField(data.contentHtml) : emptyLocalized();
+  const contentMode: PostContentMode =
+    data.contentMode === "html" && (contentHtml.ar.trim() || contentHtml.en.trim()) ? "html" : "blocks";
 
   return {
     id,
     slug: String(data.slug ?? id),
     title: String(data.title ?? titleI18n.ar ?? titleI18n.en),
     excerpt: String(data.excerpt ?? excerptI18n.ar ?? excerptI18n.en),
-    body: body || blocksPlainText(blocks),
+    body: body || (contentMode === "html" ? htmlPlainText(`${contentHtml.ar} ${contentHtml.en}`) : blocksPlainText(blocks)),
     coverUrl: String(data.coverUrl ?? ""),
+    coverUrlEn: String(data.coverUrlEn ?? ""),
     category: String(data.category ?? categoryI18n.ar ?? categoryI18n.en),
     lang: data.lang === "en" ? "en" : "ar",
     published: Boolean(data.published),
@@ -312,6 +337,8 @@ function mapPost(id: string, data: Record<string, unknown>): BlogPost {
     metaDescriptionI18n,
     focusKeywordI18n,
     blocks,
+    contentMode,
+    contentHtml,
     featured: Boolean(data.featured),
     createdAt: toDate(data.createdAt),
     updatedAt: toDate(data.updatedAt),
@@ -325,6 +352,7 @@ export function postToInput(post: BlogPost): PostInput {
     excerpt: post.excerpt,
     body: post.body,
     coverUrl: post.coverUrl,
+    coverUrlEn: post.coverUrlEn,
     category: post.category,
     lang: post.lang,
     published: post.published,
@@ -345,6 +373,8 @@ export function postToInput(post: BlogPost): PostInput {
     metaDescriptionI18n: post.metaDescriptionI18n,
     focusKeywordI18n: post.focusKeywordI18n,
     blocks: post.blocks.length ? post.blocks : [createParagraph()],
+    contentMode: post.contentMode,
+    contentHtml: post.contentHtml,
     featured: post.featured,
   };
 }
@@ -356,6 +386,7 @@ export function createEmptyPostInput(author: string, category: string): PostInpu
     excerpt: "",
     body: "",
     coverUrl: "",
+    coverUrlEn: "",
     category,
     lang: "ar",
     published: false,
@@ -376,6 +407,8 @@ export function createEmptyPostInput(author: string, category: string): PostInpu
     metaDescriptionI18n: emptyLocalized(),
     focusKeywordI18n: emptyLocalized(),
     blocks: [createParagraph()],
+    contentMode: "html",
+    contentHtml: emptyLocalized(),
     featured: false,
   };
 }

@@ -1,5 +1,5 @@
-import type { PostInput } from "./db";
-import { blocksPlainText, pickLocalized } from "./post-content";
+import { postPlainText, type PostInput } from "./db";
+import { pickLocalized } from "./post-content";
 import { PRODUCTION_ORIGIN, readingMinutes } from "./site";
 
 export const SEO_LIMITS = {
@@ -81,7 +81,7 @@ export function analyzePostSeo(
   const metaDesc = resolveMetaDescription(input, lang);
   const slug = input.slug.trim();
   const keyword = pickLocalized(input.focusKeywordI18n, lang, input.focusKeyword);
-  const bodyText = blocksPlainText(input.blocks) || input.body;
+  const bodyText = postPlainText(input, lang);
   const excerpt = pickLocalized(input.excerptI18n, lang, input.excerpt);
   const title = pickLocalized(input.titleI18n, lang, input.title);
   const bodyWords = countWords(`${excerpt} ${bodyText}`);
@@ -164,7 +164,7 @@ export function analyzePostSeo(
 }
 
 export function postReadingStats(input: PostInput) {
-  const text = `${pickLocalized(input.excerptI18n, "ar")} ${blocksPlainText(input.blocks) || input.body}`;
+  const text = `${pickLocalized(input.excerptI18n, "ar")} ${postPlainText(input, "ar")}`;
   return {
     words: countWords(text),
     minutes: readingMinutes(text),

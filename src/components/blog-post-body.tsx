@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import type { BlogPost } from "../lib/db";
+import { sanitizePostHtml } from "../lib/post-html";
 import {
   orderedBlocksWithImages,
   parseLinkedText,
@@ -40,7 +42,16 @@ function LinkedText({ text, lang }: { text: string; lang: "ar" | "en" }) {
   );
 }
 
+export function BlogHtmlBody({ html, className = "mt-8" }: { html: string; className?: string }) {
+  const clean = useMemo(() => sanitizePostHtml(html), [html]);
+  return <div className={`bp-article ${className}`} dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+
 export function BlogPostBody({ post, lang }: { post: BlogPost; lang: "ar" | "en" }) {
+  if (post.contentMode === "html") {
+    const html = pickLocalized(post.contentHtml, lang);
+    if (html) return <BlogHtmlBody html={html} />;
+  }
   const blocks = orderedBlocksWithImages(post.blocks.length ? post.blocks : []);
   if (!blocks.length) {
     return (

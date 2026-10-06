@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Phone, Shield, X } from "lucide-react";
+import { ExternalLink, Mail, MapPin, Phone, Shield, X } from "lucide-react";
 import { useEffect, useId, useState, type CSSProperties } from "react";
 import { listLicenses, type License } from "../lib/db";
 import { useLang } from "../lib/i18n";
@@ -231,17 +231,20 @@ export function SiteFooter() {
             </Link>
             <span> {t.footer.copy.replace(/^©\s*/, "")}</span>
           </p>
-          <p className="text-[11px] leading-5 text-white/80 sm:text-[12px]">
-            {t.footer.designedBy}{" "}
-            <a
-              href="https://www.top1markting.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-gold transition-colors hover:text-white"
-            >
-              Top1Markting
-            </a>
-          </p>
+          <a
+            href="https://www.top1markting.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${t.footer.designedBy} Top1Markting`}
+            className="group mt-1 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white py-1.5 ps-2.5 pe-4 text-[#0b2a5b] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+          >
+            <img src="/top1-mark.png" alt="" width={112} height={81} className="h-7 w-auto" loading="lazy" decoding="async" />
+            <span className="text-[12px] font-medium text-slate-500 sm:text-[13px]">{t.footer.designedBy}</span>
+            <span dir="ltr" className="text-[14px] font-extrabold tracking-tight sm:text-[15px]">
+              Top<span className="text-[#f5a623]">1</span>Markting
+            </span>
+            <ExternalLink size={14} aria-hidden="true" className="text-slate-500 transition-colors group-hover:text-[#0b2a5b]" />
+          </a>
         </div>
       </div>
 

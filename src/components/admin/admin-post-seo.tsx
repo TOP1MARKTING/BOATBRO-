@@ -52,10 +52,12 @@ function BilingualSeoFields({
   setForm,
   fieldCls,
   labels,
+  hideMeta = false,
 }: {
   form: PostInput;
   setForm: (next: PostInput | ((prev: PostInput) => PostInput)) => void;
   fieldCls: string;
+  hideMeta?: boolean;
   labels: {
     metaTitle: string;
     metaTitleHint: string;
@@ -70,6 +72,8 @@ function BilingualSeoFields({
       {(["en", "ar"] as const).map((lang) => (
         <div key={lang} className="grid gap-4 rounded-xl border border-border bg-card p-4">
           <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">{lang}</p>
+          {hideMeta ? null : (
+          <>
           <label>
             <div className="mb-2 flex items-center justify-between gap-2">
               <span className="text-[12px] font-medium text-navy">{labels.metaTitle}</span>
@@ -113,6 +117,8 @@ function BilingualSeoFields({
               }
             />
           </label>
+          </>
+          )}
           <label>
             <span className="mb-2 block text-[12px] font-medium text-navy">{labels.focusKeyword}</span>
             <input
@@ -128,8 +134,12 @@ function BilingualSeoFields({
           </label>
         </div>
       ))}
-      <p className="text-[11px] text-muted-foreground">{labels.metaTitleHint}</p>
-      <p className="text-[11px] text-muted-foreground">{labels.metaDescriptionHint}</p>
+      {hideMeta ? null : (
+        <>
+          <p className="text-[11px] text-muted-foreground">{labels.metaTitleHint}</p>
+          <p className="text-[11px] text-muted-foreground">{labels.metaDescriptionHint}</p>
+        </>
+      )}
       <p className="text-[11px] text-muted-foreground">{labels.focusKeywordHint}</p>
     </div>
   );
@@ -141,11 +151,14 @@ export function AdminPostSeo({
   labels,
   fieldCls,
   bilingual = false,
+  hideMeta = false,
 }: {
   form: PostInput;
   setForm: (next: PostInput | ((prev: PostInput) => PostInput)) => void;
   fieldCls: string;
   bilingual?: boolean;
+  /** Meta title/description are edited elsewhere; keep only keyword, OG, noindex, previews, checklist, FAQ. */
+  hideMeta?: boolean;
   labels: {
     googlePreview: string;
     googlePreviewHint: string;
@@ -231,7 +244,7 @@ export function AdminPostSeo({
 
         <Section title={labels.seoSection} hint={labels.seoSectionHint}>
           {bilingual ? (
-            <BilingualSeoFields form={form} setForm={setForm} fieldCls={fieldCls} labels={labels} />
+            <BilingualSeoFields form={form} setForm={setForm} fieldCls={fieldCls} labels={labels} hideMeta={hideMeta} />
           ) : (
             <div className="grid gap-4">
               <label>

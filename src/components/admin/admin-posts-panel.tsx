@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { slugify } from "../../lib/admin";
 import { buildAdminSeoLabels } from "../../lib/admin-labels";
+import { dictionaries } from "../../lib/copy";
 import {
   createEmptyPostInput,
   deletePost,
@@ -10,6 +11,7 @@ import {
   type PostInput,
 } from "../../lib/db";
 import { analyzePostSeo } from "../../lib/post-seo";
+import { blocksToHtml } from "../../lib/post-html";
 import { AdminPostEditor } from "./admin-post-editor";
 import {
   ADMIN_BADGE_ACTIVE,
@@ -46,6 +48,7 @@ export function AdminPostsPanel({
     [author, t.admin.categories],
   );
   const seoLabels = useMemo(() => buildAdminSeoLabels(t.admin), [t.admin]);
+  const editorSeoLabels = useMemo(() => buildAdminSeoLabels(dictionaries.ar.admin), []);
   const checks = seoLabels.checks;
 
   const [editing, setEditing] = useState<BlogPost | "new" | null>(null);
@@ -73,12 +76,23 @@ export function AdminPostsPanel({
     setForm({ ...empty, authorName: author });
     setEditing("new");
     setMessage("");
+    window.scrollTo({ top: 0 });
   };
 
   const openEdit = (post: BlogPost) => {
-    setForm(postToInput(post));
+    const input = postToInput(post);
+    setForm(
+      input.contentMode === "html"
+        ? input
+        : {
+            ...input,
+            contentMode: "html",
+            contentHtml: { ar: blocksToHtml(input.blocks, "ar"), en: blocksToHtml(input.blocks, "en") },
+          },
+    );
     setEditing(post);
     setMessage("");
+    window.scrollTo({ top: 0 });
   };
 
   const onSave = async (e: FormEvent) => {
@@ -92,11 +106,27 @@ export function AdminPostsPanel({
       setEditing(null);
       await onChange();
     } catch {
-      setMessage(t.admin.error);
+      setMessage(dictionaries.ar.admin.error);
     } finally {
       setBusy(false);
     }
   };
+
+  if (editing) {
+    return (
+      <AdminPostEditor
+        form={form}
+        setForm={setForm}
+        onSubmit={(e) => void onSave(e)}
+        onCancel={() => setEditing(null)}
+        busy={busy}
+        message={message}
+        uid={uid}
+        isNew={editing === "new"}
+        seoLabels={editorSeoLabels}
+      />
+    );
+  }
 
   return (
     <AdminPanelShell
@@ -129,19 +159,7 @@ export function AdminPostsPanel({
         </span>
       </AdminFilterBar>
 
-      {editing ? (
-        <AdminPostEditor
-          form={form}
-          setForm={setForm}
-          onSubmit={(e) => void onSave(e)}
-          onCancel={() => setEditing(null)}
-          busy={busy}
-          message={message}
-          uid={uid}
-          t={t}
-          seoLabels={seoLabels}
-        />
-      ) : null}
+      {message ? <p className="mb-3 text-sm text-[#A8894E]">{message}</p> : null}
 
       <div className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
         {filtered.length === 0 ? (

@@ -5,10 +5,9 @@ import { JsonLd } from "../../components/json-ld";
 import { MarketingShell } from "../../components/marketing-shell";
 import { PageMeta } from "../../components/page-meta";
 import { Btn, CtaArrow } from "../../components/ui";
-import { getPostBySlug, listPublishedPosts, pickRelatedPosts } from "../../lib/db";
+import { getPostBySlug, listPublishedPosts, pickRelatedPosts, postCoverUrl, postPlainText } from "../../lib/db";
 import { pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
-import { blocksPlainText } from "../../lib/post-content";
 import { resolveMetaDescription, resolveMetaTitle, resolveOgImage } from "../../lib/post-seo";
 import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
 
@@ -73,10 +72,11 @@ function BlogPostPage() {
   const category = pickLocalized(post.categoryI18n, lang, post.category);
   const author = pickLocalized(post.authorI18n, lang, post.authorName);
   const coverAlt = pickLocalized(post.coverAlt, lang, title);
+  const coverUrl = postCoverUrl(post, lang);
   const metaTitle = resolveMetaTitle(post, lang);
   const metaDescription = resolveMetaDescription(post, lang);
   const ogImage = resolveOgImage(post) || `${SITE_ORIGIN}/og.jpg`;
-  const bodyText = blocksPlainText(post.blocks) || post.body;
+  const bodyText = postPlainText(post, lang);
   const mins = readingMinutes(`${excerpt} ${bodyText}`);
   const tags = lang === "en" ? post.tags.en : post.tags.ar;
   const published = post.createdAt ? formatDisplayDate(post.createdAt, lang) : "";
@@ -156,9 +156,9 @@ function BlogPostPage() {
           {updated ? ` · ${t.blog.updated} ${updated}` : ""}
           {` · ${mins} ${t.blog.minRead}`}
         </p>
-        {post.coverUrl && (
+        {coverUrl && (
           <img
-            src={post.coverUrl}
+            src={coverUrl}
             alt={coverAlt}
             className="mt-8 aspect-[16/9] w-full rounded-[1.6rem] object-cover"
           />

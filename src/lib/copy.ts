@@ -699,7 +699,7 @@ const ar = {
     app: "التطبيق",
     available: "سيتم الإصدار قريبًا لتطبيق قادم إلى المتاجر — App Store و Google Play.",
     copy: "© جميع حقوق الطبع والنشر محفوظة لدى شركة بوت برو بشهادة تسجيل رقم : TM-01-00-08148-26",
-    designedBy: "تم تصميم الموقع عن طريق",
+    designedBy: "تنفيذ",
   },
   notFound: {
     title: "الصفحة غير موجودة",
@@ -1394,7 +1394,7 @@ const en: typeof ar = {
     app: "The app",
     available: "Coming soon — the app is headed to the App Store and Google Play.",
     copy: "© All rights reserved to BoatPro Company — registration certificate no. TM-01-00-08148-26",
-    designedBy: "Website designed by",
+    designedBy: "Built by",
   },
   notFound: {
     title: "Page not found",

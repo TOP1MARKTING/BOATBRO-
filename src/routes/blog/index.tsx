@@ -5,8 +5,8 @@ import { JsonLd } from "../../components/json-ld";
 import { MarketingShell } from "../../components/marketing-shell";
 import { PageMeta } from "../../components/page-meta";
 import { PageHero } from "../../components/page-hero";
-import { listPublishedPosts, type BlogPost } from "../../lib/db";
-import { blocksPlainText, pickLocalized } from "../../lib/post-content";
+import { listPublishedPosts, postCoverUrl, postPlainText, type BlogPost } from "../../lib/db";
+import { pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
 import { useCmsImage } from "../../lib/page-content-context";
 import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes } from "../../lib/site";
@@ -81,7 +81,8 @@ function BlogPage() {
               const excerpt = pickLocalized(post.excerptI18n, lang, post.excerpt);
               const category = pickLocalized(post.categoryI18n, lang, post.category);
               const coverAlt = pickLocalized(post.coverAlt, lang, title);
-              const bodyText = blocksPlainText(post.blocks) || post.body;
+              const coverUrl = postCoverUrl(post, lang);
+              const bodyText = postPlainText(post, lang);
               const mins = readingMinutes(`${excerpt} ${bodyText}`);
               return (
                 <Link
@@ -91,9 +92,9 @@ function BlogPage() {
                   className="group overflow-hidden rounded-[1.6rem] border border-border bg-card transition-shadow hover:shadow-lg"
                 >
                   <div className="aspect-[16/10] overflow-hidden bg-surface-2">
-                    {post.coverUrl ? (
+                    {coverUrl ? (
                       <img
-                        src={post.coverUrl}
+                        src={coverUrl}
                         alt={coverAlt}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
