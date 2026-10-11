@@ -25,7 +25,7 @@ export function GalleryPicker({
     <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center">
       <button type="button" className="absolute inset-0 bg-black/50" aria-label="Close" onClick={onClose} />
       <div className={`relative z-10 flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden ${ADMIN_CARD_CLS} shadow-2xl`}>
-        <div className="flex items-center justify-between border-b border-[#C8A96A]/18 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-gold/18 px-5 py-4">
           <h3 className="font-display text-lg font-semibold text-navy">{title}</h3>
           <button type="button" onClick={onClose} className="rounded-lg p-2 hover:bg-muted" aria-label="Close">
             <X size={18} />
@@ -35,7 +35,7 @@ export function GalleryPicker({
           {loading ? (
             <p className="text-sm text-muted-foreground">…</p>
           ) : images.length === 0 ? (
-            <p className="rounded-xl border border-[#C8A96A]/18 bg-surface-2 px-4 py-8 text-center text-sm text-muted-foreground">
+            <p className="rounded-xl border border-gold/18 bg-surface-2 px-4 py-8 text-center text-sm text-muted-foreground">
               {empty}
             </p>
           ) : (

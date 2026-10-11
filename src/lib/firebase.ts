@@ -1,6 +1,11 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import { connectAuthEmulator, getAuth, type Auth } from "firebase/auth";
+import { connectFirestoreEmulator, getFirestore, type Firestore } from "firebase/firestore";
+
+/** Local testing only: `VITE_FIREBASE_EMULATOR_HOST=127.0.0.1` targets the Auth (9099) / Firestore (8080) emulators. */
+const emulatorHost = import.meta.env.DEV ? String(import.meta.env["VITE_FIREBASE_EMULATOR_HOST"] ?? "") : "";
+let authEmulatorConnected = false;
+let firestoreEmulatorConnected = false;
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyDJtQaLK0MPTYdoe0v4rZQQLPKRZWhuAXs",
@@ -17,11 +22,21 @@ export function getFirebaseApp(): FirebaseApp {
 }
 
 export function getFirebaseAuth(): Auth {
-  return getAuth(getFirebaseApp());
+  const auth = getAuth(getFirebaseApp());
+  if (emulatorHost && !authEmulatorConnected) {
+    authEmulatorConnected = true;
+    connectAuthEmulator(auth, `http://${emulatorHost}:9099`, { disableWarnings: true });
+  }
+  return auth;
 }
 
 export function getDb(): Firestore {
-  return getFirestore(getFirebaseApp());
+  const db = getFirestore(getFirebaseApp());
+  if (emulatorHost && !firestoreEmulatorConnected) {
+    firestoreEmulatorConnected = true;
+    connectFirestoreEmulator(db, emulatorHost, 8080);
+  }
+  return db;
 }
 
 export function initAnalytics() {

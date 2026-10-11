@@ -28,6 +28,18 @@ import {
 
 type PublishFilter = "all" | "published" | "draft";
 
+function postSaveErrorMessage(error: unknown) {
+  const code = error && typeof error === "object" ? String((error as { code?: string }).code ?? "") : "";
+  const text = error instanceof Error ? error.message : String(error ?? "");
+  if (text === "post-too-large" || /maximum.*size|exceeds/i.test(text)) {
+    return "تعذّر الحفظ: حجم المقال تجاوز الحد المسموح (1MB). احذف بعض الصور المضمّنة كـ base64 أو استخدم رابط صورة بدلاً منها.";
+  }
+  if (code === "permission-denied") return "تعذّر الحفظ: ليس لديك صلاحية تعديل المقالات.";
+  if (code === "unavailable") return "تعذّر الحفظ: لا يوجد اتصال بالخادم، تحقق من الإنترنت وحاول مرة أخرى.";
+  console.error("[posts] save failed", error);
+  return `${dictionaries.ar.admin.error}${code ? ` (${code})` : ""}`;
+}
+
 export function AdminPostsPanel({
   posts,
   onChange,
@@ -105,8 +117,8 @@ export function AdminPostsPanel({
       setMessage(t.admin.saved);
       setEditing(null);
       await onChange();
-    } catch {
-      setMessage(dictionaries.ar.admin.error);
+    } catch (error) {
+      setMessage(postSaveErrorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -159,7 +171,7 @@ export function AdminPostsPanel({
         </span>
       </AdminFilterBar>
 
-      {message ? <p className="mb-3 text-sm text-[#A8894E]">{message}</p> : null}
+      {message ? <p className="mb-3 text-sm text-gold-ink">{message}</p> : null}
 
       <div className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
         {filtered.length === 0 ? (
@@ -167,7 +179,7 @@ export function AdminPostsPanel({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
-              <thead className="border-b border-[#C8A96A]/15 bg-[rgba(200,169,106,0.06)] text-start text-[12px] text-muted-foreground">
+              <thead className="border-b border-gold/15 bg-gold/6 text-start text-[12px] text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3.5 font-medium">{t.admin.titleField}</th>
                   <th className="px-5 py-3.5 font-medium">{t.admin.category}</th>
@@ -182,7 +194,7 @@ export function AdminPostsPanel({
                   return (
                     <tr
                       key={post.id}
-                      className="border-b border-[#C8A96A]/10 transition-colors last:border-0 hover:bg-[rgba(200,169,106,0.05)]"
+                      className="border-b border-gold/10 transition-colors last:border-0 hover:bg-gold/5"
                     >
                       <td className="px-5 py-4">
                         <p className="font-medium text-navy">{post.title}</p>

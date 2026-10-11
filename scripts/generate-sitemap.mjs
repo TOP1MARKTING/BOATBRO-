@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fetchPublishedBlogSlugs } from "./fetch-published-blog-slugs.mjs";
+import { fetchPublishedBlogPosts } from "./fetch-published-blog-slugs.mjs";
 
 const origin = (process.env.VITE_SITE_URL || "https://boatpro.club").replace(/\/$/, "");
 const staticPaths = ["/", "/about", "/features", "/app", "/contact", "/blog"];
@@ -13,22 +13,36 @@ function xmlEscape(value) {
 
 /** Matches the prerendered folders (`/ar/about/index.html`) so every URL answers 200 without a redirect. */
 function localizedUrl(p, lang) {
-  return `${origin}/${lang}${p === "/" ? "" : p}/`;
+  const encoded = p.split("/").map((part) => encodeURIComponent(part)).join("/");
+  return `${origin}/${lang}${p === "/" ? "" : encoded}/`;
 }
 
-function urlEntry(p, lang) {
-  const alternates = [
-    ...locales.map((code) => ({ hreflang: code, href: localizedUrl(p, code) })),
-    { hreflang: "x-default", href: localizedUrl(p, defaultLocale) },
-  ]
-    .map((alt) => `    <xhtml:link rel="alternate" hreflang="${alt.hreflang}" href="${xmlEscape(alt.href)}" />`)
-    .join("\n");
-  return `  <url>\n    <loc>${xmlEscape(localizedUrl(p, lang))}</loc>\n${alternates}\n  </url>`;
+function urlEntry(p, lang, { langs = locales, lastmod = "" } = {}) {
+  const alternates =
+    langs.length < 2
+      ? []
+      : [
+          ...langs.map((code) => ({ hreflang: code, href: localizedUrl(p, code) })),
+          { hreflang: "x-default", href: localizedUrl(p, langs.includes(defaultLocale) ? defaultLocale : langs[0]) },
+        ];
+  const lines = [`    <loc>${xmlEscape(localizedUrl(p, lang))}</loc>`];
+  if (lastmod) lines.push(`    <lastmod>${xmlEscape(lastmod)}</lastmod>`);
+  for (const alt of alternates) {
+    lines.push(`    <xhtml:link rel="alternate" hreflang="${alt.hreflang}" href="${xmlEscape(alt.href)}" />`);
+  }
+  return `  <url>\n${lines.join("\n")}\n  </url>`;
 }
 
-const slugs = await fetchPublishedBlogSlugs();
-const paths = [...new Set([...staticPaths, ...slugs.map((slug) => `/blog/${slug}`)])];
-const entries = paths.flatMap((p) => locales.map((lang) => urlEntry(p, lang)));
+const posts = (await fetchPublishedBlogPosts()).filter((post) => !post.noindex);
+const latestPost = posts.map((post) => post.lastmod).sort().at(-1) ?? "";
+const entries = [
+  ...staticPaths.flatMap((p) =>
+    locales.map((lang) => urlEntry(p, lang, { lastmod: p === "/blog" ? latestPost : "" })),
+  ),
+  ...posts.flatMap((post) =>
+    post.langs.map((lang) => urlEntry(`/blog/${post.slug}`, lang, { langs: post.langs, lastmod: post.lastmod })),
+  ),
+];
 const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${entries.join("\n")}

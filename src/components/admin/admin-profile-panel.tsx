@@ -115,7 +115,7 @@ export function AdminProfilePanel({
             </div>
             <div>
               <dt className="text-[12px] text-muted-foreground">{t.admin.role}</dt>
-              <dd className="font-medium text-[#A8894E]">{roleLabel}</dd>
+              <dd className="font-medium text-gold-ink">{roleLabel}</dd>
             </div>
             <div>
               <dt className="text-[12px] text-muted-foreground">{t.admin.limits}</dt>

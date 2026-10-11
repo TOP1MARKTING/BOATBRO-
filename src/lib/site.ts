@@ -44,7 +44,7 @@ export const STORES: Record<StoreApp, StoreLinks> = {
  * يُضبط من لوحة التحكم أو عبر VITE_MARINAS_LOGIN_URL.
  */
 export const SERVICE_LOGIN_URLS = {
-  marinas: envHttps("VITE_MARINAS_LOGIN_URL") || "https://boatpro.club/Admin/#/login",
+  marinas: envHttps("VITE_MARINAS_LOGIN_URL") || "https://boatpro.club/Console/#/login",
 } as const;
 
 export type PageSeoInput = {
@@ -52,9 +52,20 @@ export type PageSeoInput = {
   description: string;
   path: string;
   image?: string;
+  imageAlt?: string;
   type?: "website" | "article";
   noindex?: boolean;
+  /** Languages this page exists in (defaults to all); the others get no hreflang and canonicalize away. */
+  langs?: readonly Lang[];
+  article?: {
+    publishedTime?: string | undefined;
+    modifiedTime?: string | undefined;
+    section?: string | undefined;
+    tags?: string[] | undefined;
+  };
 };
+
+const DEFAULT_OG_IMAGE = "/og.jpg";
 
 export function absoluteUrl(path: string) {
   if (path.startsWith("http")) return path;
@@ -67,45 +78,77 @@ export function localizedUrl(path: string, lang: Lang) {
   return absoluteUrl(localizePath(path, lang));
 }
 
+/** Crawlers need an absolute http(s) URL; inline data URLs and empty values fall back to the site image. */
+export function shareImageUrl(image?: string) {
+  const value = image?.trim() ?? "";
+  if (/^https?:\/\//i.test(value)) return value;
+  if (!value || value.startsWith("data:")) return `${PRODUCTION_ORIGIN}${DEFAULT_OG_IMAGE}`;
+  return `${PRODUCTION_ORIGIN}${value.startsWith("/") ? value : `/${value}`}`;
+}
+
 export function pageHead({
   title,
   description,
   path,
   image,
+  imageAlt,
   type = "website",
   noindex,
+  langs = LOCALES,
+  article,
 }: PageSeoInput) {
   const lang = getUrlLang();
-  const url = localizedUrl(path, lang);
-  const alternates = noindex
-    ? []
-    : [
-        ...LOCALES.map((code) => ({ rel: "alternate", hrefLang: code, href: localizedUrl(path, code) })),
-        { rel: "alternate", hrefLang: "x-default", href: localizedUrl(path, DEFAULT_LOCALE) },
-      ];
-  const img =
-    image && image.startsWith("http")
-      ? image
-      : `${PRODUCTION_ORIGIN}${image ? (image.startsWith("/") ? image : `/${image}`) : "/og.jpg"}`;
+  const pageLangs = langs.length ? langs : LOCALES;
+  const canonicalLang = pageLangs.includes(lang) ? lang : pageLangs[0]!;
+  const url = localizedUrl(path, canonicalLang);
+  const alternates =
+    noindex || pageLangs.length < 2
+      ? []
+      : [
+          ...pageLangs.map((code) => ({ rel: "alternate", hrefLang: code, href: localizedUrl(path, code) })),
+          {
+            rel: "alternate",
+            hrefLang: "x-default",
+            href: localizedUrl(path, pageLangs.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : pageLangs[0]!),
+          },
+        ];
+  const img = shareImageUrl(image);
+  const isDefaultImage = img === `${PRODUCTION_ORIGIN}${DEFAULT_OG_IMAGE}`;
+  const alt = imageAlt?.trim() || title;
+  const otherLang = pageLangs.find((code) => code !== lang);
   return {
     meta: [
       { title },
       { name: "description", content: description },
+      { name: "robots", content: noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large" },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: type },
       { property: "og:url", content: url },
       { property: "og:image", content: img },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: alt },
+      ...(isDefaultImage
+        ? [
+            { property: "og:image:width", content: "1200" },
+            { property: "og:image:height", content: "630" },
+          ]
+        : []),
       { property: "og:locale", content: lang === "ar" ? "ar_SA" : "en_US" },
-      { property: "og:locale:alternate", content: lang === "ar" ? "en_US" : "ar_SA" },
+      ...(otherLang ? [{ property: "og:locale:alternate", content: otherLang === "ar" ? "ar_SA" : "en_US" }] : []),
       { property: "og:site_name", content: "BoatPro" },
+      ...(type === "article" && article
+        ? [
+            ...(article.publishedTime ? [{ property: "article:published_time", content: article.publishedTime }] : []),
+            ...(article.modifiedTime ? [{ property: "article:modified_time", content: article.modifiedTime }] : []),
+            ...(article.section ? [{ property: "article:section", content: article.section }] : []),
+            ...(article.tags ?? []).map((tag) => ({ property: "article:tag", content: tag })),
+          ]
+        : []),
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       { name: "twitter:image", content: img },
-      ...(noindex ? [{ name: "robots" as const, content: "noindex, nofollow" }] : []),
+      { name: "twitter:image:alt", content: alt },
     ],
     links: noindex ? [] : [{ rel: "canonical", href: url }, ...alternates],
   };

@@ -119,6 +119,13 @@ async function main() {
     try {
       await page.goto(`${base}${route}`, { waitUntil: "load", timeout: 30_000 });
       await waitForRouteReady(page);
+      // Keep stable /media/posts/… URLs in the saved HTML instead of the data URLs loaded as a fallback.
+      await page.evaluate(() => {
+        for (const img of document.querySelectorAll("img[data-fs-src]")) {
+          img.setAttribute("src", img.dataset.fsSrc ?? "");
+          img.removeAttribute("data-fs-src");
+        }
+      });
       let html = await page.content();
       html = html.replaceAll(`http://127.0.0.1:${port}`, "");
       const out = routeOutputPath(route);

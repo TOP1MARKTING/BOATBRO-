@@ -97,7 +97,7 @@ function LoginPage() {
   return (
     <main dir={dir} className="relative isolate min-h-svh overflow-hidden bg-background text-foreground">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(200,169,106,0.14),_transparent_55%),radial-gradient(ellipse_at_bottom_left,_rgba(15,40,70,0.08),_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_20%_10%,rgba(200,169,106,0.16),transparent_45%),radial-gradient(ellipse_at_80%_90%,rgba(40,90,140,0.2),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_color-mix(in_oklab,var(--gold)_14%,transparent),_transparent_55%),radial-gradient(ellipse_at_bottom_left,_rgba(15,40,70,0.08),_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_20%_10%,color-mix(in_oklab,var(--gold)_16%,transparent),transparent_45%),radial-gradient(ellipse_at_80%_90%,rgba(40,90,140,0.2),transparent_50%)]"
         aria-hidden="true"
       />
 
@@ -112,7 +112,7 @@ function LoginPage() {
             <LangToggle />
             <Link
               to="/"
-              className="rounded-full border border-border bg-card px-5 py-2.5 text-[12px] font-medium tracking-wide text-navy transition-colors hover:border-[#C8A96A]/55 hover:text-[#A8894E]"
+              className="rounded-full border border-border bg-card px-5 py-2.5 text-[12px] font-medium tracking-wide text-navy transition-colors hover:border-gold/55 hover:text-gold-ink"
             >
               {t.auth.home}
             </Link>
@@ -122,7 +122,7 @@ function LoginPage() {
 
       <section className={`${SHELL} relative z-10 flex min-h-[calc(100svh-84px)] items-center py-10 sm:py-14`}>
         <div className="grid w-full items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
-          <div className="relative hidden min-h-[560px] overflow-hidden rounded-[1.75rem] border border-[#C8A96A]/30 bg-card shadow-[0_30px_70px_-36px_rgba(15,40,70,0.45)] lg:block">
+          <div className="relative hidden min-h-[560px] overflow-hidden rounded-[1.75rem] border border-gold/30 bg-card shadow-[0_30px_70px_-36px_rgba(15,40,70,0.45)] lg:block">
             <Photo
               name="luxury-marina"
               alt={lang === "ar" ? "مرسى فاخر — دخول إدارة بوت برو" : "Luxury marina — BoatPro admin access"}
@@ -134,23 +134,23 @@ function LoginPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/45 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-8 lg:p-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#C8A96A]/45 bg-[#C8A96A]/20 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-[#E6D3A3]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold/45 bg-gold/20 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-white">
                 <Shield size={13} strokeWidth={1.75} />
                 {chip}
               </span>
               <h2 className="mt-5 font-display text-4xl font-semibold tracking-tight text-white">BoatPro</h2>
-              <div className="mt-3 h-px w-14 bg-gradient-to-r from-[#C8A96A] to-transparent" />
+              <div className="mt-3 h-px w-14 bg-gradient-to-r from-gold to-transparent" />
               <p className="mt-4 max-w-sm text-sm leading-7 text-white/75">{body}</p>
             </div>
           </div>
 
           <div className="mx-auto flex w-full max-w-md items-center lg:mx-0 lg:max-w-none">
-            <div className="w-full animate-fade-up rounded-[1.75rem] border border-[#C8A96A]/25 bg-card p-6 shadow-[0_24px_60px_-28px_rgba(15,40,70,0.28)] sm:p-8 lg:p-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#C8A96A]/35 bg-[#C8A96A]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-[#A8894E]">
+            <div className="w-full animate-fade-up rounded-[1.75rem] border border-gold/25 bg-card p-6 shadow-[0_24px_60px_-28px_rgba(15,40,70,0.28)] sm:p-8 lg:p-10">
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold/35 bg-gold/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-gold-ink">
                 <Shield size={12} strokeWidth={1.75} />
                 {chip}
               </span>
-              <div className="mt-5 h-px w-12 bg-gradient-to-r from-[#C8A96A] to-transparent" />
+              <div className="mt-5 h-px w-12 bg-gradient-to-r from-gold to-transparent" />
               <h1 className="mt-5 font-display text-[clamp(1.75rem,3.2vw,2.35rem)] font-semibold leading-snug tracking-tight text-navy">
                 {title}
               </h1>
@@ -159,7 +159,7 @@ function LoginPage() {
               <form onSubmit={(e) => void onSubmit(e)} className="mt-8 grid gap-5">
                 <label htmlFor="login-email" className="block">
                   <span className="mb-2 flex items-center gap-2 text-[12px] font-medium text-navy">
-                    <Mail size={13} strokeWidth={1.75} className="text-[#A8894E]" />
+                    <Mail size={13} strokeWidth={1.75} className="text-gold-ink" />
                     {t.auth.email}
                   </span>
                   <input
@@ -173,7 +173,7 @@ function LoginPage() {
                 </label>
                 <label htmlFor="login-password" className="block">
                   <span className="mb-2 flex items-center gap-2 text-[12px] font-medium text-navy">
-                    <LockKeyhole size={13} strokeWidth={1.75} className="text-[#A8894E]" />
+                    <LockKeyhole size={13} strokeWidth={1.75} className="text-gold-ink" />
                     {t.auth.password}
                   </span>
                   <input

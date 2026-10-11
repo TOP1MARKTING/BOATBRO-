@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { BlogPost } from "../lib/db";
-import { sanitizePostHtml } from "../lib/post-html";
+import { sanitizePostHtml, siteLinkPath } from "../lib/post-html";
 import {
   orderedBlocksWithImages,
   parseLinkedText,
@@ -14,7 +14,9 @@ function LinkedText({ text, lang }: { text: string; lang: "ar" | "en" }) {
     <>
       {parts.map((part, index) => {
         if (part.kind === "text") return <span key={index}>{part.value}</span>;
-        const external = part.external;
+        const sitePath = siteLinkPath(part.href, lang);
+        const href = sitePath ?? part.href;
+        const external = !sitePath && part.external;
         if (part.href.startsWith("#")) {
           return (
             <a
@@ -29,7 +31,7 @@ function LinkedText({ text, lang }: { text: string; lang: "ar" | "en" }) {
         return (
           <a
             key={index}
-            href={part.href}
+            href={href}
             target={external ? "_blank" : undefined}
             rel={external ? "noopener noreferrer" : undefined}
             className="font-medium text-gold underline decoration-gold/40 underline-offset-4"
@@ -42,15 +44,33 @@ function LinkedText({ text, lang }: { text: string; lang: "ar" | "en" }) {
   );
 }
 
-export function BlogHtmlBody({ html, className = "mt-8" }: { html: string; className?: string }) {
-  const clean = useMemo(() => sanitizePostHtml(html), [html]);
+export function BlogHtmlBody({
+  html,
+  className = "mt-8",
+  fallbackAlt = "",
+  lang = null,
+}: {
+  html: string;
+  className?: string;
+  fallbackAlt?: string;
+  lang?: "ar" | "en" | null;
+}) {
+  const clean = useMemo(() => sanitizePostHtml(html, fallbackAlt, lang), [html, fallbackAlt, lang]);
   return <div className={`bp-article ${className}`} dangerouslySetInnerHTML={{ __html: clean }} />;
 }
 
-export function BlogPostBody({ post, lang }: { post: BlogPost; lang: "ar" | "en" }) {
+export function BlogPostBody({
+  post,
+  lang,
+  fallbackAlt = "",
+}: {
+  post: BlogPost;
+  lang: "ar" | "en";
+  fallbackAlt?: string;
+}) {
   if (post.contentMode === "html") {
     const html = pickLocalized(post.contentHtml, lang);
-    if (html) return <BlogHtmlBody html={html} />;
+    if (html) return <BlogHtmlBody html={html} fallbackAlt={fallbackAlt} lang={lang} />;
   }
   const blocks = orderedBlocksWithImages(post.blocks.length ? post.blocks : []);
   if (!blocks.length) {
@@ -62,13 +82,13 @@ export function BlogPostBody({ post, lang }: { post: BlogPost; lang: "ar" | "en"
   return (
     <div className="mt-8 space-y-6 text-base leading-9 text-muted-foreground">
       {blocks.map((block) => (
-        <Block key={block.id} block={block} lang={lang} />
+        <Block key={block.id} block={block} lang={lang} fallbackAlt={fallbackAlt} />
       ))}
     </div>
   );
 }
 
-function Block({ block, lang }: { block: PostBlock; lang: "ar" | "en" }) {
+function Block({ block, lang, fallbackAlt }: { block: PostBlock; lang: "ar" | "en"; fallbackAlt: string }) {
   const text = pickLocalized(
     block.type === "image" ? undefined : block.text,
     lang,
@@ -97,7 +117,9 @@ function Block({ block, lang }: { block: PostBlock; lang: "ar" | "en" }) {
       <figure>
         <img
           src={block.url}
-          alt={pickLocalized(block.alt, lang)}
+          alt={pickLocalized(block.alt, lang) || pickLocalized(block.caption, lang) || fallbackAlt}
+          loading="lazy"
+          decoding="async"
           className="w-full rounded-[1.25rem] object-cover"
         />
         {pickLocalized(block.caption, lang) ? (

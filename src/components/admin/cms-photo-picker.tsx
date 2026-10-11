@@ -211,10 +211,10 @@ export function CmsPhotoPickerModal({
         className={`relative z-10 flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden ${ADMIN_CARD_CLS} shadow-[0_25px_70px_-15px_rgba(0,0,0,0.5)]`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#C8A96A]/20 bg-card/95 px-5 py-4 backdrop-blur">
+        <div className="flex items-center justify-between border-b border-gold/20 bg-card/95 px-5 py-4 backdrop-blur">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="inline-flex size-8 items-center justify-center rounded-xl border border-[#C8A96A]/30 bg-[#C8A96A]/10 text-[#A8894E]">
+              <span className="inline-flex size-8 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold-ink">
                 <ImageIcon size={16} strokeWidth={1.75} />
               </span>
               <h3 className="font-display text-lg font-semibold text-navy">
@@ -249,7 +249,7 @@ export function CmsPhotoPickerModal({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="ابحث بالاسم أو الوصف (مثال: ليل، شراع، ضيوف)..."
-                className="w-full rounded-full border border-border bg-card py-2 pe-4 ps-9 text-xs text-navy outline-none placeholder:text-muted-foreground/60 focus:border-[#C8A96A] focus:ring-2 focus:ring-[#C8A96A]/15"
+                className="w-full rounded-full border border-border bg-card py-2 pe-4 ps-9 text-xs text-navy outline-none placeholder:text-muted-foreground/60 focus:border-gold focus:ring-2 focus:ring-gold/15"
               />
             </div>
 
@@ -264,8 +264,8 @@ export function CmsPhotoPickerModal({
                     onClick={() => setActiveCategory(cat.id)}
                     className={`rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
                       active
-                        ? "border border-[#C8A96A]/45 bg-[#C8A96A]/20 text-[#A8894E] shadow-sm"
-                        : "border border-border/60 bg-card/60 text-muted-foreground hover:border-[#C8A96A]/30 hover:text-navy"
+                        ? "border border-gold/45 bg-gold/20 text-gold-ink shadow-sm"
+                        : "border border-border/60 bg-card/60 text-muted-foreground hover:border-gold/30 hover:text-navy"
                     }`}
                   >
                     {cat.labelAr}
@@ -288,7 +288,7 @@ export function CmsPhotoPickerModal({
                   setSearch("");
                   setActiveCategory("all");
                 }}
-                className="mt-3 text-xs text-[#A8894E] hover:underline"
+                className="mt-3 text-xs text-gold-ink hover:underline"
               >
                 إعادة ضبط البحث
               </button>
@@ -307,8 +307,8 @@ export function CmsPhotoPickerModal({
                     }}
                     className={`group relative flex flex-col overflow-hidden rounded-2xl border text-start transition-all hover:-translate-y-0.5 hover:shadow-lg ${
                       isSelected
-                        ? "border-[#C8A96A] bg-[#C8A96A]/5 shadow-[0_0_20px_rgba(200,169,106,0.25)] ring-2 ring-[#C8A96A]/30"
-                        : "border-border/70 bg-card hover:border-[#C8A96A]/50"
+                        ? "border-gold bg-gold/5 shadow-[0_0_20px_color-mix(in_oklab,var(--gold)_25%,transparent)] ring-2 ring-gold/30"
+                        : "border-border/70 bg-card hover:border-gold/50"
                     }`}
                   >
                     {/* Image Preview */}
@@ -322,15 +322,15 @@ export function CmsPhotoPickerModal({
 
                       {/* Selected Badge */}
                       {isSelected ? (
-                        <div className="absolute end-2 top-2 inline-flex items-center gap-1 rounded-full border border-[#C8A96A]/40 bg-[#0a1628]/85 px-2.5 py-1 text-[11px] font-semibold text-[#E6D3A3] shadow-md backdrop-blur">
-                          <Check size={12} strokeWidth={2.5} className="text-[#C8A96A]" />
+                        <div className="absolute end-2 top-2 inline-flex items-center gap-1 rounded-full border border-gold/40 bg-navy-deep/85 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md backdrop-blur">
+                          <Check size={12} strokeWidth={2.5} className="text-gold" />
                           <span>محددة حالياً</span>
                         </div>
                       ) : null}
 
                       {/* Quick Hover Overlay */}
                       <div className="absolute inset-0 flex items-center justify-center bg-navy-deep/45 opacity-0 backdrop-blur-[1px] transition-opacity group-hover:opacity-100">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-[#D4B87A] via-[#C8A96A] to-[#A8894E] px-4 py-1.5 text-xs font-semibold text-[#0a1628] shadow-md">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-1.5 text-xs font-semibold text-white shadow-md">
                           <Sparkles size={12} />
                           اختيار هذه الصورة
                         </span>
@@ -352,7 +352,7 @@ export function CmsPhotoPickerModal({
                           {photo.id}
                         </span>
                         {isSelected ? (
-                          <span className="text-[11px] font-medium text-[#A8894E]">✓ نشطة</span>
+                          <span className="text-[11px] font-medium text-gold-ink">✓ نشطة</span>
                         ) : (
                           <span className="text-[11px] text-muted-foreground group-hover:text-navy">
                             اضغط للاختيار
@@ -413,7 +413,7 @@ export function CmsPhotoCardField({
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#A8894E] hover:underline"
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-gold-ink hover:underline"
         >
           <Sparkles size={11} />
           استعراض المعرض المرئي
@@ -421,7 +421,7 @@ export function CmsPhotoCardField({
       </div>
 
       {/* Visual Preview Card */}
-      <div className={`overflow-hidden ${ADMIN_CARD_CLS} transition-all hover:border-[#C8A96A]/40`}>
+      <div className={`overflow-hidden ${ADMIN_CARD_CLS} transition-all hover:border-gold/40`}>
         <div className="grid gap-3 p-3.5 sm:grid-cols-[160px_minmax(0,1fr)] sm:items-center">
           {/* Thumbnail preview */}
           <button

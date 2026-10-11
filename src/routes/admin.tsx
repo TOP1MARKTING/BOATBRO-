@@ -124,7 +124,7 @@ function AdminPage() {
     return (
       <main dir={dir} className="grid min-h-svh place-items-center bg-background">
         <div className="text-center">
-          <div className="mx-auto size-12 animate-pulse rounded-full border border-[#C8A96A]/40 bg-[#C8A96A]/15" />
+          <div className="mx-auto size-12 animate-pulse rounded-full border border-gold/40 bg-gold/15" />
           <p className="mt-4 text-sm text-muted-foreground">{t.admin.loading}</p>
         </div>
       </main>

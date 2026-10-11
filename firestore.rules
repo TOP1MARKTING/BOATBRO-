@@ -228,6 +228,19 @@ service cloud.firestore {
       allow create, update, delete: if canEditPosts();
     }
 
+    // Article images (inline + covers) stored outside the post so posts stay under the 1 MiB document limit.
+    match /postImages/{id} {
+      allow get: if true;
+      allow list: if isStaff();
+      allow create: if canEditPosts()
+        && request.resource.data.keys().hasAll(['dataUrl', 'mimeType'])
+        && request.resource.data.mimeType in ['image/jpeg', 'image/png', 'image/webp']
+        && request.resource.data.dataUrl is string
+        && request.resource.data.dataUrl.size() <= 1000000;
+      allow update: if false;
+      allow delete: if canEditPosts();
+    }
+
     match /gallery/{id} {
       allow read: if isStaff();
       allow create, update, delete: if canEditGallery();

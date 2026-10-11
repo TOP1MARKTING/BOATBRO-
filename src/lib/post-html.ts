@@ -1,4 +1,6 @@
 import DOMPurify from "dompurify";
+import { localizePath, splitLocale } from "./locale-url";
+import type { Lang } from "./page-content";
 import { orderedBlocksWithImages, parseLinkedText, type LocalizedText, type PostBlock } from "./post-content";
 
 const ALLOWED_TAGS = [
@@ -14,6 +16,30 @@ const ALLOWED_ATTR = [
 
 let hooksReady = false;
 let usedIds = new Set<string>();
+let imageFallbackAlt = "";
+let articleLang: Lang | null = null;
+
+const SITE_HOST = /^(?:www\.)?boatpro\.club$/i;
+const FILE_PATH = /^\/(?:media|seo|assets)\/|\.[a-z0-9]{2,5}$/i;
+
+/**
+ * Article links to boatpro.club (pasted with www, without /ar|/en, or with utm_* tracking) become the
+ * same-language prefixed path, so they open in the same tab and never hit a redirect. Mirrors bp_site_link().
+ */
+export function siteLinkPath(href: string, lang: Lang) {
+  if (!/^(?:https?:)?\/\//i.test(href) && !/^\/(?!\/)/.test(href)) return null;
+  let url: URL;
+  try {
+    url = new URL(href, "https://boatpro.club");
+  } catch {
+    return null;
+  }
+  if (!SITE_HOST.test(url.hostname)) return null;
+  for (const key of [...url.searchParams.keys()]) if (/^utm_/i.test(key)) url.searchParams.delete(key);
+  const { path } = splitLocale(url.pathname);
+  const target = FILE_PATH.test(path) ? path : localizePath(path, lang);
+  return `${target}${url.search}${url.hash}`;
+}
 
 export function slugifyHeading(text: string) {
   return (
@@ -41,7 +67,12 @@ function ensureHooks() {
     const el = node as Element;
     const tag = el.tagName?.toLowerCase();
     if (tag === "a") {
-      const href = el.getAttribute("href") ?? "";
+      let href = el.getAttribute("href") ?? "";
+      const sitePath = articleLang ? siteLinkPath(href, articleLang) : null;
+      if (sitePath) {
+        href = sitePath;
+        el.setAttribute("href", href);
+      }
       if (/^https?:\/\//i.test(href)) {
         el.setAttribute("target", "_blank");
         el.setAttribute("rel", "noopener noreferrer");
@@ -52,6 +83,10 @@ function ensureHooks() {
     if (tag === "img") {
       el.setAttribute("loading", "lazy");
       el.setAttribute("decoding", "async");
+      if (!el.getAttribute("alt")?.trim()) {
+        const caption = el.closest("figure")?.querySelector("figcaption")?.textContent?.trim();
+        el.setAttribute("alt", caption || imageFallbackAlt);
+      }
     }
     if (tag === "h2" || tag === "h3") {
       const existing = el.getAttribute("id");
@@ -61,10 +96,12 @@ function ensureHooks() {
 }
 
 /** Sanitize author HTML for public rendering. Browser-only (the site and prerender run in a real DOM). */
-export function sanitizePostHtml(html: string) {
+export function sanitizePostHtml(html: string, fallbackAlt = "", lang: Lang | null = null) {
   if (!html.trim() || typeof window === "undefined") return "";
   ensureHooks();
   usedIds = new Set();
+  imageFallbackAlt = fallbackAlt.trim();
+  articleLang = lang;
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS,
     ALLOWED_ATTR: [...ALLOWED_ATTR, "decoding"],

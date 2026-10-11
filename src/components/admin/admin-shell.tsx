@@ -70,16 +70,16 @@ export function AdminShell({
   children: ReactNode;
 }) {
   const sidebar = (
-    <aside className="relative flex h-full w-[272px] flex-col overflow-hidden bg-[linear-gradient(180deg,#0a1628_0%,#0d1b33_55%,#111c30_100%)] text-white">
+    <aside className="relative flex h-full w-[272px] flex-col overflow-hidden bg-navy-deep text-white">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(200,169,106,0.12),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--gold)_12%,transparent),transparent_55%)]"
       />
-      <div className="relative flex items-center gap-3 border-b border-[#C8A96A]/20 px-5 py-5">
+      <div className="relative flex items-center gap-3 border-b border-gold/20 px-5 py-5">
         <Logo size="sm" />
         <div className="min-w-0">
           <p className="font-display text-[15px] font-semibold tracking-[0.12em]">BoatPro</p>
-          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#C8A96A]/85">
+          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-gold/85">
             <Anchor size={11} strokeWidth={1.75} />
             {chipLabel}
           </p>
@@ -97,14 +97,14 @@ export function AdminShell({
               onClick={() => setTab(id)}
               className={`relative flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-start text-[13px] font-medium transition-all ${
                 active
-                  ? "border border-[#C8A96A]/35 bg-[linear-gradient(135deg,rgba(200,169,106,0.22),rgba(200,169,106,0.08))] text-white shadow-[0_10px_24px_-16px_rgba(200,169,106,0.55)]"
+                  ? "border border-gold/35 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--gold)_22%,transparent),color-mix(in_oklab,var(--gold)_8%,transparent))] text-white shadow-[0_10px_24px_-16px_color-mix(in_oklab,var(--gold)_55%,transparent)]"
                   : "border border-transparent text-white/60 hover:border-white/10 hover:bg-white/[0.05] hover:text-white"
               }`}
             >
               <span
                 className={`inline-flex size-8 items-center justify-center rounded-xl ${
                   active
-                    ? "bg-[#C8A96A]/20 text-[#E6D3A3]"
+                    ? "bg-gold/20 text-white"
                     : "bg-white/[0.04] text-white/45"
                 }`}
               >
@@ -112,7 +112,7 @@ export function AdminShell({
               </span>
               <span className="flex-1">{tabLabels[id]}</span>
               {badge > 0 ? (
-                <span className="rounded-full bg-[#C8A96A] px-2 py-0.5 text-[11px] font-semibold text-[#0a1628]">
+                <span className="rounded-full bg-gold px-2 py-0.5 text-[11px] font-semibold text-white">
                   {badge}
                 </span>
               ) : null}
@@ -121,12 +121,12 @@ export function AdminShell({
         })}
       </nav>
 
-      <div className="relative shrink-0 border-t border-[#C8A96A]/15 p-3">
+      <div className="relative shrink-0 border-t border-gold/15 p-3">
         <Link
           to="/"
-          className="flex items-center gap-3 rounded-2xl px-3.5 py-3 text-[13px] text-white/60 transition-colors hover:bg-white/[0.05] hover:text-[#E6D3A3]"
+          className="flex items-center gap-3 rounded-2xl px-3.5 py-3 text-[13px] text-white/60 transition-colors hover:bg-white/[0.05] hover:text-white"
         >
-          <ExternalLink size={16} strokeWidth={1.75} className="text-[#C8A96A]/70" />
+          <ExternalLink size={16} strokeWidth={1.75} className="text-gold/70" />
           {siteLabel}
         </Link>
         <button
@@ -171,7 +171,7 @@ export function AdminShell({
                   {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
                 </button>
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#A8894E] uppercase">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.18em] text-gold-ink uppercase">
                     <Sparkles size={11} strokeWidth={1.75} />
                     BoatPro
                   </p>
@@ -186,9 +186,9 @@ export function AdminShell({
                 <button
                   type="button"
                   onClick={() => setTab("profile")}
-                  className="hidden items-center gap-2 rounded-full border border-[#C8A96A]/25 bg-card py-1.5 pe-3.5 ps-1.5 shadow-sm sm:flex"
+                  className="hidden items-center gap-2 rounded-full border border-gold/25 bg-card py-1.5 pe-3.5 ps-1.5 shadow-sm sm:flex"
                 >
-                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-navy-deep text-[11px] font-semibold text-[#E6D3A3]">
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-navy-deep text-[11px] font-semibold text-white">
                     {(userEmail?.[0] ?? "A").toUpperCase()}
                   </span>
                   <div className="min-w-0 max-w-[180px] text-start">
@@ -196,7 +196,7 @@ export function AdminShell({
                       {userEmail}
                     </p>
                     {isSuperAdmin ? (
-                      <p className="flex items-center gap-1 text-[10px] text-[#A8894E]">
+                      <p className="flex items-center gap-1 text-[10px] text-gold-ink">
                         <Crown size={10} strokeWidth={1.75} />
                         {superAdminLabel}
                       </p>

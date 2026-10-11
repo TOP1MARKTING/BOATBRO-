@@ -61,8 +61,8 @@ export function AdminOverviewPanel({
 
   return (
     <div>
-      <div className="mb-7 rounded-[1.35rem] border border-[#C8A96A]/20 bg-card p-5 sm:p-6">
-        <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] text-[#A8894E] uppercase">
+      <div className="mb-7 rounded-[1.35rem] border border-gold/20 bg-card p-5 sm:p-6">
+        <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] text-gold-ink uppercase">
           <Sparkles size={12} strokeWidth={1.75} />
           BoatPro Admin
         </p>
@@ -110,10 +110,10 @@ export function AdminOverviewPanel({
 
       <div className={`mt-8 grid gap-4 ${showPosts && showContacts ? "lg:grid-cols-2" : ""}`}>
         {showContacts ? (
-        <section className="rounded-[1.35rem] border border-[#C8A96A]/18 bg-gradient-to-br from-card to-[rgba(200,169,106,0.04)] p-5 shadow-[0_14px_36px_-28px_rgba(10,22,40,0.4)] sm:p-6">
+        <section className="rounded-[1.35rem] border border-gold/18 bg-gradient-to-br from-card to-gold/4 p-5 shadow-[0_14px_36px_-28px_rgba(10,22,40,0.4)] sm:p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-navy">{t.admin.contacts}</h3>
-            <button type="button" onClick={() => onOpen("contacts")} className="text-[12px] font-medium text-[#A8894E] hover:text-[#C8A96A]">
+            <button type="button" onClick={() => onOpen("contacts")} className="text-[12px] font-medium text-gold-ink hover:text-gold">
               {t.admin.viewAll}
             </button>
           </div>
@@ -132,7 +132,7 @@ export function AdminOverviewPanel({
                     </div>
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                        c.status === "new" ? "bg-[#C8A96A]/15 text-[#A8894E]" : "bg-navy/5 text-muted-foreground"
+                        c.status === "new" ? "bg-gold/15 text-gold-ink" : "bg-navy/5 text-muted-foreground"
                       }`}
                     >
                       {c.status === "new" ? t.admin.newCount : t.admin.handled}
@@ -146,10 +146,10 @@ export function AdminOverviewPanel({
         ) : null}
 
         {showPosts ? (
-        <section className="rounded-[1.35rem] border border-[#C8A96A]/18 bg-gradient-to-br from-card to-[rgba(200,169,106,0.04)] p-5 shadow-[0_14px_36px_-28px_rgba(10,22,40,0.4)] sm:p-6">
+        <section className="rounded-[1.35rem] border border-gold/18 bg-gradient-to-br from-card to-gold/4 p-5 shadow-[0_14px_36px_-28px_rgba(10,22,40,0.4)] sm:p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-navy">{t.admin.posts}</h3>
-            <button type="button" onClick={() => onOpen("posts")} className="text-[12px] font-medium text-[#A8894E] hover:text-[#C8A96A]">
+            <button type="button" onClick={() => onOpen("posts")} className="text-[12px] font-medium text-gold-ink hover:text-gold">
               {t.admin.viewAll}
             </button>
           </div>
@@ -166,7 +166,7 @@ export function AdminOverviewPanel({
                     </div>
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                        p.published ? "bg-[#C8A96A]/15 text-[#A8894E]" : "bg-navy/5 text-muted-foreground"
+                        p.published ? "bg-gold/15 text-gold-ink" : "bg-navy/5 text-muted-foreground"
                       }`}
                     >
                       {p.published ? t.admin.published : t.admin.draft}

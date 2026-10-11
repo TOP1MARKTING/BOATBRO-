@@ -331,7 +331,7 @@ export function AdminPostSeo({
               </div>
             ))}
             {form.faq.length < 8 ? (
-              <button type="button" onClick={() => setForm((prev) => ({ ...prev, faq: [...prev.faq, { question: { ar: "", en: "" }, answer: { ar: "", en: "" } }] }))} className="rounded-full border border-[#C8A96A]/45 px-4 py-2 text-[12px] font-medium text-[#A8894E] hover:bg-[#C8A96A]/10">{labels.faqAdd}</button>
+              <button type="button" onClick={() => setForm((prev) => ({ ...prev, faq: [...prev.faq, { question: { ar: "", en: "" }, answer: { ar: "", en: "" } }] }))} className="rounded-full border border-gold/45 px-4 py-2 text-[12px] font-medium text-gold-ink hover:bg-gold/10">{labels.faqAdd}</button>
             ) : null}
           </div>
         </Section>

@@ -8,7 +8,6 @@ import {
 import type { CmsPageId, CmsPageImages } from "../../lib/page-content";
 import { PHOTO_NAME_OPTIONS, isPhotoName } from "../../lib/page-content";
 import { ADMIN_FIELD_CLS } from "./shared";
-import { writePath } from "./content-field-editor";
 import { CmsPhotoCardField } from "./cms-photo-picker";
 
 type BilingualEditorProps = {
@@ -63,6 +62,22 @@ function isTuplePair(value: unknown): value is [string, string] {
 function tuplePair(value: unknown): [string, string] {
   if (isTuplePair(value)) return [value[0], value[1]];
   return ["", ""];
+}
+
+function writePath(obj: Record<string, unknown>, path: string[], value: unknown): Record<string, unknown> {
+  if (!path.length) return obj;
+  const next = structuredClone(obj);
+  let cur: Record<string, unknown> = next;
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i]!;
+    const existing = cur[key];
+    if (!existing || typeof existing !== "object" || Array.isArray(existing)) {
+      cur[key] = {};
+    }
+    cur = cur[key] as Record<string, unknown>;
+  }
+  cur[path[path.length - 1]!] = value;
+  return next;
 }
 
 function readAt(root: Record<string, unknown>, path: string[]): unknown {
@@ -181,7 +196,7 @@ function EditorSection({
     <details
       open={open}
       onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-      className="group rounded-[1.35rem] border border-[#C8A96A]/18 bg-card/50"
+      className="group rounded-[1.35rem] border border-gold/18 bg-card/50"
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded-2xl px-5 py-4 font-display text-base font-semibold text-navy marker:content-none [&::-webkit-details-marker]:hidden">
         <ChevronDown

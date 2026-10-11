@@ -47,6 +47,7 @@ import {
   staffRoleFromPermissions,
 } from "./admin-permissions";
 import { getDb } from "./firebase";
+import { INLINE_DATA_URL, isPermissionDenied, storePostImage } from "./post-images";
 
 function toDate(value: unknown) {
   if (value && typeof value === "object" && "toDate" in value) {
@@ -656,16 +657,64 @@ export async function getPostBySlug(slug: string) {
   return null;
 }
 
+/** Firestore rejects documents over 1 MiB; keep headroom for field names and index overhead. */
+const MAX_POST_DOCUMENT_BYTES = 1_000_000;
+
+/**
+ * Moves base64 images (legacy uploads, gallery picks) out of the post into `postImages` documents.
+ * If the `postImages` rules are not deployed yet, the post keeps its data URLs and the size check decides.
+ */
+async function externalizeInlineImages(input: PostInput): Promise<PostInput> {
+  const replacements = new Map<string, string>();
+  const collect = (value: string) => {
+    for (const match of value.matchAll(INLINE_DATA_URL)) replacements.set(match[0], "");
+  };
+  collect(input.contentHtml.ar);
+  collect(input.contentHtml.en);
+  collect(input.coverUrl);
+  collect(input.coverUrlEn);
+  collect(input.ogImage);
+  for (const block of input.blocks) if (block.type === "image") collect(block.url);
+  if (!replacements.size) return input;
+
+  try {
+    for (const dataUrl of replacements.keys()) {
+      replacements.set(dataUrl, await storePostImage(dataUrl));
+    }
+  } catch (error) {
+    if (isPermissionDenied(error)) {
+      console.warn("[posts] postImages is not writable; keeping inline images.", error);
+      return input;
+    }
+    throw error;
+  }
+
+  const swap = (value: string) => value.replace(INLINE_DATA_URL, (match) => replacements.get(match) || match);
+  return {
+    ...input,
+    contentHtml: { ar: swap(input.contentHtml.ar), en: swap(input.contentHtml.en) },
+    coverUrl: swap(input.coverUrl),
+    coverUrlEn: swap(input.coverUrlEn),
+    ogImage: swap(input.ogImage),
+    blocks: input.blocks.map((block) => (block.type === "image" ? { ...block, url: swap(block.url) } : block)),
+  };
+}
+
 export async function savePost(id: string | null, input: PostInput) {
-  const synced = syncLegacyFields(input);
-  const payload = {
+  const synced = syncLegacyFields(await externalizeInlineImages(input));
+  const fields = {
     ...synced,
+    // An English cover identical to the Arabic one is redundant: postCoverUrl already falls back to it.
+    coverUrlEn: synced.coverUrlEn.trim() === synced.coverUrl.trim() ? "" : synced.coverUrlEn,
     ogImage: synced.ogImage.slice(0, 500),
     faq: synced.faq
       .filter((item) => (item.question.ar || item.question.en) && (item.answer.ar || item.answer.en))
       .slice(0, 8),
-    updatedAt: serverTimestamp(),
   };
+  if (new TextEncoder().encode(JSON.stringify(fields)).length > MAX_POST_DOCUMENT_BYTES) {
+    throw new Error("post-too-large");
+  }
+  const payload = { ...fields, updatedAt: serverTimestamp() };
   if (id) {
     await updateDoc(doc(getDb(), "posts", id), payload);
     return id;
@@ -743,9 +792,16 @@ async function prepareImageDataUrl(file: File, profile: "gallery" | "post" | "li
   return { dataUrl, mimeType, byteLength };
 }
 
+/** Compresses an article image (cover or inline) and stores it in `postImages`; returns its stable path. */
 export async function uploadCover(file: File, _uid: string) {
   const { dataUrl } = await prepareImageDataUrl(file, "post");
-  return dataUrl;
+  try {
+    return await storePostImage(dataUrl);
+  } catch (error) {
+    if (!isPermissionDenied(error)) throw error;
+    console.warn("[posts] postImages is not writable; using an inline image.", error);
+    return dataUrl;
+  }
 }
 
 function resolveGalleryUrl(id: string, data: Record<string, unknown>) {

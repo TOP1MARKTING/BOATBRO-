@@ -111,9 +111,9 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
               key={page.id}
               type="button"
               onClick={() => openPage(page.id)}
-              className={`${ADMIN_CARD_CLS} p-5 text-start transition-all hover:-translate-y-0.5 hover:border-[#C8A96A]/45`}
+              className={`${ADMIN_CARD_CLS} p-5 text-start transition-all hover:-translate-y-0.5 hover:border-gold/45`}
             >
-              <span className="inline-flex size-10 items-center justify-center rounded-xl border border-[#C8A96A]/30 bg-[#C8A96A]/10 text-[#A8894E]">
+              <span className="inline-flex size-10 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold-ink">
                 <FileText size={18} strokeWidth={1.75} />
               </span>
               <p className="mt-4 font-display text-lg font-semibold text-navy">{cmsPageLabel(page.id, t)}</p>
@@ -123,7 +123,7 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
           <button
             type="button"
             onClick={() => openPage("shared")}
-            className={`${ADMIN_CARD_CLS} border-dashed p-5 text-start transition-colors hover:border-[#C8A96A]/45 sm:col-span-2 xl:col-span-3`}
+            className={`${ADMIN_CARD_CLS} border-dashed p-5 text-start transition-colors hover:border-gold/45 sm:col-span-2 xl:col-span-3`}
           >
             <p className="font-display text-lg font-semibold text-navy">{cmsPageLabel("shared", t)}</p>
             <p className="mt-1 text-sm text-muted-foreground">{t.admin.cmsSharedHint}</p>

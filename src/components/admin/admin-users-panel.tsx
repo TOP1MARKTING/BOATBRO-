@@ -119,7 +119,7 @@ function UserAccessCard({
     <article className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
       <div className="grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="flex min-w-0 items-start gap-4">
-          <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl border border-[#C8A96A]/30 bg-[#C8A96A]/10 text-[15px] font-semibold text-[#A8894E]">
+          <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-[15px] font-semibold text-gold-ink">
             {initial}
           </span>
           <div className="min-w-0 flex-1">
@@ -137,14 +137,14 @@ function UserAccessCard({
 
             {!superAdmin && activePerms.length > 0 ? (
               <div className="mt-3">
-                <p className="mb-2 text-[11px] font-semibold tracking-[0.12em] text-[#A8894E] uppercase">
+                <p className="mb-2 text-[11px] font-semibold tracking-[0.12em] text-gold-ink uppercase">
                   {t.admin.permissionsLabel}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {activePerms.map((item) => (
                     <span
                       key={item}
-                      className="inline-flex rounded-full border border-[#C8A96A]/25 bg-[#C8A96A]/5 px-2.5 py-1 text-[11px] font-medium text-[#A8894E]"
+                      className="inline-flex rounded-full border border-gold/25 bg-gold/5 px-2.5 py-1 text-[11px] font-medium text-gold-ink"
                     >
                       {item}
                     </span>
@@ -156,7 +156,7 @@ function UserAccessCard({
             ) : null}
 
             {!superAdmin && showPasswordTools ? (
-              <div className="mt-4 rounded-xl border border-[#C8A96A]/18 bg-surface-2/60 px-3 py-2.5">
+              <div className="mt-4 rounded-xl border border-gold/18 bg-surface-2/60 px-3 py-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
                     {t.auth.password}
@@ -165,7 +165,7 @@ function UserAccessCard({
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#A8894E] hover:underline"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-gold-ink hover:underline"
                     >
                       {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
                       {showPassword ? t.admin.hidePassword : t.admin.showPassword}
@@ -236,10 +236,10 @@ function UserAccessCard({
             </div>
           ) : null}
 
-          <label className="mt-5 inline-flex cursor-pointer items-center gap-3 rounded-xl border border-[#C8A96A]/25 bg-card px-4 py-3 text-[13px]">
+          <label className="mt-5 inline-flex cursor-pointer items-center gap-3 rounded-xl border border-gold/25 bg-card px-4 py-3 text-[13px]">
             <input
               type="checkbox"
-              className="size-4 rounded border-border accent-[#C8A96A]"
+              className="size-4 rounded border-border accent-gold"
               checked={editActive}
               onChange={(e) => setEditActive(e.target.checked)}
             />
@@ -483,10 +483,10 @@ export function AdminUsersPanel({
               />
             </div>
 
-            <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-[#C8A96A]/25 bg-surface-2/60 px-4 py-3 text-[13px]">
+            <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-gold/25 bg-surface-2/60 px-4 py-3 text-[13px]">
               <input
                 type="checkbox"
-                className="size-4 rounded border-border accent-[#C8A96A]"
+                className="size-4 rounded border-border accent-gold"
                 checked={newActive}
                 onChange={(e) => setNewActive(e.target.checked)}
               />

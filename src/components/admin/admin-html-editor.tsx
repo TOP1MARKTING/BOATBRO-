@@ -306,7 +306,7 @@ export function AdminHtmlEditor({
               dir={contentLang === "ar" ? "rtl" : "ltr"}
               className="max-h-[32rem] overflow-y-auto rounded-xl border border-border bg-background p-5"
             >
-              {value.trim() ? <BlogHtmlBody html={value} className="" /> : <p className="text-[13px] text-muted-foreground">{c.previewEmpty}</p>}
+              {value.trim() ? <BlogHtmlBody html={value} className="" lang={contentLang} /> : <p className="text-[13px] text-muted-foreground">{c.previewEmpty}</p>}
             </div>
           ) : null}
         </div>

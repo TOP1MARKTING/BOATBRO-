@@ -5,12 +5,31 @@ import { JsonLd } from "../../components/json-ld";
 import { MarketingShell } from "../../components/marketing-shell";
 import { PageMeta } from "../../components/page-meta";
 import { Btn, CtaArrow } from "../../components/ui";
-import { getPostBySlug, listPublishedPosts, pickRelatedPosts, postCoverUrl, postPlainText } from "../../lib/db";
+import {
+  getPostBySlug,
+  listPublishedPosts,
+  pickRelatedPosts,
+  postCoverUrl,
+  postPlainText,
+  type BlogPost,
+} from "../../lib/db";
 import { pickLocalized } from "../../lib/post-content";
 import { useLang } from "../../lib/i18n";
 import { getUrlLang } from "../../lib/locale-url";
-import { resolveMetaDescription, resolveMetaTitle, resolveOgImage } from "../../lib/post-seo";
-import { SITE_ORIGIN, formatDisplayDate, pageHead, readingMinutes, localizedUrl } from "../../lib/site";
+import {
+  postAvailableLangs,
+  resolveMetaDescription,
+  resolveMetaTitle,
+  resolveShareImage,
+} from "../../lib/post-seo";
+import {
+  SITE_ORIGIN,
+  formatDisplayDate,
+  pageHead,
+  readingMinutes,
+  localizedUrl,
+  shareImageUrl,
+} from "../../lib/site";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
@@ -52,18 +71,46 @@ export const Route = createFileRoute("/blog/$slug")({
     };
     const lang = getUrlLang();
     const title = resolveMetaTitle(input, lang);
-    const description = resolveMetaDescription(input, lang).slice(0, 160);
+    const description = postMetaDescription(post, lang);
     return pageHead({
-      title: `${title} | ${lang === "ar" ? "بوت برو" : "BoatPro"}`,
+      title: postPageTitle(post, lang),
       description,
       path: `/blog/${post.slug}`,
-      image: resolveOgImage(input) || "/og.jpg",
+      image: postShareImage(post, lang),
+      imageAlt: pickLocalized(post.coverAlt, lang, title),
       type: "article",
       noindex: post.noindex,
+      langs: postAvailableLangs(post),
+      article: {
+        publishedTime: post.createdAt?.toISOString(),
+        modifiedTime: (post.updatedAt || post.createdAt)?.toISOString(),
+        section: pickLocalized(post.categoryI18n, lang, post.category),
+        tags: lang === "en" ? post.tags.en : post.tags.ar,
+      },
     });
   },
   component: BlogPostPage,
 });
+
+function postPageTitle(post: BlogPost, lang: "ar" | "en") {
+  return `${resolveMetaTitle(post, lang)} | ${lang === "ar" ? "بوت برو" : "BoatPro"}`;
+}
+
+/** Base64 covers of older posts are served by public/seo/image.php at /media/covers/{id}-{lang}.jpg. */
+function postShareImage(post: BlogPost, lang: "ar" | "en") {
+  const cover = postCoverUrl(post, lang);
+  if (!cover.startsWith("data:")) return resolveShareImage(post, lang);
+  return resolveShareImage({ ...post, coverUrl: `/media/covers/${post.id}-${lang}.jpg`, coverUrlEn: "" }, lang);
+}
+
+/** Stored meta description, then the excerpt, then the opening of the article itself. */
+function postMetaDescription(post: BlogPost, lang: "ar" | "en") {
+  const text = resolveMetaDescription(post, lang).trim() || postPlainText(post, lang);
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= 160) return clean;
+  const cut = clean.slice(0, 157);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 120))}…`;
+}
 
 function BlogPostPage() {
   const { post, posts } = Route.useLoaderData();
@@ -76,8 +123,8 @@ function BlogPostPage() {
   const coverAlt = pickLocalized(post.coverAlt, lang, title);
   const coverUrl = postCoverUrl(post, lang);
   const metaTitle = resolveMetaTitle(post, lang);
-  const metaDescription = resolveMetaDescription(post, lang);
-  const ogImage = resolveOgImage(post) || `${SITE_ORIGIN}/og.jpg`;
+  const metaDescription = postMetaDescription(post, lang);
+  const ogImage = shareImageUrl(postShareImage(post, lang));
   const bodyText = postPlainText(post, lang);
   const mins = readingMinutes(`${excerpt} ${bodyText}`);
   const tags = lang === "en" ? post.tags.en : post.tags.ar;
@@ -89,29 +136,30 @@ function BlogPostPage() {
 
   return (
     <>
-      <PageMeta title={metaTitle} description={metaDescription} />
+      <PageMeta title={postPageTitle(post, lang)} description={metaDescription} />
       <MarketingShell dir={dir}>
       <JsonLd
         data={[
           {
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: metaTitle,
+            headline: metaTitle.slice(0, 110),
             description: metaDescription,
-            image: ogImage,
+            image: [ogImage],
             datePublished: post.createdAt?.toISOString(),
             dateModified: (post.updatedAt || post.createdAt)?.toISOString(),
-            author: {
-              "@type": "Person",
-              name: author || "BoatPro",
-            },
+            author: author
+              ? { "@type": "Person", name: author }
+              : { "@type": "Organization", name: "BoatPro", url: SITE_ORIGIN },
             publisher: {
               "@type": "Organization",
               name: "BoatPro",
               logo: { "@type": "ImageObject", url: `${SITE_ORIGIN}/logo.png` },
             },
-            mainEntityOfPage: localizedUrl(`/blog/${post.slug}`, lang),
-            inLanguage: post.lang === "en" ? "en" : "ar",
+            mainEntityOfPage: { "@type": "WebPage", "@id": localizedUrl(`/blog/${post.slug}`, lang) },
+            inLanguage: lang,
+            ...(category ? { articleSection: category } : {}),
+            ...(tags.length ? { keywords: tags.join(", ") } : {}),
           },
           {
             "@context": "https://schema.org",
@@ -162,11 +210,14 @@ function BlogPostPage() {
           <img
             src={coverUrl}
             alt={coverAlt}
+            width={1200}
+            height={675}
+            fetchPriority="high"
             className="mt-8 aspect-[16/9] w-full rounded-[1.6rem] object-cover"
           />
         )}
         <p className="mt-8 text-lg leading-9 text-foreground/85">{excerpt}</p>
-        <BlogPostBody post={post} lang={lang} />
+        <BlogPostBody post={post} lang={lang} fallbackAlt={title} />
         <BlogPostTags tags={tags} lang={lang} />
         <BlogFaqSection
           faq={post.faq}

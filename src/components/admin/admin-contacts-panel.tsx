@@ -39,7 +39,7 @@ type PrintLabels = {
 function FieldRow({ label, value, ltr }: { label: string; value: string; ltr?: boolean }) {
   return (
     <div className="min-w-0 rounded-lg border border-border/60 bg-background/50 px-2.5 py-2">
-      <p className="text-[10px] font-medium leading-none text-[#A8894E]">{label}</p>
+      <p className="text-[10px] font-medium leading-none text-gold-ink">{label}</p>
       <p
         className="mt-1 break-words text-[12px] font-medium leading-5 text-navy"
         dir={ltr ? "ltr" : undefined}
@@ -132,7 +132,7 @@ function printStyles() {
       margin-bottom: 18px;
       border-radius: 18px;
       background:
-        radial-gradient(circle at 50% 0%, rgba(200,169,106,0.22), transparent 58%),
+        radial-gradient(circle at 50% 0%, rgba(0,119,152,0.22), transparent 58%),
         linear-gradient(165deg, #0b1a2e 0%, #13284a 55%, #0a1628 100%);
       color: #fff;
       position: relative;
@@ -144,7 +144,7 @@ function printStyles() {
       inset-inline: 16%;
       bottom: 0;
       height: 3px;
-      background: linear-gradient(90deg, transparent, #C8A96A, transparent);
+      background: linear-gradient(90deg, transparent, #007798, transparent);
     }
     .logo-wrap { display: flex; justify-content: center; margin-bottom: 10px; }
     .logo-wrap img {
@@ -154,19 +154,19 @@ function printStyles() {
       border-radius: 50%;
       background: rgba(255,255,255,0.08);
       padding: 6px;
-      border: 1px solid rgba(200,169,106,0.45);
+      border: 1px solid rgba(0,119,152,0.45);
     }
     .brand {
       margin: 0;
       font-size: 26px;
       font-weight: 700;
       letter-spacing: 0.12em;
-      color: #F5E6C8;
+      color: #e8f9ff;
       text-transform: uppercase;
     }
     .sub {
       margin: 6px 0 0;
-      color: #E6D3A3;
+      color: #acdae6;
       font-size: 14px;
       font-weight: 600;
     }
@@ -179,13 +179,13 @@ function printStyles() {
       padding: 8px 16px;
       border-radius: 999px;
       background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(200,169,106,0.28);
+      border: 1px solid rgba(0,119,152,0.28);
       color: rgba(255,255,255,0.9);
       font-size: 12px;
     }
-    .meta strong { color: #F5E6C8; font-weight: 700; }
+    .meta strong { color: #e8f9ff; font-weight: 700; }
     .card {
-      border: 1px solid #e5dccb;
+      border: 1px solid #cde2ea;
       border-radius: 16px;
       overflow: hidden;
       margin-bottom: 16px;
@@ -201,10 +201,10 @@ function printStyles() {
       padding: 14px 16px;
       background: linear-gradient(135deg, #102744 0%, #0a1628 75%);
       color: #fff;
-      border-bottom: 2px solid #C8A96A;
+      border-bottom: 2px solid #007798;
     }
     .card-head h2 { margin: 0; font-size: 17px; font-weight: 700; }
-    .card-head .type { margin: 4px 0 0; color: #E6D3A3; font-size: 12px; line-height: 1.45; }
+    .card-head .type { margin: 4px 0 0; color: #acdae6; font-size: 12px; line-height: 1.45; }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -212,8 +212,8 @@ function printStyles() {
       padding: 5px 12px;
       font-size: 11px;
       font-weight: 700;
-      background: linear-gradient(135deg, #D4B87A, #C8A96A);
-      color: #0a1628;
+      background: #007798;
+      color: #fff;
       white-space: nowrap;
     }
     .card-body { padding: 14px 14px 16px; }
@@ -223,15 +223,15 @@ function printStyles() {
       gap: 10px;
     }
     .field {
-      border: 1px solid #efe7d8;
+      border: 1px solid #cde2ea;
       border-radius: 12px;
       padding: 10px 12px;
-      background: linear-gradient(180deg, #fcfaf6 0%, #fff 100%);
+      background: linear-gradient(180deg, #f4fbfe 0%, #fff 100%);
       min-height: 58px;
     }
     .field-wide { grid-column: 1 / -1; }
     .field-label {
-      color: #A8894E;
+      color: #004d67;
       font-size: 11px;
       font-weight: 700;
       margin-bottom: 4px;
@@ -247,13 +247,13 @@ function printStyles() {
     .field-value.ltr { direction: ltr; unicode-bidi: isolate; text-align: start; }
     .details {
       margin-top: 12px;
-      border: 1px solid #efe7d8;
+      border: 1px solid #cde2ea;
       border-radius: 12px;
       padding: 12px 14px;
-      background: linear-gradient(180deg, #fcfaf5 0%, #fff 100%);
+      background: linear-gradient(180deg, #f4fbfe 0%, #fff 100%);
     }
     .details-label {
-      color: #A8894E;
+      color: #004d67;
       font-size: 11px;
       font-weight: 700;
       margin-bottom: 6px;
@@ -262,12 +262,12 @@ function printStyles() {
     .foot {
       margin-top: 18px;
       padding-top: 12px;
-      border-top: 1px solid #e8dfcf;
-      color: #8a8376;
+      border-top: 1px solid #cde2ea;
+      color: #476271;
       font-size: 11px;
       text-align: center;
     }
-    .foot strong { color: #A8894E; }
+    .foot strong { color: #004d67; }
     @media print {
       .sheet { padding: 0; max-width: none; }
       .card { box-shadow: none; }
@@ -538,7 +538,7 @@ export function AdminContactsPanel({
 
       <div className={`${ADMIN_CARD_CLS} mb-3 flex max-w-none flex-wrap items-end gap-2.5 p-3 xl:max-w-5xl`}>
         <label className="min-w-[8.5rem] flex-1 sm:flex-none">
-          <span className="mb-1 block text-[10px] font-medium text-[#A8894E]">{t.admin.printFrom}</span>
+          <span className="mb-1 block text-[10px] font-medium text-gold-ink">{t.admin.printFrom}</span>
           <input
             type="date"
             className={`${ADMIN_FIELD_CLS} py-2 text-[13px]`}
@@ -547,7 +547,7 @@ export function AdminContactsPanel({
           />
         </label>
         <label className="min-w-[8.5rem] flex-1 sm:flex-none">
-          <span className="mb-1 block text-[10px] font-medium text-[#A8894E]">{t.admin.printTo}</span>
+          <span className="mb-1 block text-[10px] font-medium text-gold-ink">{t.admin.printTo}</span>
           <input
             type="date"
             className={`${ADMIN_FIELD_CLS} py-2 text-[13px]`}
@@ -562,7 +562,7 @@ export function AdminContactsPanel({
         >
           <Printer size={13} strokeWidth={2} />
           {t.admin.printRange}
-          <span className="rounded-full bg-[#0a1628]/15 px-2 py-0.5 text-[10px]">{rangeCount}</span>
+          <span className="rounded-full bg-navy-deep/15 px-2 py-0.5 text-[10px]">{rangeCount}</span>
         </button>
       </div>
 
@@ -580,7 +580,7 @@ export function AdminContactsPanel({
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 px-3.5 py-2.5">
                 <div className="min-w-0">
                   <p className="font-display text-base font-semibold text-navy">{item.name || "—"}</p>
-                  <p className="mt-0.5 truncate text-[11px] font-medium text-[#A8894E]">{typeLabel}</p>
+                  <p className="mt-0.5 truncate text-[11px] font-medium text-gold-ink">{typeLabel}</p>
                 </div>
                 <span className={item.status === "new" ? ADMIN_BADGE_ACTIVE : ADMIN_BADGE_MUTED}>
                   {statusLabel}
@@ -596,7 +596,7 @@ export function AdminContactsPanel({
                 </div>
 
                 <div className="rounded-lg border border-border/60 bg-background/50 px-2.5 py-2">
-                  <p className="text-[10px] font-medium leading-none text-[#A8894E]">{t.contact.content}</p>
+                  <p className="text-[10px] font-medium leading-none text-gold-ink">{t.contact.content}</p>
                   <p className="mt-1 whitespace-pre-wrap text-[12px] leading-5 text-navy">
                     {item.content || "—"}
                   </p>
@@ -605,7 +605,7 @@ export function AdminContactsPanel({
                 <p className="mt-auto text-[11px] text-muted-foreground">{formatDateTime(item.createdAt, lang)}</p>
               </div>
 
-              <div className="flex flex-wrap gap-2 border-t border-border/60 bg-[#C8A96A]/10 px-3.5 py-2.5">
+              <div className="flex flex-wrap gap-2 border-t border-border/60 bg-gold/10 px-3.5 py-2.5">
                 <a
                   href={phoneToTelHref(item.phone)}
                   className={`${ADMIN_BTN_PRIMARY} inline-flex min-h-9 items-center gap-1.5 px-3.5 text-[12px] no-underline`}

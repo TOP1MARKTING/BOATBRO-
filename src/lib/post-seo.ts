@@ -63,6 +63,48 @@ export function resolveOgImage(input: Pick<PostInput, "ogImage" | "coverUrl">) {
   return (input.ogImage || input.coverUrl).trim();
 }
 
+function firstHtmlImage(html: string) {
+  for (const match of html.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi)) {
+    const src = (match[1] ?? "").trim();
+    if (src && !src.startsWith("data:")) return src;
+  }
+  return "";
+}
+
+/**
+ * Absolute image for og:image / twitter:image / Article.image: dedicated share image, then the cover
+ * for this language, then the first article image. Inline base64 images are never usable by crawlers.
+ */
+export function resolveShareImage(
+  input: Pick<PostInput, "ogImage" | "coverUrl" | "coverUrlEn" | "contentHtml">,
+  lang: "ar" | "en",
+  origin = PRODUCTION_ORIGIN,
+) {
+  const candidates = [
+    input.ogImage,
+    lang === "en" ? input.coverUrlEn : "",
+    input.coverUrl,
+    firstHtmlImage(input.contentHtml[lang]),
+    firstHtmlImage(input.contentHtml.ar),
+    firstHtmlImage(input.contentHtml.en),
+  ];
+  const pick = candidates.map((value) => value.trim()).find((value) => value && !value.startsWith("data:"));
+  if (!pick) return "";
+  if (/^https?:\/\//i.test(pick)) return pick;
+  return `${origin.replace(/\/$/, "")}${pick.startsWith("/") ? pick : `/${pick}`}`;
+}
+
+/** Languages with their own title and body; the other URL would only repeat the fallback language. */
+export function postAvailableLangs(
+  input: Pick<PostInput, "titleI18n" | "contentMode" | "contentHtml" | "title">,
+): ("ar" | "en")[] {
+  const langs = (["ar", "en"] as const).filter((lang) => {
+    if (!input.titleI18n[lang].trim()) return false;
+    return input.contentMode !== "html" || Boolean(input.contentHtml[lang].trim());
+  });
+  return langs.length ? [...langs] : ["ar"];
+}
+
 function countWords(text: string) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
