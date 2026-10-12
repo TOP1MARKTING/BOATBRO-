@@ -76,7 +76,10 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
       .then(applyDoc)
       .catch((err) => {
         if (import.meta.env.DEV) console.error("[content-panel:load]", err);
-        const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+        const code =
+          typeof err === "object" && err && "code" in err
+            ? String((err as { code: string }).code)
+            : "";
         setError(code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error);
       })
       .finally(() => setRefreshing(false));
@@ -94,7 +97,10 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
       setMessage(t.admin.cmsSaved);
     } catch (err) {
       if (import.meta.env.DEV) console.error("[content-panel:save]", err);
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
       setError(code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error);
     } finally {
       setBusy(false);
@@ -116,7 +122,9 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
               <span className="inline-flex size-10 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold-ink">
                 <FileText size={18} strokeWidth={1.75} />
               </span>
-              <p className="mt-4 font-display text-lg font-semibold text-navy">{cmsPageLabel(page.id, t)}</p>
+              <p className="mt-4 font-display text-lg font-semibold text-navy">
+                {cmsPageLabel(page.id, t)}
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">{page.path}</p>
             </button>
           ))}
@@ -125,7 +133,9 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
             onClick={() => openPage("shared")}
             className={`${ADMIN_CARD_CLS} border-dashed p-5 text-start transition-colors hover:border-gold/45 sm:col-span-2 xl:col-span-3`}
           >
-            <p className="font-display text-lg font-semibold text-navy">{cmsPageLabel("shared", t)}</p>
+            <p className="font-display text-lg font-semibold text-navy">
+              {cmsPageLabel("shared", t)}
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">{t.admin.cmsSharedHint}</p>
           </button>
         </div>
@@ -137,20 +147,14 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
     <AdminPanelShell
       title={cmsPageLabel(selected, t)}
       action={
-        <button
-          type="button"
-          onClick={() => setSelected(null)}
-          className={ADMIN_BTN_SECONDARY}
-        >
+        <button type="button" onClick={() => setSelected(null)} className={ADMIN_BTN_SECONDARY}>
           <ArrowLeft size={16} />
           {t.admin.cmsBack}
         </button>
       }
     >
       <p className="mb-5 text-sm text-muted-foreground">{t.admin.cmsPageHint}</p>
-      {refreshing ? (
-        <p className="mb-4 text-sm text-muted-foreground">{t.admin.loading}</p>
-      ) : null}
+      {refreshing ? <p className="mb-4 text-sm text-muted-foreground">{t.admin.loading}</p> : null}
       <form onSubmit={(e) => void onSubmit(e)} className="space-y-6">
         {error ? <AdminFlash tone="error">{error}</AdminFlash> : null}
         {message ? <AdminFlash tone="ok">{message}</AdminFlash> : null}
@@ -172,7 +176,12 @@ export function AdminContentPanel({ t }: { t: Dictionary }) {
           <button type="submit" disabled={busy || refreshing} className={ADMIN_BTN_PRIMARY}>
             {busy ? t.auth.working : t.admin.save}
           </button>
-          <button type="button" disabled={busy} onClick={() => setSelected(null)} className={ADMIN_BTN_SECONDARY}>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setSelected(null)}
+            className={ADMIN_BTN_SECONDARY}
+          >
             {t.admin.cancel}
           </button>
         </div>

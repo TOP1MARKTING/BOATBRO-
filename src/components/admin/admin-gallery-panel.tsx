@@ -8,7 +8,16 @@ import {
   type GalleryImage,
 } from "../../lib/db";
 import type { LocalizedText } from "../../lib/post-content";
-import { ADMIN_BTN_GHOST, ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY, ADMIN_CARD_CLS, ADMIN_FIELD_CLS, AdminEmptyState, AdminFlash, AdminPanelShell } from "./shared";
+import {
+  ADMIN_BTN_GHOST,
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_CARD_CLS,
+  ADMIN_FIELD_CLS,
+  AdminEmptyState,
+  AdminFlash,
+  AdminPanelShell,
+} from "./shared";
 
 function BilingualMini({
   label,
@@ -23,11 +32,19 @@ function BilingualMini({
     <div className="grid gap-2 sm:grid-cols-2">
       <label>
         <span className="mb-1 block text-[11px] text-muted-foreground">{label} · EN</span>
-        <input className={`${ADMIN_FIELD_CLS} px-3 py-2`} value={value.en} onChange={(e) => onChange({ ...value, en: e.target.value })} />
+        <input
+          className={`${ADMIN_FIELD_CLS} px-3 py-2`}
+          value={value.en}
+          onChange={(e) => onChange({ ...value, en: e.target.value })}
+        />
       </label>
       <label>
         <span className="mb-1 block text-[11px] text-muted-foreground">{label} · AR</span>
-        <input className={`${ADMIN_FIELD_CLS} px-3 py-2`} value={value.ar} onChange={(e) => onChange({ ...value, ar: e.target.value })} />
+        <input
+          className={`${ADMIN_FIELD_CLS} px-3 py-2`}
+          value={value.ar}
+          onChange={(e) => onChange({ ...value, ar: e.target.value })}
+        />
       </label>
     </div>
   );
@@ -52,10 +69,11 @@ export function AdminGalleryPanel({
     try {
       setImages(await listGalleryImages());
     } catch (err) {
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
-      setError(
-        code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error,
-      );
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
+      setError(code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error);
     } finally {
       setLoading(false);
     }
@@ -78,7 +96,10 @@ export function AdminGalleryPanel({
       await load();
       setMessage(t.admin.gallerySaved);
     } catch (err) {
-      const msg = err instanceof Error && err.message === "file-too-large" ? t.admin.galleryTooLarge : t.admin.error;
+      const msg =
+        err instanceof Error && err.message === "file-too-large"
+          ? t.admin.galleryTooLarge
+          : t.admin.error;
       setError(msg);
     } finally {
       setUploading(false);
@@ -130,7 +151,11 @@ export function AdminGalleryPanel({
             multiple
             className="sr-only"
             disabled={uploading}
-            onChange={(e) => void onUpload(e.target.files).then(() => { e.target.value = ""; })}
+            onChange={(e) =>
+              void onUpload(e.target.files).then(() => {
+                e.target.value = "";
+              })
+            }
           />
         </label>
       </div>
@@ -179,12 +204,20 @@ function GalleryCard({
 }) {
   const [alt, setAlt] = useState(image.alt);
   const [caption, setCaption] = useState(image.caption);
-  const dirty = alt.ar !== image.alt.ar || alt.en !== image.alt.en || caption.ar !== image.caption.ar || caption.en !== image.caption.en;
+  const dirty =
+    alt.ar !== image.alt.ar ||
+    alt.en !== image.alt.en ||
+    caption.ar !== image.caption.ar ||
+    caption.en !== image.caption.en;
 
   return (
     <article className={`overflow-hidden ${ADMIN_CARD_CLS}`}>
       <div className="aspect-[4/3] overflow-hidden bg-muted">
-        <img src={image.url} alt={alt.ar || alt.en || image.name} className="h-full w-full object-cover" />
+        <img
+          src={image.url}
+          alt={alt.ar || alt.en || image.name}
+          className="h-full w-full object-cover"
+        />
       </div>
       <div className="space-y-3 p-4">
         <p className="truncate text-[12px] font-medium text-navy">{image.name}</p>
@@ -196,7 +229,11 @@ function GalleryCard({
             {t.admin.galleryCopyUrl}
           </button>
           {dirty ? (
-            <button type="button" onClick={() => onSaveMeta(alt, caption)} className={ADMIN_BTN_PRIMARY}>
+            <button
+              type="button"
+              onClick={() => onSaveMeta(alt, caption)}
+              className={ADMIN_BTN_PRIMARY}
+            >
               {t.admin.save}
             </button>
           ) : null}

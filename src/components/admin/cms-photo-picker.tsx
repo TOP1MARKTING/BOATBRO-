@@ -343,9 +343,7 @@ export function CmsPhotoPickerModal({
                         <p className="text-[13px] font-semibold leading-snug text-navy">
                           {photo.titleAr}
                         </p>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">
-                          {photo.titleEn}
-                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{photo.titleEn}</p>
                       </div>
                       <div className="mt-2.5 flex items-center justify-between border-t border-border/50 pt-2">
                         <span className="rounded-md bg-muted/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
@@ -391,8 +389,8 @@ export function CmsPhotoCardField({
   onChange,
 }: {
   label: string;
-  value?: PhotoName;
-  defaultValue?: PhotoName;
+  value?: PhotoName | undefined;
+  defaultValue?: PhotoName | undefined;
   onChange: (photo: PhotoName) => void;
 }) {
   const [modalOpen, setModalOpen] = useState(false);

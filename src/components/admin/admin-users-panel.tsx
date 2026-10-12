@@ -34,7 +34,9 @@ import {
 } from "./shared";
 import { AdminPermissionsPicker } from "./admin-permissions-picker";
 
-function permissionLabels(t: ReturnType<typeof import("../../lib/i18n").useLang>["t"]): Record<AdminTab, string> {
+function permissionLabels(
+  t: ReturnType<typeof import("../../lib/i18n").useLang>["t"],
+): Record<AdminTab, string> {
   return {
     overview: t.admin.overview,
     posts: t.admin.posts,
@@ -98,7 +100,9 @@ function UserAccessCard({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const initial = (user.name || user.email || "?").trim().charAt(0).toUpperCase();
-  const activePerms = ADMIN_TAB_ORDER.filter((tab) => user.permissions[tab]).map((tab) => labels[tab]);
+  const activePerms = ADMIN_TAB_ORDER.filter((tab) => user.permissions[tab]).map(
+    (tab) => labels[tab],
+  );
   const passwordValue = storedPassword || t.admin.passwordUnknown;
 
   const statusCls = !user.active
@@ -124,8 +128,12 @@ function UserAccessCard({
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h4 className="font-display text-lg font-semibold text-navy">{user.name || user.email || "—"}</h4>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${statusCls}`}>
+              <h4 className="font-display text-lg font-semibold text-navy">
+                {user.name || user.email || "—"}
+              </h4>
+              <span
+                className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${statusCls}`}
+              >
                 {statusLabel}
               </span>
             </div>
@@ -212,7 +220,9 @@ function UserAccessCard({
           {showPasswordTools ? (
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label>
-                <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.currentPassword}</span>
+                <span className="mb-2 block text-[12px] font-medium text-navy">
+                  {t.admin.currentPassword}
+                </span>
                 <input
                   readOnly
                   dir="ltr"
@@ -221,7 +231,9 @@ function UserAccessCard({
                 />
               </label>
               <label>
-                <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.newPassword}</span>
+                <span className="mb-2 block text-[12px] font-medium text-navy">
+                  {t.admin.newPassword}
+                </span>
                 <input
                   type="text"
                   dir="ltr"
@@ -320,8 +332,10 @@ export function AdminUsersPanel({
   };
 
   const mapPasswordError = (code: string) => {
-    if (code === "missing-service-account" || code === "password-reset-failed") return t.admin.passwordServerOff;
-    if (code === "weak-password" || code === "auth/weak-password") return mapAuthError("auth/weak-password", lang);
+    if (code === "missing-service-account" || code === "password-reset-failed")
+      return t.admin.passwordServerOff;
+    if (code === "weak-password" || code === "auth/weak-password")
+      return mapAuthError("auth/weak-password", lang);
     return t.admin.error;
   };
 
@@ -377,10 +391,12 @@ export function AdminUsersPanel({
   };
 
   const onSaveAccess = async (user: UserRecord) => {
-    if (!canEditUserAccess(canManage, isSuperAdminEmail(user.email), user.id === currentUid, {
-      isSuperAdmin,
-      targetPermissions: user.permissions,
-    })) {
+    if (
+      !canEditUserAccess(canManage, isSuperAdminEmail(user.email), user.id === currentUid, {
+        isSuperAdmin,
+        targetPermissions: user.permissions,
+      })
+    ) {
       return;
     }
     setBusy(true);
@@ -412,10 +428,7 @@ export function AdminUsersPanel({
 
   const onDeleteUser = async (user: UserRecord) => {
     if (!canManage || isSuperAdminEmail(user.email) || user.id === currentUid) return;
-    if (
-      !isSuperAdmin &&
-      (user.permissions.users || user.permissions.settings)
-    ) {
+    if (!isSuperAdmin && (user.permissions.users || user.permissions.settings)) {
       return;
     }
     if (!confirm(t.admin.confirmDeleteUser)) return;
@@ -432,7 +445,9 @@ export function AdminUsersPanel({
   if (!canManage) {
     return (
       <AdminPanelShell title={t.admin.users} hideTitle>
-        <p className={`${ADMIN_CARD_CLS} px-4 py-3 text-sm text-muted-foreground`}>{t.admin.roleDenied}</p>
+        <p className={`${ADMIN_CARD_CLS} px-4 py-3 text-sm text-muted-foreground`}>
+          {t.admin.roleDenied}
+        </p>
       </AdminPanelShell>
     );
   }
@@ -450,15 +465,31 @@ export function AdminUsersPanel({
           <form onSubmit={(e) => void onCreateUser(e)} className="mt-5 space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <label>
-                <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.inviteName}</span>
-                <input required className={ADMIN_FIELD_CLS} value={newName} onChange={(e) => setNewName(e.target.value)} />
+                <span className="mb-2 block text-[12px] font-medium text-navy">
+                  {t.admin.inviteName}
+                </span>
+                <input
+                  required
+                  className={ADMIN_FIELD_CLS}
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                />
               </label>
               <label>
                 <span className="mb-2 block text-[12px] font-medium text-navy">{t.auth.email}</span>
-                <input required type="email" dir="ltr" className={ADMIN_FIELD_CLS} value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                <input
+                  required
+                  type="email"
+                  dir="ltr"
+                  className={ADMIN_FIELD_CLS}
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                />
               </label>
               <label className="md:col-span-2">
-                <span className="mb-2 block text-[12px] font-medium text-navy">{t.auth.password}</span>
+                <span className="mb-2 block text-[12px] font-medium text-navy">
+                  {t.auth.password}
+                </span>
                 <input
                   required
                   type="text"
@@ -513,10 +544,15 @@ export function AdminUsersPanel({
                 labels={labels}
                 {...(credentials[u.id] ? { storedPassword: credentials[u.id] } : {})}
                 superAdmin={isSuperAdminEmail(u.email)}
-                editable={canEditUserAccess(canManage, isSuperAdminEmail(u.email), u.id === currentUid, {
-                  isSuperAdmin,
-                  targetPermissions: u.permissions,
-                })}
+                editable={canEditUserAccess(
+                  canManage,
+                  isSuperAdminEmail(u.email),
+                  u.id === currentUid,
+                  {
+                    isSuperAdmin,
+                    targetPermissions: u.permissions,
+                  },
+                )}
                 isEditing={editingId === u.id}
                 canDelete={
                   canManage &&

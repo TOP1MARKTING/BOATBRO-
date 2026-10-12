@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -69,7 +62,12 @@ export function mapAuthError(code: string, lang: "ar" | "en") {
     "auth/network-request-failed": "Network error. Check your connection.",
   };
   const dict = lang === "ar" ? ar : en;
-  return dict[code] ?? (lang === "ar" ? "تعذّر إتمام العملية. حاول مرة أخرى." : "Something went wrong. Please try again.");
+  return (
+    dict[code] ??
+    (lang === "ar"
+      ? "تعذّر إتمام العملية. حاول مرة أخرى."
+      : "Something went wrong. Please try again.")
+  );
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -105,7 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const nextStaffRole = whitelisted
           ? ("admin" as const)
           : normalizeStaffRole(profile?.adminRole, profile?.role);
-        const nextPermissions = whitelisted ? FULL_PERMISSIONS : (profile?.permissions ?? EMPTY_PERMISSIONS);
+        const nextPermissions = whitelisted
+          ? FULL_PERMISSIONS
+          : (profile?.permissions ?? EMPTY_PERMISSIONS);
         const nextActive = whitelisted ? true : (profile?.active ?? nextStaffRole !== "user");
 
         const needsProfileSync =
@@ -150,7 +150,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isSuperAdmin = isSuperAdminEmail(user?.email);
   const isWhitelisted = isAdminEmail(user?.email);
-  const permissions = resolvePermissions(user?.email, storedPermissions, staffActive, isSuperAdmin, isWhitelisted);
+  const permissions = resolvePermissions(
+    user?.email,
+    storedPermissions,
+    staffActive,
+    isSuperAdmin,
+    isWhitelisted,
+  );
   const isAdmin = canAccessAdmin(permissions, staffActive, isSuperAdmin, isWhitelisted);
   const defaultAdminTab = firstAllowedTab(permissions);
 
@@ -195,7 +201,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await firebaseSignOut(getFirebaseAuth());
       },
     }),
-    [user, ready, isAdmin, isSuperAdmin, staffRole, permissions, defaultAdminTab, storedPermissions, staffActive],
+    [
+      user,
+      ready,
+      isAdmin,
+      isSuperAdmin,
+      staffRole,
+      permissions,
+      defaultAdminTab,
+      storedPermissions,
+      staffActive,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

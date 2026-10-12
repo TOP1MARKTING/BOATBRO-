@@ -145,8 +145,12 @@ function ServiceCard({
         />
       </div>
       <div className="flex flex-1 flex-col p-6 text-center [&_*]:text-center">
-        <h3 className="font-display text-xl font-semibold leading-snug text-gold-ink sm:text-[1.35rem]">{title}</h3>
-        <p className="mx-auto mt-3 max-w-prose flex-1 text-sm leading-7 text-muted-foreground">{body}</p>
+        <h3 className="font-display text-xl font-semibold leading-snug text-gold-ink sm:text-[1.35rem]">
+          {title}
+        </h3>
+        <p className="mx-auto mt-3 max-w-prose flex-1 text-sm leading-7 text-muted-foreground">
+          {body}
+        </p>
       </div>
     </article>
   );
@@ -176,14 +180,14 @@ function ServiceSection({
   kicker: string;
   title: string;
   intro: string;
-  closing?: string;
-  downloadTitle?: string;
-  loginCta?: boolean;
-  loginHref?: string;
-  loginLabel?: string;
-  siteChip?: string;
-  siteTitle?: string;
-  siteBody?: string;
+  closing?: string | undefined;
+  downloadTitle?: string | undefined;
+  loginCta?: boolean | undefined;
+  loginHref?: string | undefined;
+  loginLabel?: string | undefined;
+  siteChip?: string | undefined;
+  siteTitle?: string | undefined;
+  siteBody?: string | undefined;
   items: [string, string][];
   images: PhotoName[];
   tone: "plain" | "mute";
@@ -203,10 +207,12 @@ function ServiceSection({
                 <Kicker className="!text-gold-ink">{kicker}</Kicker>
               </div>
               <GoldLine className="mx-auto mt-4" />
-              <h2 className="mt-5 whitespace-nowrap font-display text-[clamp(1.05rem,2.4vw+0.55rem,2.25rem)] font-semibold leading-snug text-navy">
+              <h2 className="mt-5 text-balance font-display text-[clamp(1.25rem,2.4vw+0.55rem,2.25rem)] font-semibold leading-snug text-navy">
                 {title}
               </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-muted-foreground">{intro}</p>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
+                {intro}
+              </p>
             </div>
 
             <div className="mt-10 flex flex-wrap justify-center gap-6">
@@ -227,7 +233,9 @@ function ServiceSection({
 
             {closing || downloadTitle || showSiteBox ? (
               <div className="mx-auto mt-10 max-w-3xl text-center">
-                {closing ? <p className="text-base leading-8 text-muted-foreground">{closing}</p> : null}
+                {closing ? (
+                  <p className="text-base leading-8 text-muted-foreground">{closing}</p>
+                ) : null}
 
                 {downloadTitle ? (
                   <div className="mt-8 rounded-[1.35rem] border border-border bg-surface-2 p-6 sm:p-7">
@@ -241,9 +249,13 @@ function ServiceSection({
                 ) : null}
 
                 {showSiteBox ? (
-                  <div className={`${closing || downloadTitle ? "mt-8" : ""} rounded-[1.35rem] border border-border bg-surface-2 p-6 sm:p-7`}>
+                  <div
+                    className={`${closing || downloadTitle ? "mt-8" : ""} rounded-[1.35rem] border border-border bg-surface-2 p-6 sm:p-7`}
+                  >
                     {siteChip ? (
-                      <p className="text-[11px] font-semibold text-gold-ink dark:text-gold">{siteChip}</p>
+                      <p className="text-[11px] font-semibold text-gold-ink dark:text-gold">
+                        {siteChip}
+                      </p>
                     ) : null}
                     <p className="mt-1 font-display text-[15px] font-semibold leading-6 text-navy dark:text-white sm:text-base">
                       {siteTitle}
@@ -253,11 +265,20 @@ function ServiceSection({
                     </p>
                     <div className="mt-5 flex justify-center">
                       {loginHref ? (
-                        <Btn href={loginHref} variant="gold" className="min-h-11 min-w-[12rem] justify-center">
+                        <Btn
+                          href={loginHref}
+                          variant="gold"
+                          className="min-h-11 min-w-[12rem] justify-center"
+                        >
                           {loginLabel} <CtaArrow />
                         </Btn>
                       ) : (
-                        <Btn type="button" disabled variant="gold" className="min-h-11 min-w-[12rem] justify-center">
+                        <Btn
+                          type="button"
+                          disabled
+                          variant="gold"
+                          className="min-h-11 min-w-[12rem] justify-center"
+                        >
                           {loginLabel} <CtaArrow />
                         </Btn>
                       )}
@@ -330,82 +351,88 @@ function FeaturesPage() {
     <>
       <PageMeta title={t.seo.featuresTitle} description={t.seo.featuresDesc} />
       <MarketingShell dir={dir}>
-      <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            name: p.h1,
-            url: localizedUrl("/features", lang),
-            description: t.seo.featuresDesc,
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
-              { "@type": "ListItem", position: 2, name: t.crumbs.features, item: localizedUrl("/features", lang) },
-            ],
-          },
-        ]}
-      />
+        <JsonLd
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              name: p.h1,
+              url: localizedUrl("/features", lang),
+              description: t.seo.featuresDesc,
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: t.crumbs.home,
+                  item: localizedUrl("/", lang),
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: t.crumbs.features,
+                  item: localizedUrl("/features", lang),
+                },
+              ],
+            },
+          ]}
+        />
 
-      <PageHero
-        dir={dir}
-        image={heroImage}
-        chip={p.chip}
-        title={p.h1}
-        lead={p.lead}
-      />
+        <PageHero dir={dir} image={heroImage} chip={p.chip} title={p.h1} lead={p.lead} />
 
-      <ServiceTabsNav />
+        <ServiceTabsNav />
 
-      {GROUPS.map((group, i) => {
-        const copy = p[group.key];
-        const loginHref = group.id === "marinas" ? serviceLogins.marinas : "";
-        const images = group.images.map((fallback, idx) =>
-          image("features", cmsGroupImageKey(group.id, idx), fallback),
-        );
-        return (
-          <ServiceSection
-            key={group.id}
-            id={group.id}
-            icon={group.icon}
-            kicker={copy.kicker}
-            title={copy.title}
-            intro={copy.intro}
-            closing={copy.closing || undefined}
-            downloadTitle={copy.downloadTitle || undefined}
-            loginCta={copy.loginCta}
-            loginHref={loginHref || undefined}
-            loginLabel={group.id === "marinas" ? p.marinas.siteCta : p.loginCta}
-            siteChip={group.id === "marinas" ? p.marinas.siteChip : undefined}
-            siteTitle={group.id === "marinas" ? p.marinas.siteTitle : undefined}
-            siteBody={group.id === "marinas" ? p.marinas.siteBody : undefined}
-            items={copy.items}
-            images={images}
-            tone={i % 2 === 0 ? "plain" : "mute"}
-            flipImage={flipImage}
-          />
-        );
-      })}
+        {GROUPS.map((group, i) => {
+          const copy = p[group.key];
+          const loginHref = group.id === "marinas" ? serviceLogins.marinas : "";
+          const images = group.images.map((fallback, idx) =>
+            image("features", cmsGroupImageKey(group.id, idx), fallback),
+          );
+          return (
+            <ServiceSection
+              key={group.id}
+              id={group.id}
+              icon={group.icon}
+              kicker={copy.kicker}
+              title={copy.title}
+              intro={copy.intro}
+              closing={copy.closing || undefined}
+              downloadTitle={copy.downloadTitle || undefined}
+              loginCta={copy.loginCta}
+              loginHref={loginHref || undefined}
+              loginLabel={group.id === "marinas" ? p.marinas.siteCta : p.loginCta}
+              siteChip={group.id === "marinas" ? p.marinas.siteChip : undefined}
+              siteTitle={group.id === "marinas" ? p.marinas.siteTitle : undefined}
+              siteBody={group.id === "marinas" ? p.marinas.siteBody : undefined}
+              items={copy.items}
+              images={images}
+              tone={i % 2 === 0 ? "plain" : "mute"}
+              flipImage={flipImage}
+            />
+          );
+        })}
 
-      <Section tone="mute">
-        <div className="mx-auto max-w-2xl text-center">
-          <GoldLine className="mx-auto" />
-          <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">{p.ctaTitle}</h2>
-          <p className="mt-4 text-lg leading-8 text-muted-foreground">{p.ctaBody}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Btn to="/app" variant="line">
-              {t.cta.download} <CtaArrow />
-            </Btn>
-            <Btn to="/contact" variant="gold">
-              {t.cta.talk} <CtaArrow />
-            </Btn>
+        <Section tone="mute">
+          <div className="mx-auto max-w-2xl text-center">
+            <GoldLine className="mx-auto" />
+            <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">
+              {p.ctaTitle}
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">{p.ctaBody}</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Btn to="/app" variant="line">
+                {t.cta.download} <CtaArrow />
+              </Btn>
+              <Btn to="/contact" variant="gold">
+                {t.cta.talk} <CtaArrow />
+              </Btn>
+            </div>
           </div>
-        </div>
-      </Section>
-    </MarketingShell>
+        </Section>
+      </MarketingShell>
     </>
   );
 }

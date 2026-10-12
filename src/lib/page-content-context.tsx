@@ -51,7 +51,8 @@ export function PageContentProvider({ children }: { children: ReactNode }) {
   const dictionary = useCallback((lang: Lang) => buildCmsDictionary(lang, store), [store]);
 
   const image = useCallback(
-    (pageId: CmsPageId, key: string, fallback: PhotoName) => resolveCmsImage(store, pageId, key, fallback),
+    (pageId: CmsPageId, key: string, fallback: PhotoName) =>
+      resolveCmsImage(store, pageId, key, fallback),
     [store],
   );
 

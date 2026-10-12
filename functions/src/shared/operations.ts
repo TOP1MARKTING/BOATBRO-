@@ -19,7 +19,7 @@ export async function chatbotSendMessage(input: {
 
   const ref = input.db.collection(COLLECTIONS.conversations).doc(conversationId);
   const existing = await ref.get();
-  const history = (existing.exists ? (existing.data()?.messages as StoredMessage[] | undefined) : []) ?? [];
+  const history = (existing.exists ? (existing.data()?.["messages"] as StoredMessage[] | undefined) : []) ?? [];
 
   const knowledge = rankKnowledgeChunks(
     await loadKnowledgeChunks(input.db),
@@ -47,7 +47,7 @@ export async function chatbotSendMessage(input: {
       lang,
       sessionId: input.payload.sessionId ?? null,
       updatedAt: new Date().toISOString(),
-      createdAt: existing.exists ? existing.data()?.createdAt ?? now : now,
+      createdAt: existing.exists ? existing.data()?.["createdAt"] ?? now : now,
       messages,
     },
     { merge: true },

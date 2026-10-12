@@ -81,8 +81,16 @@ export function StoreAppRow({
   const onHero = tone === "hero";
   const icon = `inline-flex shrink-0 items-center justify-center rounded-full border bg-navy-deep ${large ? "size-10" : "size-8"}`;
   const items = [
-    { href: links.appStore, aria: s.appleAria, mark: <AppleMark className={`text-white ${large ? "size-[18px]" : "size-[15px]"}`} /> },
-    { href: links.playStore, aria: s.googleAria, mark: <PlayMark className={large ? "size-[17px]" : "size-[14px]"} /> },
+    {
+      href: links.appStore,
+      aria: s.appleAria,
+      mark: <AppleMark className={`text-white ${large ? "size-[18px]" : "size-[15px]"}`} />,
+    },
+    {
+      href: links.playStore,
+      aria: s.googleAria,
+      mark: <PlayMark className={large ? "size-[17px]" : "size-[14px]"} />,
+    },
   ];
 
   return (
@@ -151,8 +159,8 @@ export function StoreButtons({
   const s = t.stores;
 
   if (!app) {
-    const allLive = (["guests", "owners"] as const).every(
-      (key) => Boolean(stores[key].appStore && stores[key].playStore),
+    const allLive = (["guests", "owners"] as const).every((key) =>
+      Boolean(stores[key].appStore && stores[key].playStore),
     );
     const onHero = tone === "hero";
     const large = size === "lg";
@@ -166,7 +174,9 @@ export function StoreButtons({
     const chip = (
       <span
         className={`inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${
-          onHero ? "border-gold/40 bg-gold/15 text-gold" : "border-gold/40 bg-gold/10 text-gold-ink dark:text-gold"
+          onHero
+            ? "border-gold/40 bg-gold/15 text-gold"
+            : "border-gold/40 bg-gold/10 text-gold-ink dark:text-gold"
         }`}
       >
         {s.comingChip}
@@ -176,7 +186,13 @@ export function StoreButtons({
     const bodyCls = onHero ? "text-white/75" : "text-navy/70 dark:text-white/75";
 
     if (!showNotice || allLive) {
-      return <div className={`w-full ${large ? "max-w-2xl" : "max-w-xl"} ${centered ? "mx-auto" : ""} ${className}`}>{rows}</div>;
+      return (
+        <div
+          className={`w-full ${large ? "max-w-2xl" : "max-w-xl"} ${centered ? "mx-auto" : ""} ${className}`}
+        >
+          {rows}
+        </div>
+      );
     }
 
     if (size === "sm") {
@@ -190,9 +206,15 @@ export function StoreButtons({
             <div className="min-w-0 flex-1 text-start">
               <div className="flex flex-wrap items-center gap-1.5">
                 {chip}
-                <p className={`font-display text-[12px] font-semibold leading-5 sm:text-[13px] ${titleCls}`}>{s.appsTitle}</p>
+                <p
+                  className={`font-display text-[12px] font-semibold leading-5 sm:text-[13px] ${titleCls}`}
+                >
+                  {s.appsTitle}
+                </p>
               </div>
-              <p className={`mt-1 text-[11px] leading-4 sm:text-[12px] sm:leading-5 ${bodyCls}`}>{s.comingBody}</p>
+              <p className={`mt-1 text-[11px] leading-4 sm:text-[12px] sm:leading-5 ${bodyCls}`}>
+                {s.comingBody}
+              </p>
             </div>
             <div className="grid w-full shrink-0 gap-2 sm:grid-cols-2 md:w-auto md:min-w-[25rem]">
               <StoreAppRow app="guests" label={s.guestsApp} tone={tone} />
@@ -204,13 +226,23 @@ export function StoreButtons({
     }
 
     return (
-      <div className={`flex w-full flex-col gap-3 ${large ? "max-w-2xl" : "max-w-xl"} ${centered ? "mx-auto" : ""} ${className}`}>
+      <div
+        className={`flex w-full flex-col gap-3 ${large ? "max-w-2xl" : "max-w-xl"} ${centered ? "mx-auto" : ""} ${className}`}
+      >
         <div className={centered ? "text-center" : "text-start"}>
-          <div className={`flex flex-wrap items-center gap-1.5 ${centered ? "justify-center" : ""}`}>
+          <div
+            className={`flex flex-wrap items-center gap-1.5 ${centered ? "justify-center" : ""}`}
+          >
             {chip}
-            <p className={`font-display text-[15px] font-semibold leading-6 sm:text-base ${titleCls}`}>{s.appsTitle}</p>
+            <p
+              className={`font-display text-[15px] font-semibold leading-6 sm:text-base ${titleCls}`}
+            >
+              {s.appsTitle}
+            </p>
           </div>
-          <p className={`mt-1 text-[12px] leading-5 sm:text-[13px] sm:leading-6 ${bodyCls}`}>{s.comingBody}</p>
+          <p className={`mt-1 text-[12px] leading-5 sm:text-[13px] sm:leading-6 ${bodyCls}`}>
+            {s.comingBody}
+          </p>
         </div>
         {rows}
       </div>
@@ -228,7 +260,11 @@ export function StoreButtons({
   const badge = [
     "inline-flex items-center gap-2 rounded-full",
     equal ? "w-full justify-center" : "w-auto shrink-0",
-    compact ? "h-9 px-2.5 pe-3" : large ? "h-12 gap-2.5 px-3 pe-5 sm:h-[3.75rem] sm:gap-3 sm:px-4 sm:pe-7" : "h-10 px-2.5 pe-3.5",
+    compact
+      ? "h-9 px-2.5 pe-3"
+      : large
+        ? "h-12 gap-2.5 px-3 pe-5 sm:h-[3.75rem] sm:gap-3 sm:px-4 sm:pe-7"
+        : "h-10 px-2.5 pe-3.5",
     onHero
       ? "border border-white/55 bg-navy-deep/45 text-white/85 opacity-90"
       : "border border-gold/35 bg-card text-navy/80 opacity-90",
@@ -253,7 +289,9 @@ export function StoreButtons({
         href={appleHref}
         className={badge}
       >
-        <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep text-white ${iconBox}`}>
+        <span
+          className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep text-white ${iconBox}`}
+        >
           <AppleMark className={iconSvg} />
         </span>
         <span className={`min-w-0 leading-none ${equal ? "text-center" : "text-start"}`}>
@@ -268,7 +306,9 @@ export function StoreButtons({
         href={googleHref}
         className={badge}
       >
-        <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep ${iconBox}`}>
+        <span
+          className={`inline-flex shrink-0 items-center justify-center rounded-full bg-navy-deep ${iconBox}`}
+        >
           <PlayMark className={iconSvg} />
         </span>
         <span className={`min-w-0 leading-none ${equal ? "text-center" : "text-start"}`}>
@@ -300,7 +340,9 @@ export function StoreButtons({
                 {s.comingTitle}
               </p>
             </div>
-            <p className="mt-1 text-[11px] leading-4 text-white/75 sm:text-[12px] sm:leading-5">{s.comingBody}</p>
+            <p className="mt-1 text-[11px] leading-4 text-white/75 sm:text-[12px] sm:leading-5">
+              {s.comingBody}
+            </p>
           </div>
           <div className="shrink-0 sm:ms-1">{buttons}</div>
         </div>
@@ -308,7 +350,8 @@ export function StoreButtons({
     );
   }
 
-  const noticeAlign = equal || large || className.includes("justify-center") ? "text-center" : "text-start";
+  const noticeAlign =
+    equal || large || className.includes("justify-center") ? "text-center" : "text-start";
   const titleCls = onHero
     ? "font-display text-[15px] font-semibold leading-6 text-white sm:text-base"
     : "font-display text-[15px] font-semibold leading-6 text-navy dark:text-white sm:text-base";
@@ -326,7 +369,11 @@ export function StoreButtons({
         <p className={`mt-1 ${titleCls}`}>{s.comingTitle}</p>
         <p className={bodyCls}>{s.comingBody}</p>
       </div>
-      <div className={equal || large || className.includes("justify-center") ? "flex justify-center" : ""}>
+      <div
+        className={
+          equal || large || className.includes("justify-center") ? "flex justify-center" : ""
+        }
+      >
         {buttons}
       </div>
     </div>

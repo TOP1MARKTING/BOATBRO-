@@ -19,7 +19,14 @@ type BilingualEditorProps = {
   onChange: (lang: "ar" | "en", value: string) => void;
 };
 
-function BilingualField({ label, path, valueAr, valueEn, multiline = false, onChange }: BilingualEditorProps) {
+function BilingualField({
+  label,
+  path,
+  valueAr,
+  valueEn,
+  multiline = false,
+  onChange,
+}: BilingualEditorProps) {
   const Input = multiline ? "textarea" : "input";
   return (
     <div className="grid gap-3 lg:grid-cols-2">
@@ -56,7 +63,12 @@ function readString(value: unknown) {
 }
 
 function isTuplePair(value: unknown): value is [string, string] {
-  return Array.isArray(value) && value.length === 2 && typeof value[0] === "string" && typeof value[1] === "string";
+  return (
+    Array.isArray(value) &&
+    value.length === 2 &&
+    typeof value[0] === "string" &&
+    typeof value[1] === "string"
+  );
 }
 
 function tuplePair(value: unknown): [string, string] {
@@ -64,7 +76,11 @@ function tuplePair(value: unknown): [string, string] {
   return ["", ""];
 }
 
-function writePath(obj: Record<string, unknown>, path: string[], value: unknown): Record<string, unknown> {
+function writePath(
+  obj: Record<string, unknown>,
+  path: string[],
+  value: unknown,
+): Record<string, unknown> {
   if (!path.length) return obj;
   const next = structuredClone(obj);
   let cur: Record<string, unknown> = next;

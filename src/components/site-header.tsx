@@ -45,7 +45,9 @@ export function SiteHeader() {
           scrolled ? "shadow-sm" : ""
         }`}
       >
-        <div className={`${SHELL} flex h-14 items-center justify-between gap-2 sm:h-16 lg:h-[72px] lg:gap-3`}>
+        <div
+          className={`${SHELL} flex h-14 items-center justify-between gap-2 sm:h-16 lg:h-[72px] lg:gap-3`}
+        >
           <Link to="/" aria-label="BoatPro" className="flex min-w-0 items-center gap-2 sm:gap-3">
             <Logo size="sm" className="!h-11 !w-11 shrink-0 sm:!h-12 sm:!w-12 lg:!h-16 lg:!w-16" />
             <span className="hidden truncate font-display text-[15px] tracking-[0.16em] text-navy md:block">

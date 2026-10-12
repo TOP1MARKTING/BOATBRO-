@@ -18,7 +18,11 @@ function functionsBaseUrl() {
   return base.replace(/\/$/, "");
 }
 
-async function callHttp<T>(operation: ApiOperation, body: Record<string, unknown>, token?: string): Promise<T> {
+async function callHttp<T>(
+  operation: ApiOperation,
+  body: Record<string, unknown>,
+  token?: string,
+): Promise<T> {
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (token) headers["authorization"] = `Bearer ${token}`;
 

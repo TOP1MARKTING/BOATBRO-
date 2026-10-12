@@ -7,6 +7,7 @@ import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY, ADMIN_CARD_CLS, ADMIN_FIELD_CLS
 import { dictionaries } from "../../lib/copy";
 import type { PostInput } from "../../lib/db";
 import { listGalleryImages, uploadCover, type GalleryImage } from "../../lib/db";
+import { dataUrlToFile } from "../../lib/image-compress";
 import { parseTags, tagsToString, type LocalizedText } from "../../lib/post-content";
 import { SEO_LIMITS, charCountTone } from "../../lib/post-seo";
 
@@ -84,7 +85,17 @@ const c = {
   galleryEmpty: "لا توجد صور في المعرض بعد.",
 };
 
-function Card({ title, hint, action, children }: { title: string; hint?: string; action?: ReactNode; children: ReactNode }) {
+function Card({
+  title,
+  hint,
+  action,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <section className={`${ADMIN_CARD_CLS} p-5 sm:p-6`}>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
@@ -99,18 +110,39 @@ function Card({ title, hint, action, children }: { title: string; hint?: string;
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-[12px] font-medium text-navy">{label}</span>
       {children}
-      {hint ? <span className="mt-1 block text-[11px] leading-5 text-muted-foreground">{hint}</span> : null}
+      {hint ? (
+        <span className="mt-1 block text-[11px] leading-5 text-muted-foreground">{hint}</span>
+      ) : null}
     </label>
   );
 }
 
-function MetaCounter({ value, fallbackEmpty, min, max }: { value: string; fallbackEmpty: string; min: number; max: number }) {
-  if (!value.trim()) return <span className="text-[11px] text-muted-foreground">{fallbackEmpty}</span>;
+function MetaCounter({
+  value,
+  fallbackEmpty,
+  min,
+  max,
+}: {
+  value: string;
+  fallbackEmpty: string;
+  min: number;
+  max: number;
+}) {
+  if (!value.trim())
+    return <span className="text-[11px] text-muted-foreground">{fallbackEmpty}</span>;
   return (
     <span className={`text-[11px] font-medium ${charCountTone(value.length, min, max)}`}>
       {value.length}/{max}
@@ -125,7 +157,8 @@ function CoverSlot({
   alt,
   onUrl,
   uploadImage,
-  onGallery,
+  openGallery,
+  onGalleryPick,
 }: {
   label: string;
   hint?: string;
@@ -133,7 +166,8 @@ function CoverSlot({
   alt: string;
   onUrl: (url: string) => void;
   uploadImage: (file: File) => Promise<string>;
-  onGallery: () => void;
+  openGallery: (onPick: (url: string, image: GalleryImage) => void) => void;
+  onGalleryPick: (image: GalleryImage) => void;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
@@ -190,7 +224,17 @@ function CoverSlot({
           <Upload size={14} />
           {c.coverUpload}
         </label>
-        <button type="button" className={ADMIN_BTN_SECONDARY} onClick={onGallery}>
+        <button
+          type="button"
+          className={ADMIN_BTN_SECONDARY}
+          onClick={() =>
+            openGallery((pickedUrl, image) => {
+              onGalleryPick(image);
+              if (pickedUrl.startsWith("data:")) void onFile(dataUrlToFile(pickedUrl, image.name));
+              else onUrl(pickedUrl);
+            })
+          }
+        >
           {c.coverGallery}
         </button>
       </div>
@@ -198,7 +242,13 @@ function CoverSlot({
       {error ? <p className="mt-2 text-[12px] text-destructive">{c.coverUploadError}</p> : null}
       <div className="mt-3">
         <Field label={c.coverUrl}>
-          <input dir="ltr" className={fieldCls} placeholder="https://…" value={url} onChange={(e) => onUrl(e.target.value)} />
+          <input
+            dir="ltr"
+            className={fieldCls}
+            placeholder="https://…"
+            value={url}
+            onChange={(e) => onUrl(e.target.value)}
+          />
         </Field>
       </div>
     </div>
@@ -236,7 +286,8 @@ export function AdminPostEditor({
   const categoriesEn = dictionaries.en.admin.categories;
   const categoryIndex = categoriesAr.indexOf(form.categoryI18n.ar);
 
-  const set = <K extends keyof PostInput>(key: K, value: PostInput[K]) => setForm((prev) => ({ ...prev, [key]: value }));
+  const set = <K extends keyof PostInput>(key: K, value: PostInput[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
   const setLocalized = (key: keyof PostInput, lang: keyof LocalizedText, value: string) =>
     setForm((prev) => ({ ...prev, [key]: { ...(prev[key] as LocalizedText), [lang]: value } }));
 
@@ -252,17 +303,14 @@ export function AdminPostEditor({
 
   const uploadImage = (file: File) => uploadCover(file, uid);
 
-  const pickCover = (key: "coverUrl" | "coverUrlEn") =>
-    openGallery((url, image) =>
-      setForm((prev) => ({
-        ...prev,
-        [key]: url,
-        coverAlt: {
-          ar: prev.coverAlt.ar || image.alt.ar || image.name,
-          en: prev.coverAlt.en || image.alt.en || image.name,
-        },
-      })),
-    );
+  const fillCoverAlt = (image: GalleryImage) =>
+    setForm((prev) => ({
+      ...prev,
+      coverAlt: {
+        ar: prev.coverAlt.ar || image.alt.ar || image.name,
+        en: prev.coverAlt.en || image.alt.en || image.name,
+      },
+    }));
 
   const onBack = () => {
     if (JSON.stringify(form) !== initial.current && !window.confirm(c.leaveConfirm)) return;
@@ -280,28 +328,62 @@ export function AdminPostEditor({
           <ArrowRight size={14} />
           {c.back}
         </button>
-        <h1 className="mt-4 font-display text-2xl font-semibold text-navy sm:text-3xl">{isNew ? c.newTitle : c.editTitle}</h1>
+        <h1 className="mt-4 font-display text-2xl font-semibold text-navy sm:text-3xl">
+          {isNew ? c.newTitle : c.editTitle}
+        </h1>
         <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">{c.lead}</p>
       </div>
 
       <Card title={c.basics} hint={c.basicsHint}>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label={c.titleAr}>
-            <input dir="rtl" className={fieldCls} placeholder={c.titleArPh} value={form.titleI18n.ar} onChange={(e) => setLocalized("titleI18n", "ar", e.target.value)} />
+            <input
+              dir="rtl"
+              className={fieldCls}
+              placeholder={c.titleArPh}
+              value={form.titleI18n.ar}
+              onChange={(e) => setLocalized("titleI18n", "ar", e.target.value)}
+            />
           </Field>
           <Field label={c.titleEn}>
-            <input dir="ltr" className={fieldCls} placeholder={c.titleEnPh} value={form.titleI18n.en} onChange={(e) => setLocalized("titleI18n", "en", e.target.value)} />
+            <input
+              dir="ltr"
+              className={fieldCls}
+              placeholder={c.titleEnPh}
+              value={form.titleI18n.en}
+              onChange={(e) => setLocalized("titleI18n", "en", e.target.value)}
+            />
           </Field>
           <div className="md:col-span-2">
             <Field label={c.slug} hint={c.slugHint}>
-              <input dir="ltr" className={fieldCls} placeholder="yacht-marina-guide" value={form.slug} onChange={(e) => set("slug", e.target.value)} />
+              <input
+                dir="ltr"
+                className={fieldCls}
+                placeholder="yacht-marina-guide"
+                value={form.slug}
+                onChange={(e) => set("slug", e.target.value)}
+              />
             </Field>
           </div>
           <Field label={c.excerptAr}>
-            <textarea dir="rtl" rows={3} className={fieldCls} placeholder={c.excerptArPh} value={form.excerptI18n.ar} onChange={(e) => setLocalized("excerptI18n", "ar", e.target.value)} />
+            <textarea
+              dir="rtl"
+              rows={3}
+              className={fieldCls}
+              placeholder={c.excerptArPh}
+              value={form.excerptI18n.ar}
+              onChange={(e) => setLocalized("excerptI18n", "ar", e.target.value)}
+            />
           </Field>
           <Field label={c.excerptEn}>
-            <textarea dir="ltr" rows={3} className={fieldCls} placeholder={c.excerptEnPh} value={form.excerptI18n.en} onChange={(e) => setLocalized("excerptI18n", "en", e.target.value)} />
+            <textarea
+              dir="ltr"
+              rows={3}
+              className={fieldCls}
+              placeholder={c.excerptEnPh}
+              value={form.excerptI18n.en}
+              onChange={(e) => setLocalized("excerptI18n", "en", e.target.value)}
+            />
           </Field>
         </div>
       </Card>
@@ -321,7 +403,11 @@ export function AdminPostEditor({
         hint={c.englishHint}
         action={
           !form.contentHtml.en.trim() && form.contentHtml.ar.trim() ? (
-            <button type="button" onClick={() => setLocalized("contentHtml", "en", form.contentHtml.ar)} className="text-[12px] font-medium text-gold-ink underline">
+            <button
+              type="button"
+              onClick={() => setLocalized("contentHtml", "en", form.contentHtml.ar)}
+              className="text-[12px] font-medium text-gold-ink underline"
+            >
               {c.copyFromAr}
             </button>
           ) : null
@@ -349,7 +435,11 @@ export function AdminPostEditor({
                 set("categoryI18n", { ar: categoriesAr[i] ?? "", en: categoriesEn[i] ?? "" });
               }}
             >
-              {categoryIndex < 0 ? <option value="custom">{form.categoryI18n.ar || form.categoryI18n.en || "—"}</option> : null}
+              {categoryIndex < 0 ? (
+                <option value="custom">
+                  {form.categoryI18n.ar || form.categoryI18n.en || "—"}
+                </option>
+              ) : null}
               {categoriesAr.map((name, i) => (
                 <option key={name} value={String(i)}>
                   {name}
@@ -358,25 +448,57 @@ export function AdminPostEditor({
             </select>
           </Field>
           <Field label={c.status}>
-            <select className={fieldCls} value={form.published ? "published" : "draft"} onChange={(e) => set("published", e.target.value === "published")}>
+            <select
+              className={fieldCls}
+              value={form.published ? "published" : "draft"}
+              onChange={(e) => set("published", e.target.value === "published")}
+            >
               <option value="draft">{c.draft}</option>
               <option value="published">{c.published}</option>
             </select>
           </Field>
           <Field label={c.authorAr}>
-            <input dir="rtl" className={fieldCls} placeholder={c.authorPh} value={form.authorI18n.ar} onChange={(e) => setLocalized("authorI18n", "ar", e.target.value)} />
+            <input
+              dir="rtl"
+              className={fieldCls}
+              placeholder={c.authorPh}
+              value={form.authorI18n.ar}
+              onChange={(e) => setLocalized("authorI18n", "ar", e.target.value)}
+            />
           </Field>
           <Field label={c.authorEn}>
-            <input dir="ltr" className={fieldCls} placeholder={c.authorPh} value={form.authorI18n.en} onChange={(e) => setLocalized("authorI18n", "en", e.target.value)} />
+            <input
+              dir="ltr"
+              className={fieldCls}
+              placeholder={c.authorPh}
+              value={form.authorI18n.en}
+              onChange={(e) => setLocalized("authorI18n", "en", e.target.value)}
+            />
           </Field>
           <Field label={c.tagsAr}>
-            <input dir="rtl" className={fieldCls} placeholder={c.tagsArPh} value={tagsToString(form.tags.ar)} onChange={(e) => set("tags", { ...form.tags, ar: parseTags(e.target.value) })} />
+            <input
+              dir="rtl"
+              className={fieldCls}
+              placeholder={c.tagsArPh}
+              value={tagsToString(form.tags.ar)}
+              onChange={(e) => set("tags", { ...form.tags, ar: parseTags(e.target.value) })}
+            />
           </Field>
           <Field label={c.tagsEn}>
-            <input dir="ltr" className={fieldCls} placeholder={c.tagsEnPh} value={tagsToString(form.tags.en)} onChange={(e) => set("tags", { ...form.tags, en: parseTags(e.target.value) })} />
+            <input
+              dir="ltr"
+              className={fieldCls}
+              placeholder={c.tagsEnPh}
+              value={tagsToString(form.tags.en)}
+              onChange={(e) => set("tags", { ...form.tags, en: parseTags(e.target.value) })}
+            />
           </Field>
           <label className="flex items-center gap-3 rounded-xl border border-border bg-surface-2/60 px-4 py-3 text-[13px] text-navy md:col-span-2">
-            <input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(e) => set("featured", e.target.checked)}
+            />
             {c.featured}
           </label>
         </div>
@@ -390,7 +512,8 @@ export function AdminPostEditor({
             alt={form.coverAlt.ar}
             onUrl={(url) => set("coverUrl", url)}
             uploadImage={uploadImage}
-            onGallery={() => pickCover("coverUrl")}
+            openGallery={openGallery}
+            onGalleryPick={fillCoverAlt}
           />
           <CoverSlot
             label={c.coverEn}
@@ -399,44 +522,135 @@ export function AdminPostEditor({
             alt={form.coverAlt.en}
             onUrl={(url) => set("coverUrlEn", url)}
             uploadImage={uploadImage}
-            onGallery={() => pickCover("coverUrlEn")}
+            openGallery={openGallery}
+            onGalleryPick={fillCoverAlt}
           />
         </div>
         <p className="mt-3 text-[11px] leading-5 text-muted-foreground">{c.coverTypes}</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <Field label={c.coverAltAr}>
-            <input dir="rtl" className={fieldCls} placeholder={c.coverAltArPh} value={form.coverAlt.ar} onChange={(e) => setLocalized("coverAlt", "ar", e.target.value)} />
+            <input
+              dir="rtl"
+              className={fieldCls}
+              placeholder={c.coverAltArPh}
+              value={form.coverAlt.ar}
+              onChange={(e) => setLocalized("coverAlt", "ar", e.target.value)}
+            />
           </Field>
           <Field label={c.coverAltEn}>
-            <input dir="ltr" className={fieldCls} placeholder={c.coverAltEnPh} value={form.coverAlt.en} onChange={(e) => setLocalized("coverAlt", "en", e.target.value)} />
+            <input
+              dir="ltr"
+              className={fieldCls}
+              placeholder={c.coverAltEnPh}
+              value={form.coverAlt.en}
+              onChange={(e) => setLocalized("coverAlt", "en", e.target.value)}
+            />
           </Field>
         </div>
       </Card>
 
       <Card title={c.seo} hint={c.seoHint}>
         <div className="grid gap-4">
-          <Field label="Meta Title" hint={<MetaCounter value={form.metaTitleI18n.ar} fallbackEmpty={c.metaTitleEmpty} min={SEO_LIMITS.titleMin} max={SEO_LIMITS.titleMax} />}>
-            <input dir="rtl" className={fieldCls} placeholder={c.metaTitlePh} value={form.metaTitleI18n.ar} onChange={(e) => setLocalized("metaTitleI18n", "ar", e.target.value)} />
+          <Field
+            label="Meta Title"
+            hint={
+              <MetaCounter
+                value={form.metaTitleI18n.ar}
+                fallbackEmpty={c.metaTitleEmpty}
+                min={SEO_LIMITS.titleMin}
+                max={SEO_LIMITS.titleMax}
+              />
+            }
+          >
+            <input
+              dir="rtl"
+              className={fieldCls}
+              placeholder={c.metaTitlePh}
+              value={form.metaTitleI18n.ar}
+              onChange={(e) => setLocalized("metaTitleI18n", "ar", e.target.value)}
+            />
           </Field>
-          <Field label="Meta Description" hint={<MetaCounter value={form.metaDescriptionI18n.ar} fallbackEmpty={c.metaDescEmpty} min={SEO_LIMITS.descMin} max={SEO_LIMITS.descMax} />}>
-            <textarea dir="rtl" rows={3} className={fieldCls} placeholder={c.metaDescPh} value={form.metaDescriptionI18n.ar} onChange={(e) => setLocalized("metaDescriptionI18n", "ar", e.target.value)} />
+          <Field
+            label="Meta Description"
+            hint={
+              <MetaCounter
+                value={form.metaDescriptionI18n.ar}
+                fallbackEmpty={c.metaDescEmpty}
+                min={SEO_LIMITS.descMin}
+                max={SEO_LIMITS.descMax}
+              />
+            }
+          >
+            <textarea
+              dir="rtl"
+              rows={3}
+              className={fieldCls}
+              placeholder={c.metaDescPh}
+              value={form.metaDescriptionI18n.ar}
+              onChange={(e) => setLocalized("metaDescriptionI18n", "ar", e.target.value)}
+            />
           </Field>
-          <p className="mt-2 border-t border-border pt-4 text-[13px] font-semibold text-navy">{c.seoEnglish}</p>
-          <Field label="Meta Title (English)" hint={<MetaCounter value={form.metaTitleI18n.en} fallbackEmpty={c.metaTitleEmpty} min={SEO_LIMITS.titleMin} max={SEO_LIMITS.titleMax} />}>
-            <input dir="ltr" className={fieldCls} placeholder={c.metaTitleEnPh} value={form.metaTitleI18n.en} onChange={(e) => setLocalized("metaTitleI18n", "en", e.target.value)} />
+          <p className="mt-2 border-t border-border pt-4 text-[13px] font-semibold text-navy">
+            {c.seoEnglish}
+          </p>
+          <Field
+            label="Meta Title (English)"
+            hint={
+              <MetaCounter
+                value={form.metaTitleI18n.en}
+                fallbackEmpty={c.metaTitleEmpty}
+                min={SEO_LIMITS.titleMin}
+                max={SEO_LIMITS.titleMax}
+              />
+            }
+          >
+            <input
+              dir="ltr"
+              className={fieldCls}
+              placeholder={c.metaTitleEnPh}
+              value={form.metaTitleI18n.en}
+              onChange={(e) => setLocalized("metaTitleI18n", "en", e.target.value)}
+            />
           </Field>
-          <Field label="Meta Description (English)" hint={<MetaCounter value={form.metaDescriptionI18n.en} fallbackEmpty={c.metaDescEmpty} min={SEO_LIMITS.descMin} max={SEO_LIMITS.descMax} />}>
-            <textarea dir="ltr" rows={3} className={fieldCls} placeholder={c.metaDescEnPh} value={form.metaDescriptionI18n.en} onChange={(e) => setLocalized("metaDescriptionI18n", "en", e.target.value)} />
+          <Field
+            label="Meta Description (English)"
+            hint={
+              <MetaCounter
+                value={form.metaDescriptionI18n.en}
+                fallbackEmpty={c.metaDescEmpty}
+                min={SEO_LIMITS.descMin}
+                max={SEO_LIMITS.descMax}
+              />
+            }
+          >
+            <textarea
+              dir="ltr"
+              rows={3}
+              className={fieldCls}
+              placeholder={c.metaDescEnPh}
+              value={form.metaDescriptionI18n.en}
+              onChange={(e) => setLocalized("metaDescriptionI18n", "en", e.target.value)}
+            />
           </Field>
         </div>
 
         <details className="group mt-5 rounded-xl border border-border bg-surface-2/50">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-medium text-navy">
             {c.advanced}
-            <ChevronDown size={16} className="shrink-0 transition-transform group-open:rotate-180" />
+            <ChevronDown
+              size={16}
+              className="shrink-0 transition-transform group-open:rotate-180"
+            />
           </summary>
           <div className="border-t border-border p-4">
-            <AdminPostSeo form={form} setForm={setForm} fieldCls={fieldCls} labels={seoLabels} bilingual hideMeta />
+            <AdminPostSeo
+              form={form}
+              setForm={setForm}
+              fieldCls={fieldCls}
+              labels={seoLabels}
+              bilingual
+              hideMeta
+            />
           </div>
         </details>
       </Card>
@@ -445,10 +659,18 @@ export function AdminPostEditor({
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
           <p className="text-[12px] text-muted-foreground">{message || c.saveNote}</p>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onBack} className="rounded-full px-4 py-2 text-[13px] text-muted-foreground hover:text-navy">
+            <button
+              type="button"
+              onClick={onBack}
+              className="rounded-full px-4 py-2 text-[13px] text-muted-foreground hover:text-navy"
+            >
               {c.back}
             </button>
-            <button type="submit" disabled={busy} className={`${ADMIN_BTN_PRIMARY} inline-flex items-center gap-1.5`}>
+            <button
+              type="submit"
+              disabled={busy}
+              className={`${ADMIN_BTN_PRIMARY} inline-flex items-center gap-1.5`}
+            >
               <Save size={15} />
               {busy ? c.saving : c.save}
             </button>

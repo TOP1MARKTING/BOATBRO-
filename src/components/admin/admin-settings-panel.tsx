@@ -2,7 +2,13 @@ import { useEffect, useState, type FormEvent } from "react";
 import { getSiteSettings, saveSiteSettings } from "../../lib/db";
 import { SOCIAL_KEYS, defaultSiteSettings, type SiteSettingsInput } from "../../lib/site-settings";
 import { AdminLicensesSection } from "./admin-licenses-section";
-import { ADMIN_BTN_PRIMARY, ADMIN_FIELD_CLS, AdminFlash, AdminPanelShell, AdminSection } from "./shared";
+import {
+  ADMIN_BTN_PRIMARY,
+  ADMIN_FIELD_CLS,
+  AdminFlash,
+  AdminPanelShell,
+  AdminSection,
+} from "./shared";
 
 function SettingsField({
   label,
@@ -33,16 +39,66 @@ function SettingsField({
   );
 }
 
+function AppLaunchToggle({
+  checked,
+  dirty,
+  missingStores,
+  onChange,
+  t,
+}: {
+  checked: boolean;
+  dirty: boolean;
+  missingStores: string[];
+  onChange: (value: boolean) => void;
+  t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <label
+        className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-[13px] ${
+          checked ? "border-gold/40 bg-gold/10" : "border-border bg-card"
+        } cursor-pointer`}
+      >
+        <input
+          type="checkbox"
+          className="mt-0.5 size-4 shrink-0 rounded border-border accent-gold"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        <span>
+          <span className="block font-semibold text-navy">{t.admin.appLaunched}</span>
+          <span className="mt-0.5 block text-muted-foreground">
+            {checked ? t.admin.appLaunchedOn : t.admin.appLaunchedOff}
+          </span>
+        </span>
+      </label>
+      {checked
+        ? missingStores.map((store) => (
+            <AdminFlash key={store} tone="error">
+              {t.admin.appLaunchMissingLink.replaceAll("{store}", store)}
+            </AdminFlash>
+          ))
+        : null}
+      {dirty ? (
+        <p className="text-[12px] font-medium text-gold-ink">{t.admin.appLaunchSaveHint}</p>
+      ) : null}
+    </div>
+  );
+}
+
 export function AdminSettingsPanel({
   uid,
   t,
+  isSuperAdmin = false,
   onSaved,
 }: {
   uid: string;
   t: ReturnType<typeof import("../../lib/i18n").useLang>["t"];
+  isSuperAdmin?: boolean;
   onSaved?: () => void;
 }) {
   const [form, setForm] = useState<SiteSettingsInput>(defaultSiteSettings());
+  const [savedApps, setSavedApps] = useState(defaultSiteSettings().apps);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -56,6 +112,7 @@ export function AdminSettingsPanel({
           contact: settings.contact,
           apps: settings.apps,
         });
+        setSavedApps(settings.apps);
       })
       .catch(() => setForm(defaultSiteSettings()))
       .finally(() => setLoading(false));
@@ -67,7 +124,8 @@ export function AdminSettingsPanel({
     setError("");
     setMessage("");
     try {
-      await saveSiteSettings(form);
+      await saveSiteSettings(form, { canLaunchApps: isSuperAdmin });
+      setSavedApps(form.apps);
       setMessage(t.admin.settingsSaved);
       onSaved?.();
     } catch {
@@ -120,18 +178,24 @@ export function AdminSettingsPanel({
               <SettingsField
                 label="Email"
                 value={form.contact.email}
-                onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, email: value } }))}
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, contact: { ...prev.contact, email: value } }))
+                }
               />
               <SettingsField
                 label="Phone (display)"
                 value={form.contact.phone}
-                onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, phone: value } }))}
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, contact: { ...prev.contact, phone: value } }))
+                }
               />
               <SettingsField
                 label="WhatsApp link"
                 value={form.contact.whatsapp}
                 placeholder="https://wa.me/..."
-                onChange={(value) => setForm((prev) => ({ ...prev, contact: { ...prev.contact, whatsapp: value } }))}
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, contact: { ...prev.contact, whatsapp: value } }))
+                }
               />
             </div>
           </AdminSection>
@@ -140,19 +204,53 @@ export function AdminSettingsPanel({
             <div className="space-y-4">
               {(
                 [
-                  ["guests", t.admin.settingGuestsApp, "guestsAppStore", "guestsPlayStore"],
-                  ["owners", t.admin.settingOwnersApp, "ownersAppStore", "ownersPlayStore"],
+                  [
+                    "guests",
+                    t.admin.settingGuestsApp,
+                    "guestsAppStore",
+                    "guestsPlayStore",
+                    "guestsLive",
+                  ],
+                  [
+                    "owners",
+                    t.admin.settingOwnersApp,
+                    "ownersAppStore",
+                    "ownersPlayStore",
+                    "ownersLive",
+                  ],
                 ] as const
-              ).map(([key, title, appStoreKey, playStoreKey]) => (
-                <fieldset key={key} className="rounded-2xl border border-border bg-surface-2/60 p-4 sm:p-5">
-                  <legend className="px-1 font-display text-[14px] font-semibold text-navy">{title}</legend>
+              ).map(([key, title, appStoreKey, playStoreKey, liveKey]) => (
+                <fieldset
+                  key={key}
+                  className="rounded-2xl border border-border bg-surface-2/60 p-4 sm:p-5"
+                >
+                  <legend className="px-1 font-display text-[14px] font-semibold text-navy">
+                    {title}
+                  </legend>
+                  {isSuperAdmin ? (
+                    <AppLaunchToggle
+                      checked={form.apps[liveKey]}
+                      dirty={form.apps[liveKey] !== savedApps[liveKey]}
+                      missingStores={[
+                        ...(form.apps[appStoreKey].trim() ? [] : ["App Store"]),
+                        ...(form.apps[playStoreKey].trim() ? [] : ["Play Store"]),
+                      ]}
+                      onChange={(value) =>
+                        setForm((prev) => ({ ...prev, apps: { ...prev.apps, [liveKey]: value } }))
+                      }
+                      t={t}
+                    />
+                  ) : null}
                   <div className="grid gap-4 md:grid-cols-2">
                     <SettingsField
                       label="App Store"
                       value={form.apps[appStoreKey]}
                       placeholder="https://"
                       onChange={(value) =>
-                        setForm((prev) => ({ ...prev, apps: { ...prev.apps, [appStoreKey]: value } }))
+                        setForm((prev) => ({
+                          ...prev,
+                          apps: { ...prev.apps, [appStoreKey]: value },
+                        }))
                       }
                     />
                     <SettingsField
@@ -160,19 +258,26 @@ export function AdminSettingsPanel({
                       value={form.apps[playStoreKey]}
                       placeholder="https://"
                       onChange={(value) =>
-                        setForm((prev) => ({ ...prev, apps: { ...prev.apps, [playStoreKey]: value } }))
+                        setForm((prev) => ({
+                          ...prev,
+                          apps: { ...prev.apps, [playStoreKey]: value },
+                        }))
                       }
                     />
                   </div>
                 </fieldset>
               ))}
               <fieldset className="rounded-2xl border border-border bg-surface-2/60 p-4 sm:p-5">
-                <legend className="px-1 font-display text-[14px] font-semibold text-navy">{t.admin.settingMarinasSite}</legend>
+                <legend className="px-1 font-display text-[14px] font-semibold text-navy">
+                  {t.admin.settingMarinasSite}
+                </legend>
                 <SettingsField
                   label={t.admin.settingMarinasLogin}
                   value={form.apps.marinasLogin}
                   placeholder="https://"
-                  onChange={(value) => setForm((prev) => ({ ...prev, apps: { ...prev.apps, marinasLogin: value } }))}
+                  onChange={(value) =>
+                    setForm((prev) => ({ ...prev, apps: { ...prev.apps, marinasLogin: value } }))
+                  }
                 />
               </fieldset>
             </div>

@@ -22,7 +22,9 @@ const LangContext = createContext<LangContextValue | null>(null);
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const { dictionary } = usePageContent();
   const router = useRouter();
-  const publicPath = useRouterState({ select: (s) => s.location.publicHref.split(/[?#]/)[0] ?? "/" });
+  const publicPath = useRouterState({
+    select: (s) => s.location.publicHref.split(/[?#]/)[0] ?? "/",
+  });
   const urlLang = splitLocale(publicPath).lang;
   const [storedLang, setStoredLang] = useState<Lang>(() => urlLang ?? readStoredLang());
   const lang = urlLang ?? storedLang;

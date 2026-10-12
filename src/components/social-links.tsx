@@ -47,7 +47,13 @@ const LABELS = {
   x: "X",
 } as const;
 
-export function SocialLinksRow({ social, className = "" }: { social: SocialLinks; className?: string }) {
+export function SocialLinksRow({
+  social,
+  className = "",
+}: {
+  social: SocialLinks;
+  className?: string;
+}) {
   const keys = activeSocialLinks(social);
   if (!keys.length) return null;
 

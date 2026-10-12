@@ -22,6 +22,9 @@
   RewriteRule ^sitemap\.xml$ seo/sitemap.php [L]
   RewriteRule ^media/posts/([A-Za-z0-9_-]+)\.(jpe?g|png|webp)$ seo/image.php?id=$1 [L,QSA]
   RewriteRule ^media/covers/([A-Za-z0-9_-]+)-(ar|en)\.jpg$ seo/image.php?cover=$1&lang=$2 [L,QSA]
+  # Renamed posts: the old slug stays indexed by search engines, so it moves permanently to the new one.
+  RewriteRule ^(ar|en)/blog/botpro-saudi-arabia-boat-yacht-booking/?$ /$1/blog/boatpro-saudi-arabia/ [R=301,L]
+  RewriteRule ^blog/botpro-saudi-arabia-boat-yacht-booking/?$ /ar/blog/boatpro-saudi-arabia/ [R=301,L]
   RewriteRule ^(ar|en)/blog/([^/]+)$ /$1/blog/$2/ [R=301,L]
   RewriteRule ^(ar|en)/blog/([^/]+)/$ seo/blog.php?lang=$1&slug=$2 [B,L,QSA]
 

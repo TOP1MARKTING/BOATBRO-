@@ -150,7 +150,10 @@ export function sortedDialCountries(lang: "ar" | "en") {
   const priority = new Set<string>(PRIORITY_DIAL_ISOS);
   const head = PRIORITY_DIAL_ISOS.map((iso) => findDialCountry(iso));
   const rest = DIAL_COUNTRIES.filter((c) => !priority.has(c.iso)).sort((a, b) =>
-    (lang === "ar" ? a.nameAr : a.nameEn).localeCompare(lang === "ar" ? b.nameAr : b.nameEn, lang === "ar" ? "ar" : "en"),
+    (lang === "ar" ? a.nameAr : a.nameEn).localeCompare(
+      lang === "ar" ? b.nameAr : b.nameEn,
+      lang === "ar" ? "ar" : "en",
+    ),
   );
   // de-dupe head by iso in case of missing
   const seen = new Set<string>();

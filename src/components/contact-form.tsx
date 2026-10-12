@@ -9,12 +9,12 @@ import { PhoneCountryField } from "./phone-country-field";
 import { Btn, CtaArrow } from "./ui";
 
 const fieldCls = [
-  "w-full rounded-2xl border border-[#C8A96A]/25 bg-background/80",
+  "w-full rounded-2xl border border-gold/25 bg-background/80",
   "px-4 py-3.5 text-sm text-navy shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]",
   "outline-none transition-all duration-200",
   "placeholder:text-muted-foreground/55",
-  "hover:border-[#C8A96A]/45",
-  "focus:border-[#C8A96A] focus:bg-card focus:ring-2 focus:ring-[#C8A96A]/20",
+  "hover:border-gold/45",
+  "focus:border-gold focus:bg-card focus:ring-2 focus:ring-gold/20",
 ].join(" ");
 
 const labelCls = "mb-2.5 block text-[13px] font-medium tracking-wide text-gold-ink";
@@ -58,7 +58,10 @@ export function ContactForm() {
       setPhone("");
       setFormKey((k) => k + 1);
     } catch (err) {
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
       if (import.meta.env.DEV) console.error("[contact]", code, err);
       setSendError(
         code === "unimplemented" || code === "failed-precondition" || code === "not-found"
@@ -74,27 +77,43 @@ export function ContactForm() {
 
   return (
     <form key={formKey} onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
-      <div className="flex items-start gap-3 border-b border-[#C8A96A]/20 pb-5">
-        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl border border-[#C8A96A]/30 bg-[#C8A96A]/12 text-[#A8894E]">
+      <div className="flex items-start gap-3 border-b border-gold/20 pb-5">
+        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl border border-gold/30 bg-gold/12 text-gold-ink">
           <Ship size={18} strokeWidth={1.75} aria-hidden="true" />
         </span>
         <div>
           <p className="font-display text-lg font-semibold text-navy">{t.contact.partnerType}</p>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">{t.contact.formBody}</p>
-          <span className="mt-3 inline-flex items-center rounded-full border border-[#C8A96A]/35 bg-[#C8A96A]/12 px-3 py-1 text-[12px] font-medium text-[#A8894E]">
+          <span className="mt-3 inline-flex items-center rounded-full border border-gold/35 bg-gold/12 px-3 py-1 text-[12px] font-medium text-gold-ink">
             {t.contact.formAudience}
           </span>
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <label htmlFor="contact-name">
           <span className={labelCls}>{t.contact.name}</span>
-          <input required id="contact-name" name="name" maxLength={120} type="text" autoComplete="name" className={fieldCls} />
+          <input
+            required
+            id="contact-name"
+            name="name"
+            maxLength={120}
+            type="text"
+            autoComplete="name"
+            className={fieldCls}
+          />
         </label>
         <label htmlFor="contact-email">
           <span className={labelCls}>{t.contact.mail}</span>
-          <input required id="contact-email" name="email" maxLength={120} type="email" autoComplete="email" className={fieldCls} />
+          <input
+            required
+            id="contact-email"
+            name="email"
+            maxLength={120}
+            type="email"
+            autoComplete="email"
+            className={fieldCls}
+          />
         </label>
         <PhoneCountryField
           id="contact-phone"
@@ -149,12 +168,12 @@ export function ContactForm() {
         </label>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 border-t border-[#C8A96A]/15 pt-5">
+      <div className="flex flex-wrap items-center gap-4 border-t border-gold/15 pt-5">
         <Btn variant="gold" disabled={sending} className="min-w-[10.5rem]">
           {sending ? t.cta.sending : t.cta.send} <CtaArrow />
         </Btn>
         {sent ? (
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#C8A96A]/30 bg-[#C8A96A]/10 px-3.5 py-2 text-sm text-gold-ink">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3.5 py-2 text-sm text-gold-ink">
             <BadgeCheck size={16} /> {t.cta.sent}
           </span>
         ) : null}

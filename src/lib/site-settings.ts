@@ -20,8 +20,13 @@ export type SiteSettingsInput = {
     ownersAppStore: string;
     ownersPlayStore: string;
     marinasLogin: string;
+    /** Set by the super admin once the app is published; until then its store buttons show "Coming soon". */
+    guestsLive: boolean;
+    ownersLive: boolean;
   };
 };
+
+export const APP_LAUNCH_KEYS = ["guestsLive", "ownersLive"] as const;
 
 export type SiteSettings = SiteSettingsInput & {
   updatedAt: Date | null;
@@ -48,6 +53,8 @@ export function defaultSiteSettings(): SiteSettings {
       ownersAppStore: STORES.owners.appStore,
       ownersPlayStore: STORES.owners.playStore,
       marinasLogin: SERVICE_LOGIN_URLS.marinas,
+      guestsLive: false,
+      ownersLive: false,
     },
     updatedAt: null,
   };
@@ -79,6 +86,8 @@ export function normalizeSiteSettingsInput(input: SiteSettingsInput): SiteSettin
       ownersAppStore: normalizeExternalUrl(input.apps.ownersAppStore),
       ownersPlayStore: normalizeExternalUrl(input.apps.ownersPlayStore),
       marinasLogin: normalizeExternalUrl(input.apps.marinasLogin),
+      guestsLive: input.apps.guestsLive === true,
+      ownersLive: input.apps.ownersLive === true,
     },
   };
 }
@@ -87,34 +96,51 @@ export function mapSiteSettings(data: Record<string, unknown> | null | undefined
   const base = defaultSiteSettings();
   if (!data) return base;
 
-  const social = data.social && typeof data.social === "object" ? (data.social as Record<string, unknown>) : {};
-  const contact = data.contact && typeof data.contact === "object" ? (data.contact as Record<string, unknown>) : {};
-  const apps = data.apps && typeof data.apps === "object" ? (data.apps as Record<string, unknown>) : {};
+  const social =
+    data["social"] && typeof data["social"] === "object"
+      ? (data["social"] as Record<string, unknown>)
+      : {};
+  const contact =
+    data["contact"] && typeof data["contact"] === "object"
+      ? (data["contact"] as Record<string, unknown>)
+      : {};
+  const apps =
+    data["apps"] && typeof data["apps"] === "object"
+      ? (data["apps"] as Record<string, unknown>)
+      : {};
 
   return {
     social: {
-      instagram: String(social.instagram ?? base.social.instagram),
-      linkedin: String(social.linkedin ?? base.social.linkedin),
-      tiktok: String(social.tiktok ?? base.social.tiktok),
-      x: String(social.x ?? base.social.x),
+      instagram: String(social["instagram"] ?? base.social.instagram),
+      linkedin: String(social["linkedin"] ?? base.social.linkedin),
+      tiktok: String(social["tiktok"] ?? base.social.tiktok),
+      x: String(social["x"] ?? base.social.x),
     },
     contact: {
-      email: String(contact.email ?? base.contact.email),
-      phone: String(contact.phone ?? base.contact.phone),
-      whatsapp: String(contact.whatsapp ?? base.contact.whatsapp),
+      email: String(contact["email"] ?? base.contact.email),
+      phone: String(contact["phone"] ?? base.contact.phone),
+      whatsapp: String(contact["whatsapp"] ?? base.contact.whatsapp),
     },
     apps: {
-      guestsAppStore: String(apps.guestsAppStore ?? apps.appStore ?? base.apps.guestsAppStore),
-      guestsPlayStore: String(apps.guestsPlayStore ?? apps.playStore ?? base.apps.guestsPlayStore),
-      ownersAppStore: String(apps.ownersAppStore ?? base.apps.ownersAppStore),
-      ownersPlayStore: String(apps.ownersPlayStore ?? base.apps.ownersPlayStore),
-      marinasLogin: String(apps.marinasLogin ?? base.apps.marinasLogin),
+      guestsAppStore: String(
+        apps["guestsAppStore"] ?? apps["appStore"] ?? base.apps.guestsAppStore,
+      ),
+      guestsPlayStore: String(
+        apps["guestsPlayStore"] ?? apps["playStore"] ?? base.apps.guestsPlayStore,
+      ),
+      ownersAppStore: String(apps["ownersAppStore"] ?? base.apps.ownersAppStore),
+      ownersPlayStore: String(apps["ownersPlayStore"] ?? base.apps.ownersPlayStore),
+      marinasLogin: String(apps["marinasLogin"] ?? base.apps.marinasLogin),
+      guestsLive: apps["guestsLive"] === true,
+      ownersLive: apps["ownersLive"] === true,
     },
-    updatedAt: data.updatedAt && typeof (data.updatedAt as { toDate?: () => Date }).toDate === "function"
-      ? (data.updatedAt as { toDate: () => Date }).toDate()
-      : data.updatedAt instanceof Date
-        ? data.updatedAt
-        : null,
+    updatedAt:
+      data["updatedAt"] &&
+      typeof (data["updatedAt"] as { toDate?: () => Date }).toDate === "function"
+        ? (data["updatedAt"] as { toDate: () => Date }).toDate()
+        : data["updatedAt"] instanceof Date
+          ? data["updatedAt"]
+          : null,
   };
 }
 

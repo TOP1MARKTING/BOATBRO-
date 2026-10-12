@@ -1,17 +1,67 @@
 import DOMPurify from "dompurify";
 import { localizePath, splitLocale } from "./locale-url";
 import type { Lang } from "./page-content";
-import { orderedBlocksWithImages, parseLinkedText, type LocalizedText, type PostBlock } from "./post-content";
+import {
+  orderedBlocksWithImages,
+  parseLinkedText,
+  type LocalizedText,
+  type PostBlock,
+} from "./post-content";
 
 const ALLOWED_TAGS = [
-  "p", "br", "strong", "b", "em", "i", "u", "s", "mark", "small", "sub", "sup",
-  "ul", "ol", "li", "a", "h2", "h3", "h4", "blockquote", "code", "pre", "span", "div",
-  "img", "figure", "figcaption", "hr", "table", "thead", "tbody", "tfoot", "tr", "th", "td", "caption",
+  "p",
+  "br",
+  "strong",
+  "b",
+  "em",
+  "i",
+  "u",
+  "s",
+  "mark",
+  "small",
+  "sub",
+  "sup",
+  "ul",
+  "ol",
+  "li",
+  "a",
+  "h2",
+  "h3",
+  "h4",
+  "blockquote",
+  "code",
+  "pre",
+  "span",
+  "div",
+  "img",
+  "figure",
+  "figcaption",
+  "hr",
+  "table",
+  "thead",
+  "tbody",
+  "tfoot",
+  "tr",
+  "th",
+  "td",
+  "caption",
 ];
 
 const ALLOWED_ATTR = [
-  "href", "target", "rel", "id", "class", "title", "src", "alt", "width", "height", "loading", "dir",
-  "colspan", "rowspan",
+  "href",
+  "target",
+  "rel",
+  "id",
+  "class",
+  "title",
+  "src",
+  "alt",
+  "width",
+  "height",
+  "loading",
+  "dir",
+  "colspan",
+  "rowspan",
 ];
 
 let hooksReady = false;
@@ -35,7 +85,8 @@ export function siteLinkPath(href: string, lang: Lang) {
     return null;
   }
   if (!SITE_HOST.test(url.hostname)) return null;
-  for (const key of [...url.searchParams.keys()]) if (/^utm_/i.test(key)) url.searchParams.delete(key);
+  for (const key of [...url.searchParams.keys()])
+    if (/^utm_/i.test(key)) url.searchParams.delete(key);
   const { path } = splitLocale(url.pathname);
   const target = FILE_PATH.test(path) ? path : localizePath(path, lang);
   return `${target}${url.search}${url.hash}`;
@@ -149,7 +200,9 @@ export function escapeHtml(value: string) {
 export type FigureSize = "full" | "medium" | "small";
 
 export function buildFigureHtml(url: string, alt: string, caption: string, size: FigureSize) {
-  const captionHtml = caption.trim() ? `\n  <figcaption>${escapeHtml(caption.trim())}</figcaption>` : "";
+  const captionHtml = caption.trim()
+    ? `\n  <figcaption>${escapeHtml(caption.trim())}</figcaption>`
+    : "";
   return `<figure class="bp-figure bp-figure--${size}">\n  <img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}" />${captionHtml}\n</figure>`;
 }
 

@@ -1,6 +1,9 @@
 export type ImageCompressProfile = "gallery" | "post" | "license" | "licenseIcon";
 
-const PROFILES: Record<ImageCompressProfile, { maxWidth: number; maxHeight: number; maxBytes: number }> = {
+const PROFILES: Record<
+  ImageCompressProfile,
+  { maxWidth: number; maxHeight: number; maxBytes: number }
+> = {
   gallery: { maxWidth: 1920, maxHeight: 1920, maxBytes: 700_000 },
   post: { maxWidth: 1400, maxHeight: 1400, maxBytes: 200_000 },
   license: { maxWidth: 1400, maxHeight: 1400, maxBytes: 450_000 },
@@ -55,6 +58,15 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
     reader.onerror = () => reject(new Error("read-failed"));
     reader.readAsDataURL(blob);
   });
+}
+
+/** Turns a stored data URL (gallery images) back into a File so it can go through the normal upload path. */
+export function dataUrlToFile(dataUrl: string, name: string) {
+  const mimeType = /^data:([^;,]+)/.exec(dataUrl)?.[1] ?? "image/jpeg";
+  const binary = atob(dataUrl.slice(dataUrl.indexOf(",") + 1));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new File([bytes], name || "gallery-image", { type: mimeType });
 }
 
 export async function compressImageFile(file: File, profile: ImageCompressProfile = "gallery") {

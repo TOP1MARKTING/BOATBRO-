@@ -1,6 +1,7 @@
 export type StaffRole = "user" | "editor" | "moderator" | "admin";
 
-export type AdminTab = "overview" | "posts" | "gallery" | "content" | "contacts" | "users" | "settings" | "profile";
+export type AdminTab =
+  "overview" | "posts" | "gallery" | "content" | "contacts" | "users" | "settings" | "profile";
 
 export type AdminPermissions = Record<AdminTab, boolean>;
 
@@ -43,7 +44,14 @@ export const FULL_PERMISSIONS: AdminPermissions = {
 /** Legacy presets — used when migrating old accounts without a permissions map. */
 const ROLE_PRESETS: Record<StaffRole, AdminPermissions> = {
   user: { ...EMPTY_PERMISSIONS },
-  editor: { ...EMPTY_PERMISSIONS, overview: true, posts: true, gallery: true, content: true, profile: true },
+  editor: {
+    ...EMPTY_PERMISSIONS,
+    overview: true,
+    posts: true,
+    gallery: true,
+    content: true,
+    profile: true,
+  },
   moderator: { ...EMPTY_PERMISSIONS, overview: true, contacts: true, profile: true },
   admin: { ...FULL_PERMISSIONS },
 };
@@ -63,21 +71,21 @@ export function parsePermissions(
   adminRole?: StaffRole,
   role?: "admin" | "user",
 ): AdminPermissions {
-  const stored = data?.permissions;
+  const stored = data?.["permissions"];
   if (stored && typeof stored === "object") {
     const row = stored as Record<string, unknown>;
     return {
-      overview: readPermissionFlag(row.overview),
-      posts: readPermissionFlag(row.posts),
-      gallery: readPermissionFlag(row.gallery),
-      content: readPermissionFlag(row.content),
-      contacts: readPermissionFlag(row.contacts),
-      users: readPermissionFlag(row.users),
-      settings: readPermissionFlag(row.settings),
-      profile: readPermissionFlag(row.profile),
+      overview: readPermissionFlag(row["overview"]),
+      posts: readPermissionFlag(row["posts"]),
+      gallery: readPermissionFlag(row["gallery"]),
+      content: readPermissionFlag(row["content"]),
+      contacts: readPermissionFlag(row["contacts"]),
+      users: readPermissionFlag(row["users"]),
+      settings: readPermissionFlag(row["settings"]),
+      profile: readPermissionFlag(row["profile"]),
     };
   }
-  const legacyRole = adminRole ?? normalizeStaffRole(data?.adminRole, role);
+  const legacyRole = adminRole ?? normalizeStaffRole(data?.["adminRole"], role);
   if (legacyRole !== "user") return { ...ROLE_PRESETS[legacyRole] };
   if (role === "admin") return { ...ROLE_PRESETS.admin };
   return { ...EMPTY_PERMISSIONS };
@@ -96,7 +104,10 @@ export function normalizeStaffPermissions(permissions: AdminPermissions): AdminP
   return next;
 }
 
-export function permissionsSummary(permissions: AdminPermissions, labels: Record<AdminTab, string>) {
+export function permissionsSummary(
+  permissions: AdminPermissions,
+  labels: Record<AdminTab, string>,
+) {
   return ADMIN_TAB_ORDER.filter((tab) => permissions[tab]).map((tab) => labels[tab]);
 }
 

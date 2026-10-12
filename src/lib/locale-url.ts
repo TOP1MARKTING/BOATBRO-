@@ -73,5 +73,9 @@ export function ensureLocalePrefix() {
   if (typeof window === "undefined") return;
   const { pathname, search, hash } = window.location;
   if (splitLocale(pathname).lang || !isLocalizedPath(pathname)) return;
-  window.history.replaceState(window.history.state, "", `${localizePath(pathname, readStoredLang())}${search}${hash}`);
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${localizePath(pathname, readStoredLang())}${search}${hash}`,
+  );
 }

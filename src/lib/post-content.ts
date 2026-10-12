@@ -50,7 +50,9 @@ export function emptyLocalized(): LocalizedText {
 
 export function pickLocalized(value: LocalizedText | undefined, lang: "ar" | "en", fallback = "") {
   if (!value) return fallback;
-  return (lang === "en" ? value.en : value.ar).trim() || value.ar.trim() || value.en.trim() || fallback;
+  return (
+    (lang === "en" ? value.en : value.ar).trim() || value.ar.trim() || value.en.trim() || fallback
+  );
 }
 
 export function parseTags(raw: string) {
@@ -164,7 +166,8 @@ export function insertExternalLinkInParagraph(
   label: LocalizedText,
   url: string,
 ) {
-  const pick = lang === "en" ? label.en.trim() || label.ar.trim() : label.ar.trim() || label.en.trim();
+  const pick =
+    lang === "en" ? label.en.trim() || label.ar.trim() : label.ar.trim() || label.en.trim();
   if (!pick) return paragraph;
   const next = { ...paragraph, text: { ...paragraph.text } };
   for (const key of ["ar", "en"] as const) {

@@ -24,6 +24,7 @@ import {
 } from "./post-content";
 import { htmlPlainText } from "./post-html";
 import {
+  APP_LAUNCH_KEYS,
   defaultSiteSettings,
   mapSiteSettings,
   normalizeSiteSettingsInput,
@@ -136,7 +137,7 @@ export type GalleryImage = {
   id: string;
   url: string;
   /** @deprecated Legacy Firebase Storage path — kept for old records only. */
-  storagePath?: string;
+  storagePath?: string | undefined;
   name: string;
   alt: LocalizedText;
   caption: LocalizedText;
@@ -187,13 +188,17 @@ export type PostContentMode = "blocks" | "html";
 function mapLocalizedField(value: unknown, fallback = ""): LocalizedText {
   if (value && typeof value === "object") {
     const row = value as Record<string, unknown>;
-    return { ar: String(row.ar ?? fallback), en: String(row.en ?? fallback) };
+    return { ar: String(row["ar"] ?? fallback), en: String(row["en"] ?? fallback) };
   }
   const single = String(value ?? fallback);
   return { ar: single, en: single };
 }
 
-function mapLocalizedFromLegacy(data: Record<string, unknown>, key: string, i18nKey: string): LocalizedText {
+function mapLocalizedFromLegacy(
+  data: Record<string, unknown>,
+  key: string,
+  i18nKey: string,
+): LocalizedText {
   const nested = data[i18nKey];
   if (nested) return mapLocalizedField(nested);
   const single = String(data[key] ?? "");
@@ -201,11 +206,11 @@ function mapLocalizedFromLegacy(data: Record<string, unknown>, key: string, i18n
 }
 
 function mapTags(data: Record<string, unknown>) {
-  const raw = data.tags;
+  const raw = data["tags"];
   if (raw && typeof raw === "object") {
     const row = raw as Record<string, unknown>;
-    const ar = Array.isArray(row.ar) ? row.ar.map(String).filter(Boolean).slice(0, 12) : [];
-    const en = Array.isArray(row.en) ? row.en.map(String).filter(Boolean).slice(0, 12) : [];
+    const ar = Array.isArray(row["ar"]) ? row["ar"].map(String).filter(Boolean).slice(0, 12) : [];
+    const en = Array.isArray(row["en"]) ? row["en"].map(String).filter(Boolean).slice(0, 12) : [];
     return { ar, en };
   }
   return { ar: [] as string[], en: [] as string[] };
@@ -217,18 +222,18 @@ function mapBlocks(data: unknown, body: string): PostBlock[] {
   for (const raw of data) {
     if (!raw || typeof raw !== "object") continue;
     const row = raw as Record<string, unknown>;
-    const id = String(row.id ?? newBlockId());
-    const type = row.type;
+    const id = String(row["id"] ?? newBlockId());
+    const type = row["type"];
     if (type === "paragraph" || type === "quote") {
-      blocks.push({ id, type, text: mapLocalizedField(row.text) } as PostBlock);
+      blocks.push({ id, type, text: mapLocalizedField(row["text"]) } as PostBlock);
       continue;
     }
     if (type === "heading") {
       blocks.push({
         id,
         type: "heading",
-        level: row.level === 3 ? 3 : 2,
-        text: mapLocalizedField(row.text),
+        level: row["level"] === 3 ? 3 : 2,
+        text: mapLocalizedField(row["text"]),
       });
       continue;
     }
@@ -236,10 +241,10 @@ function mapBlocks(data: unknown, body: string): PostBlock[] {
       blocks.push({
         id,
         type: "image",
-        url: String(row.url ?? ""),
-        alt: mapLocalizedField(row.alt),
-        caption: mapLocalizedField(row.caption),
-        afterBlockId: row.afterBlockId === "end" ? "end" : String(row.afterBlockId ?? "end"),
+        url: String(row["url"] ?? ""),
+        alt: mapLocalizedField(row["alt"]),
+        caption: mapLocalizedField(row["caption"]),
+        afterBlockId: row["afterBlockId"] === "end" ? "end" : String(row["afterBlockId"] ?? "end"),
       });
     }
   }
@@ -252,14 +257,14 @@ function mapFaq(data: unknown): PostFaqItem[] {
     .map((item) => {
       if (!item || typeof item !== "object") return null;
       const row = item as Record<string, unknown>;
-      if (row.question && typeof row.question === "object") {
-        const q = mapLocalizedField(row.question);
-        const a = mapLocalizedField(row.answer);
+      if (row["question"] && typeof row["question"] === "object") {
+        const q = mapLocalizedField(row["question"]);
+        const a = mapLocalizedField(row["answer"]);
         if (!q.ar && !q.en) return null;
         return { question: q, answer: a };
       }
-      const question = String(row.question ?? "").trim();
-      const answer = String(row.answer ?? "").trim();
+      const question = String(row["question"] ?? "").trim();
+      const answer = String(row["answer"] ?? "").trim();
       if (!question || !answer) return null;
       return { question: { ar: question, en: question }, answer: { ar: answer, en: answer } };
     })
@@ -267,9 +272,14 @@ function mapFaq(data: unknown): PostFaqItem[] {
     .slice(0, 8) as PostFaqItem[];
 }
 
-export function postPlainText(post: Pick<PostInput, "contentMode" | "contentHtml" | "blocks" | "body">, lang?: "ar" | "en") {
+export function postPlainText(
+  post: Pick<PostInput, "contentMode" | "contentHtml" | "blocks" | "body">,
+  lang?: "ar" | "en",
+) {
   if (post.contentMode === "html") {
-    const html = lang ? post.contentHtml[lang] || post.contentHtml.ar || post.contentHtml.en : `${post.contentHtml.ar} ${post.contentHtml.en}`;
+    const html = lang
+      ? post.contentHtml[lang] || post.contentHtml.ar || post.contentHtml.en
+      : `${post.contentHtml.ar} ${post.contentHtml.en}`;
     return htmlPlainText(html) || post.body;
   }
   return blocksPlainText(post.blocks) || post.body;
@@ -290,44 +300,60 @@ function syncLegacyFields(input: PostInput): PostInput {
     authorName: input.authorI18n.ar.trim() || input.authorI18n.en.trim() || input.authorName,
     metaTitle: input.metaTitleI18n.ar.trim() || input.metaTitleI18n.en.trim() || input.metaTitle,
     metaDescription:
-      input.metaDescriptionI18n.ar.trim() || input.metaDescriptionI18n.en.trim() || input.metaDescription,
+      input.metaDescriptionI18n.ar.trim() ||
+      input.metaDescriptionI18n.en.trim() ||
+      input.metaDescription,
     focusKeyword:
       input.focusKeywordI18n.ar.trim() || input.focusKeywordI18n.en.trim() || input.focusKeyword,
   };
 }
 
 function mapPost(id: string, data: Record<string, unknown>): BlogPost {
-  const body = String(data.body ?? "");
+  const body = String(data["body"] ?? "");
   const titleI18n = mapLocalizedFromLegacy(data, "title", "titleI18n");
   const excerptI18n = mapLocalizedFromLegacy(data, "excerpt", "excerptI18n");
   const categoryI18n = mapLocalizedFromLegacy(data, "category", "categoryI18n");
   const authorI18n = mapLocalizedFromLegacy(data, "authorName", "authorI18n");
   const metaTitleI18n = mapLocalizedFromLegacy(data, "metaTitle", "metaTitleI18n");
-  const metaDescriptionI18n = mapLocalizedFromLegacy(data, "metaDescription", "metaDescriptionI18n");
+  const metaDescriptionI18n = mapLocalizedFromLegacy(
+    data,
+    "metaDescription",
+    "metaDescriptionI18n",
+  );
   const focusKeywordI18n = mapLocalizedFromLegacy(data, "focusKeyword", "focusKeywordI18n");
-  const blocks = mapBlocks(data.blocks, body);
-  const contentHtml = data.contentHtml ? mapLocalizedField(data.contentHtml) : emptyLocalized();
+  const blocks = mapBlocks(data["blocks"], body);
+  const contentHtml = data["contentHtml"]
+    ? mapLocalizedField(data["contentHtml"])
+    : emptyLocalized();
   const contentMode: PostContentMode =
-    data.contentMode === "html" && (contentHtml.ar.trim() || contentHtml.en.trim()) ? "html" : "blocks";
+    data["contentMode"] === "html" && (contentHtml.ar.trim() || contentHtml.en.trim())
+      ? "html"
+      : "blocks";
 
   return {
     id,
-    slug: String(data.slug ?? id),
-    title: String(data.title ?? titleI18n.ar ?? titleI18n.en),
-    excerpt: String(data.excerpt ?? excerptI18n.ar ?? excerptI18n.en),
-    body: body || (contentMode === "html" ? htmlPlainText(`${contentHtml.ar} ${contentHtml.en}`) : blocksPlainText(blocks)),
-    coverUrl: String(data.coverUrl ?? ""),
-    coverUrlEn: String(data.coverUrlEn ?? ""),
-    category: String(data.category ?? categoryI18n.ar ?? categoryI18n.en),
-    lang: data.lang === "en" ? "en" : "ar",
-    published: Boolean(data.published),
-    authorName: String(data.authorName ?? authorI18n.ar ?? authorI18n.en),
-    metaTitle: String(data.metaTitle ?? metaTitleI18n.ar ?? metaTitleI18n.en),
-    metaDescription: String(data.metaDescription ?? metaDescriptionI18n.ar ?? metaDescriptionI18n.en),
-    focusKeyword: String(data.focusKeyword ?? focusKeywordI18n.ar ?? focusKeywordI18n.en),
-    ogImage: String(data.ogImage ?? ""),
-    noindex: Boolean(data.noindex),
-    faq: mapFaq(data.faq),
+    slug: String(data["slug"] ?? id),
+    title: String(data["title"] ?? titleI18n.ar ?? titleI18n.en),
+    excerpt: String(data["excerpt"] ?? excerptI18n.ar ?? excerptI18n.en),
+    body:
+      body ||
+      (contentMode === "html"
+        ? htmlPlainText(`${contentHtml.ar} ${contentHtml.en}`)
+        : blocksPlainText(blocks)),
+    coverUrl: String(data["coverUrl"] ?? ""),
+    coverUrlEn: String(data["coverUrlEn"] ?? ""),
+    category: String(data["category"] ?? categoryI18n.ar ?? categoryI18n.en),
+    lang: data["lang"] === "en" ? "en" : "ar",
+    published: Boolean(data["published"]),
+    authorName: String(data["authorName"] ?? authorI18n.ar ?? authorI18n.en),
+    metaTitle: String(data["metaTitle"] ?? metaTitleI18n.ar ?? metaTitleI18n.en),
+    metaDescription: String(
+      data["metaDescription"] ?? metaDescriptionI18n.ar ?? metaDescriptionI18n.en,
+    ),
+    focusKeyword: String(data["focusKeyword"] ?? focusKeywordI18n.ar ?? focusKeywordI18n.en),
+    ogImage: String(data["ogImage"] ?? ""),
+    noindex: Boolean(data["noindex"]),
+    faq: mapFaq(data["faq"]),
     titleI18n,
     excerptI18n,
     categoryI18n,
@@ -340,9 +366,9 @@ function mapPost(id: string, data: Record<string, unknown>): BlogPost {
     blocks,
     contentMode,
     contentHtml,
-    featured: Boolean(data.featured),
-    createdAt: toDate(data.createdAt),
-    updatedAt: toDate(data.updatedAt),
+    featured: Boolean(data["featured"]),
+    createdAt: toDate(data["createdAt"]),
+    updatedAt: toDate(data["updatedAt"]),
   };
 }
 
@@ -464,15 +490,15 @@ export async function getUserProfile(uid: string) {
   const snap = await getDoc(doc(getDb(), "users", uid));
   if (!snap.exists()) return null;
   const data = snap.data();
-  const role = data.role === "admin" ? ("admin" as const) : ("user" as const);
-  const adminRole = normalizeStaffRole(data.adminRole, role);
+  const role = data["role"] === "admin" ? ("admin" as const) : ("user" as const);
+  const adminRole = normalizeStaffRole(data["adminRole"], role);
   const permissions = parsePermissions(data, adminRole, role);
   return {
-    name: String(data.name ?? ""),
-    email: String(data.email ?? ""),
+    name: String(data["name"] ?? ""),
+    email: String(data["email"] ?? ""),
     role,
     adminRole,
-    active: data.active !== false,
+    active: data["active"] !== false,
     permissions,
   };
 }
@@ -502,7 +528,10 @@ export async function setUserAccess(
 
 export async function setUserRole(uid: string, role: "admin" | "user") {
   if (role === "user") {
-    await setUserAccess(uid, { permissions: parsePermissions(null, "user", "user"), active: false });
+    await setUserAccess(uid, {
+      permissions: parsePermissions(null, "user", "user"),
+      active: false,
+    });
     return;
   }
   await setUserAccess(uid, {
@@ -520,12 +549,12 @@ function mapAdminInvite(id: string, data: Record<string, unknown>): AdminInvite 
   const permissions = parsePermissions(data);
   return {
     id,
-    email: String(data.email ?? "").toLowerCase(),
-    name: String(data.name ?? ""),
-    active: data.active !== false,
+    email: String(data["email"] ?? "").toLowerCase(),
+    name: String(data["name"] ?? ""),
+    active: data["active"] !== false,
     permissions,
-    createdBy: String(data.createdBy ?? ""),
-    createdAt: toDate(data.createdAt),
+    createdBy: String(data["createdBy"] ?? ""),
+    createdAt: toDate(data["createdAt"]),
   };
 }
 
@@ -591,14 +620,14 @@ export async function clearUserCredential(uid: string) {
 export async function getUserCredential(uid: string) {
   const snap = await getDoc(doc(getDb(), "userCredentials", uid));
   if (!snap.exists()) return null;
-  return String(snap.data().password ?? "");
+  return String(snap.data()["password"] ?? "");
 }
 
 export async function listUserCredentials() {
   const snap = await getDocs(query(collection(getDb(), "userCredentials"), limit(200)));
   const map: Record<string, string> = {};
   for (const d of snap.docs) {
-    map[d.id] = String(d.data().password ?? "");
+    map[d.id] = String(d.data()["password"] ?? "");
   }
   return map;
 }
@@ -689,14 +718,17 @@ async function externalizeInlineImages(input: PostInput): Promise<PostInput> {
     throw error;
   }
 
-  const swap = (value: string) => value.replace(INLINE_DATA_URL, (match) => replacements.get(match) || match);
+  const swap = (value: string) =>
+    value.replace(INLINE_DATA_URL, (match) => replacements.get(match) || match);
   return {
     ...input,
     contentHtml: { ar: swap(input.contentHtml.ar), en: swap(input.contentHtml.en) },
     coverUrl: swap(input.coverUrl),
     coverUrlEn: swap(input.coverUrlEn),
     ogImage: swap(input.ogImage),
-    blocks: input.blocks.map((block) => (block.type === "image" ? { ...block, url: swap(block.url) } : block)),
+    blocks: input.blocks.map((block) =>
+      block.type === "image" ? { ...block, url: swap(block.url) } : block,
+    ),
   };
 }
 
@@ -708,7 +740,9 @@ export async function savePost(id: string | null, input: PostInput) {
     coverUrlEn: synced.coverUrlEn.trim() === synced.coverUrl.trim() ? "" : synced.coverUrlEn,
     ogImage: synced.ogImage.slice(0, 500),
     faq: synced.faq
-      .filter((item) => (item.question.ar || item.question.en) && (item.answer.ar || item.answer.en))
+      .filter(
+        (item) => (item.question.ar || item.question.en) && (item.answer.ar || item.answer.en),
+      )
       .slice(0, 8),
   };
   if (new TextEncoder().encode(JSON.stringify(fields)).length > MAX_POST_DOCUMENT_BYTES) {
@@ -737,17 +771,17 @@ export async function listContacts() {
       const data = d.data();
       return {
         id: d.id,
-        userType: String(data.userType ?? ""),
-        name: String(data.name ?? ""),
-        phone: String(data.phone ?? ""),
-        email: String(data.email ?? ""),
-        address: String(data.address ?? ""),
-        boatsCount: String(data.boatsCount ?? ""),
-        content: String(data.content ?? ""),
-        lang: data.lang === "en" ? "en" as const : "ar" as const,
-        uid: (data.uid as string | null) ?? null,
-        status: data.status === "handled" ? "handled" as const : "new" as const,
-        createdAt: toDate(data.createdAt),
+        userType: String(data["userType"] ?? ""),
+        name: String(data["name"] ?? ""),
+        phone: String(data["phone"] ?? ""),
+        email: String(data["email"] ?? ""),
+        address: String(data["address"] ?? ""),
+        boatsCount: String(data["boatsCount"] ?? ""),
+        content: String(data["content"] ?? ""),
+        lang: data["lang"] === "en" ? ("en" as const) : ("ar" as const),
+        uid: (data["uid"] as string | null) ?? null,
+        status: data["status"] === "handled" ? ("handled" as const) : ("new" as const),
+        createdAt: toDate(data["createdAt"]),
       } satisfies ContactRecord;
     })
     .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
@@ -766,17 +800,17 @@ export async function listUsers() {
   return snap.docs
     .map((d) => {
       const data = d.data();
-      const role = data.role === "admin" ? ("admin" as const) : ("user" as const);
-      const adminRole = normalizeStaffRole(data.adminRole, role);
+      const role = data["role"] === "admin" ? ("admin" as const) : ("user" as const);
+      const adminRole = normalizeStaffRole(data["adminRole"], role);
       return {
         id: d.id,
-        name: String(data.name ?? ""),
-        email: String(data.email ?? ""),
+        name: String(data["name"] ?? ""),
+        email: String(data["email"] ?? ""),
         role,
-        active: data.active !== false,
+        active: data["active"] !== false,
         permissions: parsePermissions(data, adminRole, role),
         adminRole,
-        createdAt: toDate(data.createdAt),
+        createdAt: toDate(data["createdAt"]),
       } satisfies UserRecord;
     })
     .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
@@ -784,7 +818,10 @@ export async function listUsers() {
 
 const MAX_IMAGE_INPUT_BYTES = 8 * 1024 * 1024;
 
-async function prepareImageDataUrl(file: File, profile: "gallery" | "post" | "license" | "licenseIcon") {
+async function prepareImageDataUrl(
+  file: File,
+  profile: "gallery" | "post" | "license" | "licenseIcon",
+) {
   if (file.size > MAX_IMAGE_INPUT_BYTES) {
     throw new Error("file-too-large");
   }
@@ -805,26 +842,26 @@ export async function uploadCover(file: File, _uid: string) {
 }
 
 function resolveGalleryUrl(id: string, data: Record<string, unknown>) {
-  const stored = String(data.url ?? "");
+  const stored = String(data["url"] ?? "");
   if (stored.startsWith("http://") || stored.startsWith("https://") || stored.startsWith("data:")) {
     return stored;
   }
-  const dataUrl = String(data.dataUrl ?? "");
+  const dataUrl = String(data["dataUrl"] ?? "");
   if (dataUrl.startsWith("data:")) return dataUrl;
   return stored;
 }
 
 function mapGalleryImage(id: string, data: Record<string, unknown>): GalleryImage {
-  const storagePath = data.storagePath ? String(data.storagePath) : undefined;
+  const storagePath = data["storagePath"] ? String(data["storagePath"]) : undefined;
   return {
     id,
     url: resolveGalleryUrl(id, data),
     storagePath,
-    name: String(data.name ?? ""),
-    alt: mapLocalizedField(data.alt),
-    caption: mapLocalizedField(data.caption),
-    uploadedBy: String(data.uploadedBy ?? ""),
-    createdAt: toDate(data.createdAt),
+    name: String(data["name"] ?? ""),
+    alt: mapLocalizedField(data["alt"]),
+    caption: mapLocalizedField(data["caption"]),
+    uploadedBy: String(data["uploadedBy"] ?? ""),
+    createdAt: toDate(data["createdAt"]),
   };
 }
 
@@ -835,12 +872,16 @@ export async function listGalleryImages() {
     .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
 }
 
-export async function uploadGalleryImage(file: File, uid: string, input: Partial<GalleryInput> = {}) {
+export async function uploadGalleryImage(
+  file: File,
+  uid: string,
+  input: Partial<GalleryInput> = {},
+) {
   const { dataUrl, mimeType, byteLength } = await prepareImageDataUrl(file, "gallery");
   const name = input.name?.trim() || file.name.replace(/\.[^.]+$/, "").slice(0, 120);
+  // The image lives only in `dataUrl`: a second copy in `url` would push large photos past Firestore's 1 MiB limit.
   const created = await addDoc(collection(getDb(), "gallery"), {
     dataUrl,
-    url: dataUrl,
     mimeType,
     byteLength,
     storageSource: "firestore",
@@ -852,7 +893,6 @@ export async function uploadGalleryImage(file: File, uid: string, input: Partial
   });
   return mapGalleryImage(created.id, {
     dataUrl,
-    url: dataUrl,
     name,
     alt: input.alt ?? emptyLocalized(),
     caption: input.caption ?? emptyLocalized(),
@@ -863,9 +903,9 @@ export async function uploadGalleryImage(file: File, uid: string, input: Partial
 
 export async function updateGalleryImage(id: string, input: Partial<GalleryInput>) {
   const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
-  if (input.name !== undefined) payload.name = input.name.slice(0, 120);
-  if (input.alt) payload.alt = input.alt;
-  if (input.caption) payload.caption = input.caption;
+  if (input.name !== undefined) payload["name"] = input.name.slice(0, 120);
+  if (input.alt) payload["alt"] = input.alt;
+  if (input.caption) payload["caption"] = input.caption;
   await updateDoc(doc(getDb(), "gallery", id), payload);
 }
 
@@ -906,14 +946,17 @@ function resolveImageDataUrl(data: Record<string, unknown>, primary: string, fal
 function mapLicense(id: string, data: Record<string, unknown>): License {
   return {
     id,
-    name: mapLocalizedField(data.name),
-    number: String(data.number ?? ""),
+    name: mapLocalizedField(data["name"]),
+    number: String(data["number"] ?? ""),
     authorityIconUrl: resolveImageDataUrl(data, "authorityIconUrl", "authorityIconDataUrl"),
     imageUrl: resolveImageDataUrl(data, "imageUrl", "imageDataUrl"),
-    sortOrder: typeof data.sortOrder === "number" ? data.sortOrder : Number(data.sortOrder ?? 0) || 0,
-    uploadedBy: String(data.uploadedBy ?? ""),
-    createdAt: toDate(data.createdAt),
-    updatedAt: toDate(data.updatedAt),
+    sortOrder:
+      typeof data["sortOrder"] === "number"
+        ? data["sortOrder"]
+        : Number(data["sortOrder"] ?? 0) || 0,
+    uploadedBy: String(data["uploadedBy"] ?? ""),
+    createdAt: toDate(data["createdAt"]),
+    updatedAt: toDate(data["updatedAt"]),
   };
 }
 
@@ -921,7 +964,10 @@ export async function listLicenses() {
   const snap = await getDocs(query(collection(getDb(), "licenses"), limit(40)));
   return snap.docs
     .map((d) => mapLicense(d.id, d.data()))
-    .sort((a, b) => a.sortOrder - b.sortOrder || (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0));
+    .sort(
+      (a, b) =>
+        a.sortOrder - b.sortOrder || (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0),
+    );
 }
 
 export async function createLicense(
@@ -999,35 +1045,35 @@ export async function updateLicense(
     const nameAr = input.name.ar.trim();
     const nameEn = input.name.en.trim();
     if (!nameAr && !nameEn) throw new Error("invalid-license");
-    payload.name = { ar: nameAr || nameEn, en: nameEn || nameAr };
+    payload["name"] = { ar: nameAr || nameEn, en: nameEn || nameAr };
   }
   if (input.number !== undefined) {
     const number = input.number.trim();
     if (!number) throw new Error("invalid-license");
-    payload.number = number.slice(0, 80);
+    payload["number"] = number.slice(0, 80);
   }
-  if (typeof input.sortOrder === "number") payload.sortOrder = input.sortOrder;
+  if (typeof input.sortOrder === "number") payload["sortOrder"] = input.sortOrder;
 
   if (files.authorityIcon) {
     const prepared = await prepareImageDataUrl(files.authorityIcon, "licenseIcon");
-    payload.authorityIconUrl = prepared.dataUrl;
-    payload.authorityIconMimeType = prepared.mimeType;
-    payload.authorityIconByteLength = prepared.byteLength;
+    payload["authorityIconUrl"] = prepared.dataUrl;
+    payload["authorityIconMimeType"] = prepared.mimeType;
+    payload["authorityIconByteLength"] = prepared.byteLength;
   } else if (input.clearAuthorityIcon) {
-    payload.authorityIconUrl = "";
-    payload.authorityIconMimeType = "";
-    payload.authorityIconByteLength = 0;
+    payload["authorityIconUrl"] = "";
+    payload["authorityIconMimeType"] = "";
+    payload["authorityIconByteLength"] = 0;
   }
 
   if (files.image) {
     const prepared = await prepareImageDataUrl(files.image, "license");
-    payload.imageUrl = prepared.dataUrl;
-    payload.imageMimeType = prepared.mimeType;
-    payload.imageByteLength = prepared.byteLength;
+    payload["imageUrl"] = prepared.dataUrl;
+    payload["imageMimeType"] = prepared.mimeType;
+    payload["imageByteLength"] = prepared.byteLength;
   } else if (input.clearImage) {
-    payload.imageUrl = "";
-    payload.imageMimeType = "";
-    payload.imageByteLength = 0;
+    payload["imageUrl"] = "";
+    payload["imageMimeType"] = "";
+    payload["imageByteLength"] = 0;
   }
 
   await updateDoc(doc(getDb(), "licenses", id), payload);
@@ -1043,15 +1089,22 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const snap = await getDoc(doc(getDb(), "siteSettings", SITE_SETTINGS_ID));
   if (!snap.exists()) return defaultSiteSettings();
   const mapped = mapSiteSettings(snap.data());
-  return { ...mapped, updatedAt: toDate(snap.data().updatedAt) };
+  return { ...mapped, updatedAt: toDate(snap.data()["updatedAt"]) };
 }
 
-export async function saveSiteSettings(input: SiteSettingsInput) {
+export async function saveSiteSettings(
+  input: SiteSettingsInput,
+  { canLaunchApps = false }: { canLaunchApps?: boolean } = {},
+) {
   const normalized = normalizeSiteSettingsInput(input);
+  const apps: Partial<SiteSettingsInput["apps"]> = { ...normalized.apps };
+  // Only the super admin may publish an app; others save without these fields so the merge keeps the stored values.
+  if (!canLaunchApps) for (const key of APP_LAUNCH_KEYS) delete apps[key];
   await setDoc(
     doc(getDb(), "siteSettings", SITE_SETTINGS_ID),
     {
       ...normalized,
+      apps,
       updatedAt: serverTimestamp(),
     },
     { merge: true },
@@ -1062,13 +1115,13 @@ export async function getPageContent(pageId: CmsPageId): Promise<CmsPageDocument
   const snap = await getDoc(doc(getDb(), "pageContent", pageId));
   if (!snap.exists()) return mergePageDocument(pageId, null);
   const data = snap.data();
-  const arRaw = (data.ar as Record<string, unknown> | undefined) ?? {};
-  const enRaw = (data.en as Record<string, unknown> | undefined) ?? {};
+  const arRaw = (data["ar"] as Record<string, unknown> | undefined) ?? {};
+  const enRaw = (data["en"] as Record<string, unknown> | undefined) ?? {};
   return mergePageDocument(pageId, {
     ar: restoreFromFirestore(arRaw) as Record<string, unknown>,
     en: restoreFromFirestore(enRaw) as Record<string, unknown>,
-    images: (data.images as CmsPageDocument["images"] | undefined) ?? {},
-    updatedAt: toDate(data.updatedAt),
+    images: (data["images"] as CmsPageDocument["images"] | undefined) ?? {},
+    updatedAt: toDate(data["updatedAt"]),
   });
 }
 

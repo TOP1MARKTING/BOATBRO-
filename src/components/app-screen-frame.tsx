@@ -29,7 +29,7 @@ function PhoneBezel({
   return (
     <div className={`relative mx-auto shrink-0 ${shell} ${className}`} dir="ltr">
       <div
-        className="pointer-events-none absolute -inset-6 rounded-[2.4rem] bg-[#C8A96A]/15 blur-[48px] sm:-inset-10 sm:blur-[72px]"
+        className="pointer-events-none absolute -inset-6 rounded-[2.4rem] bg-gold/15 blur-[48px] sm:-inset-10 sm:blur-[72px]"
         aria-hidden="true"
       />
       <div
@@ -115,7 +115,9 @@ export function AppScrollShowcase({
   return (
     <div
       className={`mt-8 grid items-start gap-8 sm:mt-10 sm:gap-10 lg:mt-12 lg:gap-14 ${
-        dir === "rtl" ? "lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(240px,320px)]"
+        dir === "rtl"
+          ? "lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]"
+          : "lg:grid-cols-[minmax(0,1fr)_minmax(240px,320px)]"
       }`}
     >
       <div
@@ -145,7 +147,9 @@ export function AppScrollShowcase({
         </PhoneBezel>
       </div>
 
-      <div className={`order-2 min-w-0 lg:sticky lg:top-24 ${dir === "rtl" ? "lg:order-2" : "lg:order-1"}`}>
+      <div
+        className={`order-2 min-w-0 lg:sticky lg:top-24 ${dir === "rtl" ? "lg:order-2" : "lg:order-1"}`}
+      >
         <p className="mb-3 text-sm text-muted-foreground sm:mb-4">{scrollHint}</p>
         <div
           ref={listRef}
@@ -168,9 +172,15 @@ export function AppScrollShowcase({
                     : "border-border bg-card/60 opacity-55 hover:border-gold/30 hover:bg-card hover:opacity-100"
                 }`}
               >
-                <span className="font-display text-sm text-gold-ink/80">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="mt-1 font-display text-base font-semibold text-navy sm:text-lg">{title}</h3>
-                <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground sm:text-sm sm:leading-7">{body}</p>
+                <span className="font-display text-sm text-gold-ink/80">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-1 font-display text-base font-semibold text-navy sm:text-lg">
+                  {title}
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground sm:text-sm sm:leading-7">
+                  {body}
+                </p>
               </button>
             );
           })}

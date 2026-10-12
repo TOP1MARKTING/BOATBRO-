@@ -277,9 +277,25 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // apps.guestsLive / apps.ownersLive publish an app's store buttons; only the super admin may change them.
+    function appLaunchFlag(data, key) {
+      return data.get('apps', {}).get(key, false);
+    }
+
+    function appLaunchFlagsUnchanged() {
+      return appLaunchFlag(request.resource.data, 'guestsLive') == appLaunchFlag(resource.data, 'guestsLive')
+        && appLaunchFlag(request.resource.data, 'ownersLive') == appLaunchFlag(resource.data, 'ownersLive');
+    }
+
+    function appLaunchFlagsUnset() {
+      return appLaunchFlag(request.resource.data, 'guestsLive') == false
+        && appLaunchFlag(request.resource.data, 'ownersLive') == false;
+    }
+
     match /siteSettings/{id} {
       allow read: if true;
-      allow create, update: if canEditSettings();
+      allow create: if isSuperAdmin() || (canEditSettings() && appLaunchFlagsUnset());
+      allow update: if isSuperAdmin() || (canEditSettings() && appLaunchFlagsUnchanged());
       allow delete: if false;
     }
   }

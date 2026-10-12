@@ -96,7 +96,10 @@ export function Section({
         ? "bg-navy-deep text-white bp-section-navy"
         : "bg-background bp-section-plain";
   return (
-    <section id={id} className={`border-t border-border ${bg} py-12 sm:py-16 lg:py-24 ${className}`}>
+    <section
+      id={id}
+      className={`border-t border-border ${bg} py-12 sm:py-16 lg:py-24 ${className}`}
+    >
       <div className={SHELL}>{children}</div>
     </section>
   );

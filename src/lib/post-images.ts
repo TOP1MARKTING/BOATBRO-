@@ -27,7 +27,9 @@ function postImageIdFromUrl(url: string) {
 }
 
 export function isPermissionDenied(error: unknown) {
-  return Boolean(error && typeof error === "object" && (error as { code?: string }).code === "permission-denied");
+  return Boolean(
+    error && typeof error === "object" && (error as { code?: string }).code === "permission-denied",
+  );
 }
 
 /** Saves a compressed data URL as its own document and returns the stable public path. */
@@ -73,8 +75,11 @@ export function installPostImageFallback() {
       const id = postImageIdFromUrl(src);
       if (!id) return;
       img.dataset["fsSrc"] = src;
+      img.dataset["fsPending"] = "";
       void loadPostImageDataUrl(id).then((dataUrl) => {
-        if (dataUrl) img.src = dataUrl;
+        if (!dataUrl) return;
+        img.src = dataUrl;
+        delete img.dataset["fsPending"];
       });
     },
     true,

@@ -75,7 +75,9 @@ export function BlogPostBody({
   const blocks = orderedBlocksWithImages(post.blocks.length ? post.blocks : []);
   if (!blocks.length) {
     return (
-      <div className="mt-8 whitespace-pre-wrap text-base leading-9 text-muted-foreground">{post.body}</div>
+      <div className="mt-8 whitespace-pre-wrap text-base leading-9 text-muted-foreground">
+        {post.body}
+      </div>
     );
   }
 
@@ -88,16 +90,24 @@ export function BlogPostBody({
   );
 }
 
-function Block({ block, lang, fallbackAlt }: { block: PostBlock; lang: "ar" | "en"; fallbackAlt: string }) {
-  const text = pickLocalized(
-    block.type === "image" ? undefined : block.text,
-    lang,
-  );
+function Block({
+  block,
+  lang,
+  fallbackAlt,
+}: {
+  block: PostBlock;
+  lang: "ar" | "en";
+  fallbackAlt: string;
+}) {
+  const text = pickLocalized(block.type === "image" ? undefined : block.text, lang);
 
   if (block.type === "heading") {
     const Tag = block.level === 3 ? "h3" : "h2";
     return (
-      <Tag id={block.id} className="scroll-mt-28 font-display text-2xl font-semibold text-navy md:text-3xl">
+      <Tag
+        id={block.id}
+        className="scroll-mt-28 font-display text-2xl font-semibold text-navy md:text-3xl"
+      >
         {text}
       </Tag>
     );
@@ -173,7 +183,9 @@ export function BlogFaqSection({
             <summary className="cursor-pointer font-medium text-navy">
               {pickLocalized(item.question, lang)}
             </summary>
-            <p className="mt-3 text-sm leading-7 text-muted-foreground">{pickLocalized(item.answer, lang)}</p>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
+              {pickLocalized(item.answer, lang)}
+            </p>
           </details>
         ))}
       </div>

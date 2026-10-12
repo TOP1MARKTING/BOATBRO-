@@ -9,9 +9,9 @@ import {
 } from "../lib/country-dial-codes";
 
 const shellCls = [
-  "flex overflow-hidden rounded-2xl border border-[#C8A96A]/25 bg-background/80",
+  "flex overflow-hidden rounded-2xl border border-gold/25 bg-background/80",
   "shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-200",
-  "hover:border-[#C8A96A]/45 focus-within:border-[#C8A96A] focus-within:bg-card focus-within:ring-2 focus-within:ring-[#C8A96A]/20",
+  "hover:border-gold/45 focus-within:border-gold focus-within:bg-card focus-within:ring-2 focus-within:ring-gold/20",
 ].join(" ");
 
 function FlagImg({ iso, name, size = 18 }: { iso: string; name: string; size?: number }) {
@@ -124,7 +124,9 @@ export function PhoneCountryField({
 
   return (
     <div ref={rootRef} className="relative">
-      <span className="mb-2.5 block text-[13px] font-medium tracking-wide text-gold-ink">{label}</span>
+      <span className="mb-2.5 block text-[13px] font-medium tracking-wide text-gold-ink">
+        {label}
+      </span>
       <div className={shellCls} dir="ltr">
         <button
           type="button"
@@ -133,11 +135,14 @@ export function PhoneCountryField({
           aria-controls={listId}
           aria-label={countryName}
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex shrink-0 items-center gap-2 border-e border-[#C8A96A]/20 bg-[#C8A96A]/08 px-3 py-3.5 text-sm text-navy outline-none"
+          className="inline-flex shrink-0 items-center gap-2 border-e border-gold/20 bg-gold/8 px-3 py-3.5 text-sm text-navy outline-none"
         >
           <FlagImg iso={country.iso} name={countryName} size={20} />
           <span className="font-medium tabular-nums">+{country.dial}</span>
-          <ChevronDown size={14} className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+          <ChevronDown
+            size={14}
+            className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+          />
         </button>
         <input
           id={id}
@@ -153,14 +158,20 @@ export function PhoneCountryField({
             onLocalChange(e.clipboardData.getData("text"));
           }}
           onKeyDown={(e) => {
-            if (e.key.length === 1 && !/[0-9]/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            if (
+              e.key.length === 1 &&
+              !/[0-9]/.test(e.key) &&
+              !e.ctrlKey &&
+              !e.metaKey &&
+              !e.altKey
+            ) {
               e.preventDefault();
             }
           }}
           placeholder={numberPlaceholder}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="min-w-0 flex-1 bg-transparent px-3 py-3.5 text-sm text-navy outline-none placeholder:text-muted-foreground/55"
+          className="w-full min-w-0 flex-1 bg-transparent px-3 py-3.5 text-sm text-navy outline-none placeholder:text-muted-foreground/55"
         />
       </div>
 
@@ -168,7 +179,7 @@ export function PhoneCountryField({
         <div
           id={listId}
           role="listbox"
-          className="absolute start-0 z-30 mt-2 w-full min-w-[18rem] overflow-hidden rounded-2xl border border-[#C8A96A]/25 bg-card shadow-[0_24px_48px_-24px_rgba(15,40,70,0.45)] sm:w-[22rem]"
+          className="absolute start-0 z-30 mt-2 w-full min-w-[18rem] overflow-hidden rounded-2xl border border-gold/25 bg-card shadow-[0_24px_48px_-24px_rgba(15,40,70,0.45)] sm:w-[22rem]"
         >
           <div className="relative border-b border-border/70 p-2.5">
             <Search
@@ -180,7 +191,7 @@ export function PhoneCountryField({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full rounded-xl border border-border bg-background py-2.5 pe-3 ps-9 text-sm text-navy outline-none focus:border-[#C8A96A]"
+              className="w-full rounded-xl border border-border bg-background py-2.5 pe-3 ps-9 text-sm text-navy outline-none focus:border-gold"
             />
           </div>
           <ul className="max-h-64 overflow-y-auto py-1">
@@ -198,7 +209,7 @@ export function PhoneCountryField({
                       aria-selected={active}
                       onClick={() => pickCountry(c)}
                       className={`flex w-full items-center gap-3 px-3.5 py-2.5 text-start text-sm transition-colors ${
-                        active ? "bg-[#C8A96A]/15 text-navy" : "text-navy hover:bg-[#C8A96A]/08"
+                        active ? "bg-gold/15 text-navy" : "text-navy hover:bg-gold/8"
                       }`}
                     >
                       <FlagImg iso={c.iso} name={name} size={22} />

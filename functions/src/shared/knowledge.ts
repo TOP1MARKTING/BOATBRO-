@@ -41,12 +41,12 @@ export async function syncKnowledgeBase(db: Firestore): Promise<number> {
   if (settingsDoc.exists) {
     const data = settingsDoc.data() ?? {};
     const body = [
-      data.taglineAr,
-      data.taglineEn,
-      data.descriptionAr,
-      data.descriptionEn,
-      data.whatsapp,
-      data.supportEmail,
+      data["taglineAr"],
+      data["taglineEn"],
+      data["descriptionAr"],
+      data["descriptionEn"],
+      data["whatsapp"],
+      data["supportEmail"],
     ]
       .filter(Boolean)
       .join("\n");
@@ -66,14 +66,14 @@ export async function syncKnowledgeBase(db: Firestore): Promise<number> {
   const postsSnap = await db.collection(COLLECTIONS.posts).where("published", "==", true).limit(48).get();
   for (const doc of postsSnap.docs) {
     const data = doc.data();
-    const title = String(data.metaTitleI18n?.ar ?? data.titleI18n?.ar ?? data.slug ?? doc.id);
+    const title = String(data["metaTitleI18n"]?.ar ?? data["titleI18n"]?.ar ?? data["slug"] ?? doc.id);
     const body = [
-      data.metaDescriptionI18n?.ar,
-      data.metaDescriptionI18n?.en,
-      data.excerptI18n?.ar,
-      data.excerptI18n?.en,
-      data.contentI18n?.ar,
-      data.contentI18n?.en,
+      data["metaDescriptionI18n"]?.ar,
+      data["metaDescriptionI18n"]?.en,
+      data["excerptI18n"]?.ar,
+      data["excerptI18n"]?.en,
+      data["contentI18n"]?.ar,
+      data["contentI18n"]?.en,
     ]
       .filter(Boolean)
       .join("\n\n")

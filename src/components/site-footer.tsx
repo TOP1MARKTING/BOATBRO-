@@ -53,7 +53,9 @@ function ProtectedLicenseImage({
 export function SiteFooter() {
   const { lang, t } = useLang();
   const { settings, contact, stores } = useSiteSettings();
-  const storesAllLive = Object.values(stores).every((links) => Boolean(links.appStore && links.playStore));
+  const storesAllLive = Object.values(stores).every((links) =>
+    Boolean(links.appStore && links.playStore),
+  );
   const [licensesOpen, setLicensesOpen] = useState(false);
   const [licenses, setLicenses] = useState<License[] | null>(null);
   const [licensesLoading, setLicensesLoading] = useState(false);
@@ -127,8 +129,12 @@ export function SiteFooter() {
           <div className="flex flex-col items-center sm:items-start">
             <Logo size="xl" />
             <div className="mt-2.5 text-center sm:text-start">
-              <p className="font-display text-[16px] tracking-[0.2em] text-white sm:text-[17px]">BOATPRO</p>
-              <p className="mt-1.5 text-[12px] leading-5 text-white/65 sm:text-[13px]">{t.home.hero.tagline}</p>
+              <p className="font-display text-[16px] tracking-[0.2em] text-white sm:text-[17px]">
+                BOATPRO
+              </p>
+              <p className="mt-1.5 text-[12px] leading-5 text-white/65 sm:text-[13px]">
+                {t.home.hero.tagline}
+              </p>
             </div>
             <button
               type="button"
@@ -177,7 +183,9 @@ export function SiteFooter() {
                   <span className="rounded-full border border-gold/35 bg-gold/10 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-gold">
                     {t.stores.comingChip}
                   </span>
-                  <p className="font-display text-[12px] font-semibold leading-5 text-white">{t.stores.appsTitle}</p>
+                  <p className="font-display text-[12px] font-semibold leading-5 text-white">
+                    {t.stores.appsTitle}
+                  </p>
                 </div>
               )}
               <div className="space-y-2">
@@ -238,12 +246,26 @@ export function SiteFooter() {
             aria-label={`${t.footer.designedBy} Top1Markting`}
             className="group mt-1 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white py-1.5 ps-2.5 pe-4 text-[#0b2a5b] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
           >
-            <img src="/top1-mark.png" alt="" width={112} height={81} className="h-7 w-auto" loading="lazy" decoding="async" />
-            <span className="text-[12px] font-medium text-slate-500 sm:text-[13px]">{t.footer.designedBy}</span>
+            <img
+              src="/top1-mark.png"
+              alt=""
+              width={112}
+              height={81}
+              className="h-7 w-auto"
+              loading="lazy"
+              decoding="async"
+            />
+            <span className="text-[12px] font-medium text-slate-500 sm:text-[13px]">
+              {t.footer.designedBy}
+            </span>
             <span dir="ltr" className="text-[14px] font-extrabold tracking-tight sm:text-[15px]">
               Top<span className="text-[#f5a623]">1</span>Markting
             </span>
-            <ExternalLink size={14} aria-hidden="true" className="text-slate-500 transition-colors group-hover:text-[#0b2a5b]" />
+            <ExternalLink
+              size={14}
+              aria-hidden="true"
+              className="text-slate-500 transition-colors group-hover:text-[#0b2a5b]"
+            />
           </a>
         </div>
       </div>
@@ -278,7 +300,10 @@ export function SiteFooter() {
                   <Shield size={18} strokeWidth={2} aria-hidden="true" />
                 </span>
                 <div className="min-w-0">
-                  <h2 id={licensesTitleId} className="font-display text-lg font-semibold tracking-wide text-gold sm:text-xl">
+                  <h2
+                    id={licensesTitleId}
+                    className="font-display text-lg font-semibold tracking-wide text-gold sm:text-xl"
+                  >
                     {t.footer.licensesTitle}
                   </h2>
                   <div className="mt-1.5 h-px w-12 bg-gradient-to-l from-gold to-transparent" />
@@ -310,7 +335,8 @@ export function SiteFooter() {
 
               {!licensesLoading && licenses?.length
                 ? licenses.map((item) => {
-                    const title = lang === "ar" ? item.name.ar || item.name.en : item.name.en || item.name.ar;
+                    const title =
+                      lang === "ar" ? item.name.ar || item.name.en : item.name.en || item.name.ar;
                     return (
                       <article
                         key={item.id}

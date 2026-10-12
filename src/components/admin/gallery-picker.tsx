@@ -23,11 +23,23 @@ export function GalleryPicker({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center">
-      <button type="button" className="absolute inset-0 bg-black/50" aria-label="Close" onClick={onClose} />
-      <div className={`relative z-10 flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden ${ADMIN_CARD_CLS} shadow-2xl`}>
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/50"
+        aria-label="Close"
+        onClick={onClose}
+      />
+      <div
+        className={`relative z-10 flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden ${ADMIN_CARD_CLS} shadow-2xl`}
+      >
         <div className="flex items-center justify-between border-b border-gold/18 px-5 py-4">
           <h3 className="font-display text-lg font-semibold text-navy">{title}</h3>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 hover:bg-muted" aria-label="Close">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 hover:bg-muted"
+            aria-label="Close"
+          >
             <X size={18} />
           </button>
         </div>
@@ -57,7 +69,9 @@ export function GalleryPicker({
                       className="h-full w-full object-cover transition-transform group-hover:scale-105"
                     />
                   </div>
-                  <p className="truncate px-2 py-2 text-[11px] text-muted-foreground">{image.name || image.url}</p>
+                  <p className="truncate px-2 py-2 text-[11px] text-muted-foreground">
+                    {image.name || image.url}
+                  </p>
                 </button>
               ))}
             </div>

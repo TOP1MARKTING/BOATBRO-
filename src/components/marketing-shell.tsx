@@ -10,7 +10,10 @@ export function MarketingShell({
   children: React.ReactNode;
 }) {
   return (
-    <main dir={dir} className="relative isolate min-h-svh overflow-x-clip bg-transparent text-foreground">
+    <main
+      dir={dir}
+      className="relative isolate min-h-svh overflow-x-clip bg-transparent text-foreground"
+    >
       <SiteHeader />
       {children}
       <SiteFooter />

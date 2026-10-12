@@ -194,8 +194,8 @@ export function restoreFromFirestore<T>(value: T): T {
   }
   if (isPlainObject(value)) {
     const obj = value as Record<string, unknown>;
-    if ("_tuple" in obj && Array.isArray(obj._tuple)) {
-      return restoreFromFirestore(obj._tuple) as T;
+    if ("_tuple" in obj && Array.isArray(obj["_tuple"])) {
+      return restoreFromFirestore(obj["_tuple"]) as T;
     }
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(obj)) {

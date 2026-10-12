@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, LockKeyhole, Mail, Shield } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { ADMIN_BTN_PRIMARY, ADMIN_FIELD_CLS } from "../components/admin/shared";
@@ -12,9 +12,9 @@ import { pageHead } from "../lib/site";
 
 type LoginSearch = {
   /** Clean destination key, e.g. `admin` → `/login?to=admin` */
-  to?: "admin";
+  to?: "admin" | undefined;
   /** Legacy path redirect, still accepted */
-  redirect?: string;
+  redirect?: string | undefined;
 };
 
 function isAdminSearch(search: LoginSearch) {
@@ -23,12 +23,12 @@ function isAdminSearch(search: LoginSearch) {
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): LoginSearch => {
-    const to = search.to === "admin" ? "admin" : undefined;
+    const to = search["to"] === "admin" ? "admin" : undefined;
     const redirect =
-      typeof search.redirect === "string" &&
-      search.redirect.startsWith("/") &&
-      !search.redirect.startsWith("//")
-        ? search.redirect
+      typeof search["redirect"] === "string" &&
+      search["redirect"].startsWith("/") &&
+      !search["redirect"].startsWith("//")
+        ? search["redirect"]
         : undefined;
     return { to, redirect };
   },
@@ -74,7 +74,10 @@ function LoginPage() {
       await login(email, password);
       await navigate({ to: next });
     } catch (err) {
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
       setError(mapAuthError(code, lang));
     } finally {
       setBusy(false);
@@ -84,7 +87,9 @@ function LoginPage() {
   if (!toAdmin) {
     return (
       <main dir={dir} className="grid min-h-svh place-items-center bg-background text-foreground">
-        <p className="text-sm text-muted-foreground">{lang === "ar" ? "جاري التحويل…" : "Redirecting…"}</p>
+        <p className="text-sm text-muted-foreground">
+          {lang === "ar" ? "جاري التحويل…" : "Redirecting…"}
+        </p>
       </main>
     );
   }
@@ -95,7 +100,10 @@ function LoginPage() {
   const submitLabel = busy ? t.auth.working : t.auth.submitAdmin;
 
   return (
-    <main dir={dir} className="relative isolate min-h-svh overflow-hidden bg-background text-foreground">
+    <main
+      dir={dir}
+      className="relative isolate min-h-svh overflow-hidden bg-background text-foreground"
+    >
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_color-mix(in_oklab,var(--gold)_14%,transparent),_transparent_55%),radial-gradient(ellipse_at_bottom_left,_rgba(15,40,70,0.08),_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_20%_10%,color-mix(in_oklab,var(--gold)_16%,transparent),transparent_45%),radial-gradient(ellipse_at_80%_90%,rgba(40,90,140,0.2),transparent_50%)]"
         aria-hidden="true"
@@ -105,7 +113,9 @@ function LoginPage() {
         <div className={`${SHELL} flex h-[84px] items-center justify-between`}>
           <Link to="/" aria-label="BoatPro" className="flex items-center gap-3">
             <Logo />
-            <span className="hidden font-display text-[14px] tracking-[0.22em] text-navy sm:block">BOATPRO</span>
+            <span className="hidden font-display text-[14px] tracking-[0.22em] text-navy sm:block">
+              BOATPRO
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -120,12 +130,18 @@ function LoginPage() {
         </div>
       </header>
 
-      <section className={`${SHELL} relative z-10 flex min-h-[calc(100svh-84px)] items-center py-10 sm:py-14`}>
+      <section
+        className={`${SHELL} relative z-10 flex min-h-[calc(100svh-84px)] items-center py-10 sm:py-14`}
+      >
         <div className="grid w-full items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
           <div className="relative hidden min-h-[560px] overflow-hidden rounded-[1.75rem] border border-gold/30 bg-card shadow-[0_30px_70px_-36px_rgba(15,40,70,0.45)] lg:block">
             <Photo
               name="luxury-marina"
-              alt={lang === "ar" ? "مرسى فاخر — دخول إدارة بوت برو" : "Luxury marina — BoatPro admin access"}
+              alt={
+                lang === "ar"
+                  ? "مرسى فاخر — دخول إدارة بوت برو"
+                  : "Luxury marina — BoatPro admin access"
+              }
               className="absolute inset-0 h-full w-full object-cover object-center"
               sizes="(min-width: 1024px) 45vw, 100vw"
               eager
@@ -138,7 +154,9 @@ function LoginPage() {
                 <Shield size={13} strokeWidth={1.75} />
                 {chip}
               </span>
-              <h2 className="mt-5 font-display text-4xl font-semibold tracking-tight text-white">BoatPro</h2>
+              <h2 className="mt-5 font-display text-4xl font-semibold tracking-tight text-white">
+                BoatPro
+              </h2>
               <div className="mt-3 h-px w-14 bg-gradient-to-r from-gold to-transparent" />
               <p className="mt-4 max-w-sm text-sm leading-7 text-white/75">{body}</p>
             </div>
@@ -154,7 +172,9 @@ function LoginPage() {
               <h1 className="mt-5 font-display text-[clamp(1.75rem,3.2vw,2.35rem)] font-semibold leading-snug tracking-tight text-navy">
                 {title}
               </h1>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-[15px] sm:leading-8 lg:hidden">{body}</p>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-[15px] sm:leading-8 lg:hidden">
+                {body}
+              </p>
 
               <form onSubmit={(e) => void onSubmit(e)} className="mt-8 grid gap-5">
                 <label htmlFor="login-email" className="block">
@@ -196,9 +216,15 @@ function LoginPage() {
                   </p>
                 ) : null}
 
-                <button type="submit" disabled={busy} className={`${ADMIN_BTN_PRIMARY} mt-1 w-full`}>
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className={`${ADMIN_BTN_PRIMARY} mt-1 w-full`}
+                >
                   {submitLabel}
-                  {!busy ? <ArrowRight size={16} className={dir === "rtl" ? "rotate-180" : ""} /> : null}
+                  {!busy ? (
+                    <ArrowRight size={16} className={dir === "rtl" ? "rotate-180" : ""} />
+                  ) : null}
                 </button>
               </form>
             </div>

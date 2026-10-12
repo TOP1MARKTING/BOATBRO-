@@ -7,7 +7,14 @@ import { getFirebaseAuth } from "../../lib/firebase";
 import type { AdminPermissions, StaffRole } from "../../lib/admin-permissions";
 import { isSuperAdminEmail } from "../../lib/admin";
 import { mapAuthError } from "../../lib/auth";
-import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY, ADMIN_FIELD_CLS, AdminFlash, AdminSection, AdminPanelShell } from "./shared";
+import {
+  ADMIN_BTN_PRIMARY,
+  ADMIN_BTN_SECONDARY,
+  ADMIN_FIELD_CLS,
+  AdminFlash,
+  AdminSection,
+  AdminPanelShell,
+} from "./shared";
 
 export function AdminProfilePanel({
   user,
@@ -93,7 +100,10 @@ export function AdminProfilePanel({
       await sendPasswordResetEmail(getFirebaseAuth(), user.email);
       setMessage(t.admin.passwordResetSent);
     } catch (err) {
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
       setError(mapAuthError(code, lang));
     } finally {
       setBusy(false);
@@ -111,7 +121,9 @@ export function AdminProfilePanel({
             </div>
             <div>
               <dt className="text-[12px] text-muted-foreground">{t.auth.email}</dt>
-              <dd className="font-medium text-navy" dir="ltr">{user.email}</dd>
+              <dd className="font-medium text-navy" dir="ltr">
+                {user.email}
+              </dd>
             </div>
             <div>
               <dt className="text-[12px] text-muted-foreground">{t.admin.role}</dt>
@@ -127,7 +139,9 @@ export function AdminProfilePanel({
         <AdminSection title={t.admin.changePassword} hint={t.admin.changePasswordHint}>
           <form onSubmit={(e) => void onChangePassword(e)} className="space-y-4">
             <label>
-              <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.currentPassword}</span>
+              <span className="mb-2 block text-[12px] font-medium text-navy">
+                {t.admin.currentPassword}
+              </span>
               <input
                 required
                 type="password"
@@ -139,7 +153,9 @@ export function AdminProfilePanel({
               />
             </label>
             <label>
-              <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.newPassword}</span>
+              <span className="mb-2 block text-[12px] font-medium text-navy">
+                {t.admin.newPassword}
+              </span>
               <input
                 required
                 type="password"
@@ -152,7 +168,9 @@ export function AdminProfilePanel({
               />
             </label>
             <label>
-              <span className="mb-2 block text-[12px] font-medium text-navy">{t.admin.confirmPassword}</span>
+              <span className="mb-2 block text-[12px] font-medium text-navy">
+                {t.admin.confirmPassword}
+              </span>
               <input
                 required
                 type="password"
@@ -176,8 +194,16 @@ export function AdminProfilePanel({
           >
             {t.admin.passwordReset}
           </button>
-          {message ? <div className="mt-3"><AdminFlash tone="ok">{message}</AdminFlash></div> : null}
-          {error ? <div className="mt-3"><AdminFlash tone="error">{error}</AdminFlash></div> : null}
+          {message ? (
+            <div className="mt-3">
+              <AdminFlash tone="ok">{message}</AdminFlash>
+            </div>
+          ) : null}
+          {error ? (
+            <div className="mt-3">
+              <AdminFlash tone="error">{error}</AdminFlash>
+            </div>
+          ) : null}
         </AdminSection>
       </div>
     </AdminPanelShell>

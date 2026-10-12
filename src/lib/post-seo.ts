@@ -16,7 +16,7 @@ export type SeoCheck = {
   id: string;
   label: string;
   status: SeoCheckStatus;
-  hint?: string;
+  hint?: string | undefined;
 };
 
 export type PostSeoLabels = {
@@ -88,7 +88,9 @@ export function resolveShareImage(
     firstHtmlImage(input.contentHtml.ar),
     firstHtmlImage(input.contentHtml.en),
   ];
-  const pick = candidates.map((value) => value.trim()).find((value) => value && !value.startsWith("data:"));
+  const pick = candidates
+    .map((value) => value.trim())
+    .find((value) => value && !value.startsWith("data:"));
   if (!pick) return "";
   if (/^https?:\/\//i.test(pick)) return pick;
   return `${origin.replace(/\/$/, "")}${pick.startsWith("/") ? pick : `/${pick}`}`;
@@ -133,26 +135,56 @@ export function analyzePostSeo(
   if (titleLen >= SEO_LIMITS.titleMin && titleLen <= SEO_LIMITS.titleMax) {
     checks.push({ id: "title", label: labels.checkTitle, status: "pass" });
   } else if (titleLen > 0) {
-    checks.push({ id: "title", label: labels.checkTitle, status: "warn", hint: labels.checkTitleHint });
+    checks.push({
+      id: "title",
+      label: labels.checkTitle,
+      status: "warn",
+      hint: labels.checkTitleHint,
+    });
   } else {
-    checks.push({ id: "title", label: labels.checkTitle, status: "fail", hint: labels.checkTitleHint });
+    checks.push({
+      id: "title",
+      label: labels.checkTitle,
+      status: "fail",
+      hint: labels.checkTitleHint,
+    });
   }
 
   const descLen = metaDesc.length;
   if (descLen >= SEO_LIMITS.descMin && descLen <= SEO_LIMITS.descMax) {
     checks.push({ id: "desc", label: labels.checkDesc, status: "pass" });
   } else if (descLen > 0) {
-    checks.push({ id: "desc", label: labels.checkDesc, status: "warn", hint: labels.checkDescHint });
+    checks.push({
+      id: "desc",
+      label: labels.checkDesc,
+      status: "warn",
+      hint: labels.checkDescHint,
+    });
   } else {
-    checks.push({ id: "desc", label: labels.checkDesc, status: "fail", hint: labels.checkDescHint });
+    checks.push({
+      id: "desc",
+      label: labels.checkDesc,
+      status: "fail",
+      hint: labels.checkDescHint,
+    });
   }
 
   if (slug && slug.length <= SEO_LIMITS.slugMax && /^[\w-]+$/.test(slug)) {
     checks.push({ id: "slug", label: labels.checkSlug, status: "pass" });
   } else if (slug) {
-    checks.push({ id: "slug", label: labels.checkSlug, status: "warn", hint: labels.checkSlugHint });
+    checks.push({
+      id: "slug",
+      label: labels.checkSlug,
+      status: "warn",
+      hint: labels.checkSlugHint,
+    });
   } else {
-    checks.push({ id: "slug", label: labels.checkSlug, status: "fail", hint: labels.checkSlugHint });
+    checks.push({
+      id: "slug",
+      label: labels.checkSlug,
+      status: "fail",
+      hint: labels.checkSlugHint,
+    });
   }
 
   if (keyword) {
@@ -166,7 +198,9 @@ export function analyzePostSeo(
       id: "keyword-body",
       label: labels.checkKeywordBody,
       status: keywordInText(keyword, `${title} ${excerpt} ${bodyText}`) ? "pass" : "warn",
-      hint: keywordInText(keyword, `${title} ${excerpt} ${bodyText}`) ? undefined : labels.checkKeywordBodyHint,
+      hint: keywordInText(keyword, `${title} ${excerpt} ${bodyText}`)
+        ? undefined
+        : labels.checkKeywordBodyHint,
     });
   }
 

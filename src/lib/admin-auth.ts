@@ -47,7 +47,7 @@ export async function resetStaffUserAuthPassword(uid: string, password: string) 
   if (!user) throw new Error("not-signed-in");
   if (password.length < 6) throw new Error("weak-password");
 
-  const apiUrl = import.meta.env.VITE_ADMIN_PASSWORD_API_URL;
+  const apiUrl = import.meta.env["VITE_ADMIN_PASSWORD_API_URL"];
   if (typeof apiUrl !== "string" || !apiUrl.startsWith("https://")) {
     throw new Error("missing-service-account");
   }

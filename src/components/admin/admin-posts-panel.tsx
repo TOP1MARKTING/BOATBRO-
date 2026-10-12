@@ -29,13 +29,15 @@ import {
 type PublishFilter = "all" | "published" | "draft";
 
 function postSaveErrorMessage(error: unknown) {
-  const code = error && typeof error === "object" ? String((error as { code?: string }).code ?? "") : "";
+  const code =
+    error && typeof error === "object" ? String((error as { code?: string }).code ?? "") : "";
   const text = error instanceof Error ? error.message : String(error ?? "");
   if (text === "post-too-large" || /maximum.*size|exceeds/i.test(text)) {
     return "تعذّر الحفظ: حجم المقال تجاوز الحد المسموح (1MB). احذف بعض الصور المضمّنة كـ base64 أو استخدم رابط صورة بدلاً منها.";
   }
   if (code === "permission-denied") return "تعذّر الحفظ: ليس لديك صلاحية تعديل المقالات.";
-  if (code === "unavailable") return "تعذّر الحفظ: لا يوجد اتصال بالخادم، تحقق من الإنترنت وحاول مرة أخرى.";
+  if (code === "unavailable")
+    return "تعذّر الحفظ: لا يوجد اتصال بالخادم، تحقق من الإنترنت وحاول مرة أخرى.";
   console.error("[posts] save failed", error);
   return `${dictionaries.ar.admin.error}${code ? ` (${code})` : ""}`;
 }
@@ -99,7 +101,10 @@ export function AdminPostsPanel({
         : {
             ...input,
             contentMode: "html",
-            contentHtml: { ar: blocksToHtml(input.blocks, "ar"), en: blocksToHtml(input.blocks, "en") },
+            contentHtml: {
+              ar: blocksToHtml(input.blocks, "ar"),
+              en: blocksToHtml(input.blocks, "en"),
+            },
           },
     );
     setEditing(post);
@@ -112,7 +117,8 @@ export function AdminPostsPanel({
     setBusy(true);
     setMessage("");
     try {
-      const slug = form.slug.trim() || slugify(form.titleI18n.en || form.titleI18n.ar || form.title);
+      const slug =
+        form.slug.trim() || slugify(form.titleI18n.en || form.titleI18n.ar || form.title);
       await savePost(editing && editing !== "new" ? editing.id : null, { ...form, slug });
       setMessage(t.admin.saved);
       setEditing(null);
@@ -220,14 +226,19 @@ export function AdminPostsPanel({
                         </span>
                       </td>
                       <td className="px-5 py-4 text-end">
-                        <button type="button" onClick={() => openEdit(post)} className={ADMIN_BTN_SECONDARY}>
+                        <button
+                          type="button"
+                          onClick={() => openEdit(post)}
+                          className={ADMIN_BTN_SECONDARY}
+                        >
                           {t.admin.edit}
                         </button>
                         <button
                           type="button"
                           className={`${ADMIN_BTN_GHOST} ms-2`}
                           onClick={() => {
-                            if (confirm(t.admin.confirmDelete)) void deletePost(post.id).then(onChange);
+                            if (confirm(t.admin.confirmDelete))
+                              void deletePost(post.id).then(onChange);
                           }}
                         >
                           {t.admin.delete}

@@ -51,14 +51,18 @@ export function AdminStatCard({
         className="pointer-events-none absolute -end-6 -top-6 size-24 rounded-full bg-gold/10 blur-2xl transition-opacity group-hover:opacity-100"
       />
       <div className="relative flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold tracking-[0.16em] text-gold-ink uppercase">{label}</p>
+        <p className="text-[11px] font-semibold tracking-[0.16em] text-gold-ink uppercase">
+          {label}
+        </p>
         {Icon ? (
           <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold-ink">
             <Icon size={16} strokeWidth={1.75} />
           </span>
         ) : null}
       </div>
-      <p className="relative mt-4 font-display text-4xl font-semibold tracking-tight text-navy">{value}</p>
+      <p className="relative mt-4 font-display text-4xl font-semibold tracking-tight text-navy">
+        {value}
+      </p>
       {hint ? <p className="relative mt-2 text-[12px] text-muted-foreground">{hint}</p> : null}
     </>
   );
@@ -97,7 +101,9 @@ export function AdminPanelShell({
           ) : (
             <div>
               <div className="mb-2 h-px w-10 bg-gradient-to-r from-gold to-transparent" />
-              <h2 className="font-display text-2xl font-semibold tracking-tight text-navy">{title}</h2>
+              <h2 className="font-display text-2xl font-semibold tracking-tight text-navy">
+                {title}
+              </h2>
             </div>
           )}
           {action}
@@ -143,13 +149,7 @@ export function AdminEmptyState({ message }: { message: string }) {
   );
 }
 
-export function AdminFlash({
-  tone,
-  children,
-}: {
-  tone: "ok" | "error";
-  children: ReactNode;
-}) {
+export function AdminFlash({ tone, children }: { tone: "ok" | "error"; children: ReactNode }) {
   return (
     <p
       className={`rounded-2xl px-4 py-3 text-sm ${

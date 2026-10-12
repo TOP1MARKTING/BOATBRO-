@@ -13,7 +13,7 @@ export function getAdminDb() {
 }
 
 export function getGeminiApiKey() {
-  const key = process.env.GEMINI_API_KEY?.trim();
+  const key = process.env["GEMINI_API_KEY"]?.trim();
   if (!key) throw new Error("missing-gemini-api-key");
   return key;
 }

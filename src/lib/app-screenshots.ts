@@ -1,11 +1,7 @@
 export const APP_SCREENSHOT_WIDTHS = [360, 480, 720] as const;
 
 export type AppScreenshotId =
-  | "app-home"
-  | "app-featured"
-  | "app-categories"
-  | "app-vessels"
-  | "app-explore";
+  "app-home" | "app-featured" | "app-categories" | "app-vessels" | "app-explore";
 
 export const APP_SCREEN_IDS: AppScreenshotId[] = [
   "app-home",
@@ -15,7 +11,10 @@ export const APP_SCREEN_IDS: AppScreenshotId[] = [
   "app-explore",
 ];
 
-export function appScreenshotSrc(id: AppScreenshotId, width: (typeof APP_SCREENSHOT_WIDTHS)[number] = 480) {
+export function appScreenshotSrc(
+  id: AppScreenshotId,
+  width: (typeof APP_SCREENSHOT_WIDTHS)[number] = 480,
+) {
   return `/media/${id}-${width}.webp`;
 }
 

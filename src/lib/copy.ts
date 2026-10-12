@@ -19,8 +19,10 @@ const ar = {
     sending: "جاري الإرسال…",
     sent: "وصل طلبك بكل تقدير",
     sendError: "تعذّر إرسال الطلب. حاول مرة أخرى.",
-    firestoreOff: "تعذّر الوصول لقاعدة البيانات. تأكد أن Cloud Firestore مفعّل ومربوط بنفس مشروع Firebase.",
-    firestoreDenied: "الطلب مرفوض من قواعد الأمان. انشر firestore.rules من لوحة Firebase أو عبر firebase deploy.",
+    firestoreOff:
+      "تعذّر الوصول لقاعدة البيانات. تأكد أن Cloud Firestore مفعّل ومربوط بنفس مشروع Firebase.",
+    firestoreDenied:
+      "الطلب مرفوض من قواعد الأمان. انشر firestore.rules من لوحة Firebase أو عبر firebase deploy.",
     menu: "القائمة",
     readStory: "اقرأ القصة",
     allFeatures: "كل الخدمات",
@@ -84,7 +86,8 @@ const ar = {
     related: "مقالات ذات صلة",
     author: "الكاتب",
     seoTitle: "مدونة بوت برو | إدارة اليخوت والمراسي",
-    seoDesc: "مقالات من بوت برو عن إدارة اليخوت، تشغيل المراسي، والملكية البحرية في المملكة والخليج.",
+    seoDesc:
+      "مقالات من بوت برو عن إدارة اليخوت، تشغيل المراسي، والملكية البحرية في المملكة والخليج.",
     featuredBadge: "رائج",
     faqTitle: "أسئلة شائعة",
     loading: "جاري التحميل…",
@@ -155,7 +158,8 @@ const ar = {
     error: "تعذّر إتمام العملية.",
     categories: ["إدارة اليخوت", "المراسي", "الملكية البحرية", "أخبار بوت برو"],
     contentSection: "محتوى المقال",
-    contentHint: "استخدم عناوين H2/H3 لأقسام المقال. لربط كلمة برابط: تأكد أنها موجودة في الفقرة ثم استخدم أداة الروابط.",
+    contentHint:
+      "استخدم عناوين H2/H3 لأقسام المقال. لربط كلمة برابط: تأكد أنها موجودة في الفقرة ثم استخدم أداة الروابط.",
     publishSection: "النشر والتصنيف",
     coverSection: "صورة الغلاف (أعلى المقال)",
     slugHint: "معرّف الصفحة في الرابط — بالإنجليزية.",
@@ -171,7 +175,8 @@ const ar = {
     blockQuote: "اقتباس",
     blockImage: "صورة",
     externalLinks: "روابط خارجية (كلمات قابلة للنقر)",
-    externalLinksHint: "اكتب الكلمة بالإنجليزية و/أو العربية (لازم تكون موجودة في الفقرة)، الصق الرابط، ثم اضغط إدراج.",
+    externalLinksHint:
+      "اكتب الكلمة بالإنجليزية و/أو العربية (لازم تكون موجودة في الفقرة)، الصق الرابط، ثم اضغط إدراج.",
     internalLinks: "روابط داخل المقال",
     internalLinksHint: "اربط جملة أو كلمة بقسم معيّن (عنوان H2 أو H3).",
     linkTextEn: "نص الرابط (EN)",
@@ -240,7 +245,8 @@ const ar = {
     checkPublished: "جاهز للنشر",
     checkPublishedHint: "فعّل «نشر» عندما يصبح المقال جاهزاً.",
     gallery: "معرض الصور",
-    galleryHint: "ارفع JPG أو PNG أو WebP (حد أقصى 8MB). تُضغَّط الصور وتُحفظ في Firestore ويمكن اختيارها في المقالات.",
+    galleryHint:
+      "ارفع JPG أو PNG أو WebP (حد أقصى 8MB). تُضغَّط الصور وتُحفظ في Firestore ويمكن اختيارها في المقالات.",
     galleryEmpty: "لا توجد صور في المعرض بعد. ارفع أول صورة.",
     galleryUpload: "رفع صورة",
     galleryUploading: "جاري الرفع…",
@@ -252,7 +258,8 @@ const ar = {
     galleryDeleted: "تم حذف الصورة.",
     galleryTooLarge: "حجم الصورة أكبر من 8MB.",
     licenses: "التراخيص",
-    licensesHint: "أضف تراخيص الشركة: أيقونة الهيئة، اسم الترخيص، والرقم الموحد. تظهر في زر عرض التراخيص بالفوتر.",
+    licensesHint:
+      "أضف تراخيص الشركة: أيقونة الهيئة، اسم الترخيص، والرقم الموحد. تظهر في زر عرض التراخيص بالفوتر.",
     licensesEmpty: "ما فيه تراخيص بعد. أضف أول ترخيص.",
     licensesAdd: "إضافة ترخيص",
     licensesAuthorityIcon: "أيقونة الهيئة",
@@ -275,13 +282,15 @@ const ar = {
     rolesGuideHint: "كل دور يرى أقساماً محددة فقط في لوحة الإدارة.",
     permissionsTitle: "الصلاحيات",
     permissionsHint: "حدّد ما يمكن لكل مستخدم رؤيته وتعديله داخل لوحة الإدارة.",
-    permissionsGuide: "السوبر أدمن يختار من المميزات المتاحة لكل موظف — لوحة المعلومات، المدونة، المعرض، الطلبات، المستخدمون، والحساب.",
+    permissionsGuide:
+      "السوبر أدمن يختار من المميزات المتاحة لكل موظف — لوحة المعلومات، المدونة، المعرض، الطلبات، المستخدمون، والحساب.",
     permissionsPickerHint: "اختر ما يمكن لهذا المستخدم رؤيته وتعديله.",
     activeAccount: "حساب نشط",
     inactiveAccount: "حساب موقوف",
     editAccess: "تعديل الصلاحيات",
     addUser: "إضافة مستخدم",
-    addUserHint: "أدخل الاسم والبريد وكلمة المرور وحدّد الصلاحيات — يُنشأ الحساب مباشرة في Firebase.",
+    addUserHint:
+      "أدخل الاسم والبريد وكلمة المرور وحدّد الصلاحيات — يُنشأ الحساب مباشرة في Firebase.",
     inviteName: "الاسم",
     createUser: "إنشاء المستخدم",
     userCreated: "تم إنشاء المستخدم بنجاح.",
@@ -298,7 +307,8 @@ const ar = {
     passwordReset: "إرسال رابط إعادة تعيين كلمة المرور",
     passwordResetSent: "تم إرسال رابط إعادة التعيين إلى بريدك.",
     changePassword: "تغيير كلمة المرور",
-    changePasswordHint: "غيّر كلمة مرورك الحالية. إذا غيّرتها بنفسك لن يراها السوبر أدمن حتى يعيّن واحدة جديدة.",
+    changePasswordHint:
+      "غيّر كلمة مرورك الحالية. إذا غيّرتها بنفسك لن يراها السوبر أدمن حتى يعيّن واحدة جديدة.",
     currentPassword: "كلمة المرور الحالية",
     newPassword: "كلمة مرور جديدة",
     newPasswordHint: "اتركه فارغاً إذا لا تريد التغيير",
@@ -307,7 +317,8 @@ const ar = {
     passwordUpdated: "تم تحديث الصلاحيات وكلمة المرور.",
     passwordMismatch: "كلمتا المرور غير متطابقتين.",
     passwordUnknown: "غيّرها المستخدم",
-    passwordServerOff: "تعذّر تحديث كلمة المرور على الخادم. أضف FIREBASE_SERVICE_ACCOUNT في Vercel.",
+    passwordServerOff:
+      "تعذّر تحديث كلمة المرور على الخادم. أضف FIREBASE_SERVICE_ACCOUNT في Vercel.",
     showPassword: "إظهار",
     hidePassword: "إخفاء",
     permissionsLabel: "الصلاحيات",
@@ -319,6 +330,12 @@ const ar = {
     contactSettingsHint: "البريد والهاتف وواتساب المعروضة للزوار.",
     appLinks: "روابط التطبيقات والخدمات",
     appLinksHint: "لكل خدمة رابطها الخاص. أي حقل فارغ يظهر للزوار «قريبًا».",
+    appLaunched: "التطبيق نزل على المتاجر",
+    appLaunchedOn: "مفعّل — أزرار التحميل تعمل في الموقع",
+    appLaunchedOff: "قريبًا — الأزرار تظهر للزوار «قريبًا»",
+    appLaunchMissingLink:
+      "التطبيق مفعّل لكن رابط {store} فارغ — زر {store} سيظل «قريبًا» حتى تضيف الرابط.",
+    appLaunchSaveHint: "اضغط «حفظ» لتطبيق التغيير على الموقع.",
     settingsSaved: "تم حفظ الإعدادات.",
     settingContact: "البريد",
     settingWhatsApp: "واتساب",
@@ -346,7 +363,8 @@ const ar = {
     seoAlert: "{count} مقال/مقالات تحتاج تحسين SEO (أقل من 50%).",
     featuredCount: "مقالات رائجة",
     content: "إدارة المحتوى",
-    cmsHint: "عدّل نصوص صفحات الموقع التسويقية بالعربية والإنجليزية. التغييرات تُحفظ في Firebase وتظهر مباشرة للزوار.",
+    cmsHint:
+      "عدّل نصوص صفحات الموقع التسويقية بالعربية والإنجليزية. التغييرات تُحفظ في Firebase وتظهر مباشرة للزوار.",
     cmsPageHint: "عدّل كل قسم بالعربية والإنجليزية. الصور تُختار من مكتبة الوسائط الثابتة للموقع.",
     cmsSharedHint: "القائمة، التذييل، أزرار CTA، المتاجر، والف breadcrumbs المشتركة.",
     cmsBack: "كل الصفحات",
@@ -362,15 +380,20 @@ const ar = {
   },
   seo: {
     homeTitle: "بوت برو | منصّة حجز اليخوت والأعمال البحرية",
-    homeDesc: "بوت برو منصّة تقنية بحرية للضيوف وملاك اليخوت والمراسي: اكتشف التجربة، احجزها، أو أدر أصلك البحري من تطبيق واحد في المملكة.",
+    homeDesc:
+      "بوت برو منصّة تقنية بحرية للضيوف وملاك اليخوت والمراسي: اكتشف التجربة، احجزها، أو أدر أصلك البحري من تطبيق واحد في المملكة.",
     aboutTitle: "عن بوت برو | الرؤية والرسالة في السوق البحري السعودي",
-    aboutDesc: "قصة بوت برو ورؤيتها ورسالتها: جسر بين عشق البحر وتمكين الأعمال البحرية في المملكة والمنطقة، من مكتب جدة.",
+    aboutDesc:
+      "قصة بوت برو ورؤيتها ورسالتها: جسر بين عشق البحر وتمكين الأعمال البحرية في المملكة والمنطقة، من مكتب جدة.",
     featuresTitle: "خدمات بوت برو للضيوف وملاك اليخوت والمراسي",
-    featuresDesc: "خدمات بوت برو حسب نوع المستخدم: اكتشاف وحجز للضيوف، إدارة وتحصيل للملاك، وفرص تشغيل للمراسي والخدمات البحرية.",
+    featuresDesc:
+      "خدمات بوت برو حسب نوع المستخدم: اكتشاف وحجز للضيوف، إدارة وتحصيل للملاك، وفرص تشغيل للمراسي والخدمات البحرية.",
     appTitle: "تطبيق بوت برو | تجربة الضيف ومالك اليخت",
-    appDesc: "تعرّف على تطبيق بوت برو بنسختيه للضيوف والملاك: البحث، تفاصيل الرحلة، الحجز، وإدارة القوائم — متاح على الآيفون والأندرويد.",
+    appDesc:
+      "تعرّف على تطبيق بوت برو بنسختيه للضيوف والملاك: البحث، تفاصيل الرحلة، الحجز، وإدارة القوائم — متاح على الآيفون والأندرويد.",
     contactTitle: "تواصل مع بوت برو | شراكات ودعم",
-    contactDesc: "راسل فريق بوت برو للشراكات أو الدعم: واتساب، بريد، ومكتب جدة. نموذج تواصل حسب نوعك كضيف أو مالك أو مرسى.",
+    contactDesc:
+      "راسل فريق بوت برو للشراكات أو الدعم: واتساب، بريد، ومكتب جدة. نموذج تواصل حسب نوعك كضيف أو مالك أو مرسى.",
   },
   home: {
     hero: {
@@ -438,7 +461,8 @@ const ar = {
       chip: "التطبيق",
       title: "معاينة تجربة التطبيق",
       body: "نسختان داخل المنظومة: واحدة للضيف وأخرى للمالك. تصفّح الشاشات، ثم انتقل لصفحة التطبيق للتفاصيل.",
-      available: "سيتم الإصدار قريبًا لتطبيق قادم إلى المتاجر — App Store و Google Play — ترقّب الإطلاق قريبًا.",
+      available:
+        "سيتم الإصدار قريبًا لتطبيق قادم إلى المتاجر — App Store و Google Play — ترقّب الإطلاق قريبًا.",
     },
     partner: {
       chip: "الشراكة",
@@ -461,23 +485,33 @@ const ar = {
     lead: "بوت برو وُلد ليصوغ منظومة تقنية تليق بالمملكة والمنطقة: متعة الضيف في مسار آمن، وعائد المالك في تشغيل منضبط.",
     storyChip: "القصة",
     storyTitle: "لماذا بوت برو؟",
-    story: "البحر في المملكة فرصة وحضور، لا مجرد نزهة عابرة. انطلقت الفكرة من فجوة واضحة: الضيف يبحث عبر قنوات متفرقة، والمالك يتابع الحجوزات والتحصيل يدويًا، والمرسى يبتعد عن الطلب الحقيقي. بوت برو يجمع الأطراف على منصّة واحدة بدل أن يبقى كل طرف في جزيرته.",
+    story:
+      "البحر في المملكة فرصة وحضور، لا مجرد نزهة عابرة. انطلقت الفكرة من فجوة واضحة: الضيف يبحث عبر قنوات متفرقة، والمالك يتابع الحجوزات والتحصيل يدويًا، والمرسى يبتعد عن الطلب الحقيقي. بوت برو يجمع الأطراف على منصّة واحدة بدل أن يبقى كل طرف في جزيرته.",
     problemChip: "المشكلة",
     problemTitle: "ما الذي تحلّه المنصّة؟",
     problems: [
-      ["تشتت الضيف", "البحث عن يخت أو تجربة بحرية كان يعتمد على معارف ومكالمات، بلا مسار حجز موحّد."],
-      ["تشغيل المالك", "عرض الأصل ومتابعة الحجوزات والتحصيل كان يستهلك وقتًا يخرج المالك من جوهر عمله."],
+      [
+        "تشتت الضيف",
+        "البحث عن يخت أو تجربة بحرية كان يعتمد على معارف ومكالمات، بلا مسار حجز موحّد.",
+      ],
+      [
+        "تشغيل المالك",
+        "عرض الأصل ومتابعة الحجوزات والتحصيل كان يستهلك وقتًا يخرج المالك من جوهر عمله.",
+      ],
       ["عزلة المرسى", "الخدمات على البر — رصيف، وقود، صيانة — لا تصل تلقائيًا إلى من يبحر يوميًا."],
     ] as [string, string][],
     visionChip: "رؤيتنا",
     visionTitle: "المنصّة الأوثق… والأكثر أناقة",
-    visionBody: "أن نكون الوجهة الأولى والأكثر ثقة لتأجير اليخوت والقوارب والوسائط الرفيعة، والمحور الذي يرتقي بالأعمال البحرية، ويُثري إقامة ضيوف المملكة، ويمنح القطاع مكانته التي يستحقها.",
+    visionBody:
+      "أن نكون الوجهة الأولى والأكثر ثقة لتأجير اليخوت والقوارب والوسائط الرفيعة، والمحور الذي يرتقي بالأعمال البحرية، ويُثري إقامة ضيوف المملكة، ويمنح القطاع مكانته التي يستحقها.",
     missionChip: "رسالتنا",
     missionTitle: "تجربة تُصاغ للطرفين",
     loversLabel: "لعشّاق البحر",
-    loversBody: "وصول هادئ وآمن إلى أرقى الخيارات: من نزهة خاصة إلى مغامرة رشيقة، ولحظات تُحفظ كما تُحفظ الذكريات النادرة.",
+    loversBody:
+      "وصول هادئ وآمن إلى أرقى الخيارات: من نزهة خاصة إلى مغامرة رشيقة، ولحظات تُحفظ كما تُحفظ الذكريات النادرة.",
     ownersLabel: "لملاك الأعمال ومقدّمي الخدمات",
-    ownersBody: "حضور أوسع في السوق، وتحصيل يليق بثقتك، ودعم لوجستي مكتمل — من المرسى إلى الوقود والصيانة — لتبقى أنت في جوهر عملك.",
+    ownersBody:
+      "حضور أوسع في السوق، وتحصيل يليق بثقتك، ودعم لوجستي مكتمل — من المرسى إلى الوقود والصيانة — لتبقى أنت في جوهر عملك.",
     servesChip: "من نخدم",
     servesTitle: "ثلاثة أطراف. بحر واحد.",
     serves: [
@@ -487,7 +521,8 @@ const ar = {
     ] as [string, string][],
     marketChip: "المملكة والمنطقة",
     marketTitle: "تموضع يليق بالسوق البحري السعودي",
-    marketBody: "المملكة تستقبل ضيوفًا وتبني حضورًا بحريًا أوضح على سواحلها. بوت برو يتموضع كمنصّة تقنية لهذا السوق: ليست صفحة فاخرة لليخوت فقط، بل بنية تحتية للحجز والتشغيل والشراكة — من جدة إلى المنطقة.",
+    marketBody:
+      "المملكة تستقبل ضيوفًا وتبني حضورًا بحريًا أوضح على سواحلها. بوت برو يتموضع كمنصّة تقنية لهذا السوق: ليست صفحة فاخرة لليخوت فقط، بل بنية تحتية للحجز والتشغيل والشراكة — من جدة إلى المنطقة.",
     officeChip: "الشركة",
     officeTitle: "مكتب بوت برو",
     close: "حيث يلتقي الشغف بالفرصة، وتتحوّل الرؤية إلى حضور ملموس على الماء.",
@@ -597,33 +632,21 @@ const ar = {
     whatBody:
       "تطبيق المنصّة البحرية للضيف: من الترحيب والبحث إلى بطاقات الوسائط والحجز والدفع. ما تراه هنا مقتطعات حقيقية من واجهة التطبيق — وليست رسوماً توضيحية.",
     guestTitle: "تجربة الضيف",
-    guestBody: "ابحث حسب نوع التجربة، افتح التفاصيل والصور، اختر اليوم، ثم أكّد. الهدف أن تكون الرحلة جاهزة دون وسيط في كل خطوة.",
+    guestBody:
+      "ابحث حسب نوع التجربة، افتح التفاصيل والصور، اختر اليوم، ثم أكّد. الهدف أن تكون الرحلة جاهزة دون وسيط في كل خطوة.",
     ownerTitle: "تجربة المالك",
-    ownerBody: "قوائم وسائلك، الحجوزات الواردة، والخدمات المرتبطة. المنصّة تُقرب التشغيل من جيبك حتى يبقى التركيز على الأصل لا على التنسيق.",
+    ownerBody:
+      "قوائم وسائلك، الحجوزات الواردة، والخدمات المرتبطة. المنصّة تُقرب التشغيل من جيبك حتى يبقى التركيز على الأصل لا على التنسيق.",
     screensTitle: "جولة داخل التطبيق",
-    screensLead: "الشاشة الكاملة داخل إطار هاتف — مرّر لاستكشاف التطبيق، أو اضغط على أي قسم للانتقال إليه مباشرة.",
+    screensLead:
+      "الشاشة الكاملة داخل إطار هاتف — مرّر لاستكشاف التطبيق، أو اضغط على أي قسم للانتقال إليه مباشرة.",
     scrollHint: "مرّر داخل الهاتف أو اختر قسماً للانتقال إليه.",
     screens: [
-      [
-        "الرئيسية",
-        "نقطة البداية: ترحيب، موقعك، والبحث عن التجربة اللي تناسبك.",
-      ],
-      [
-        "العروض المميزة",
-        "رحلات مختارة بأسعار واضحة لتبدأ مغامرتك بسرعة.",
-      ],
-      [
-        "التصنيفات والرحلات",
-        "اختر نوع الوسيلة ثم تصفّح رحلات جاهزة للإبحار.",
-      ],
-      [
-        "الوسائط المميزة",
-        "يخوت وقوارب فاخرة معتمدة يمكنك استعراض رحلاتها مباشرة.",
-      ],
-      [
-        "الاستكشاف والوكالات",
-        "اكتشف القوارب القريبة وتعرّف على وكالات موثوقة بتقييمات حقيقية.",
-      ],
+      ["الرئيسية", "نقطة البداية: ترحيب، موقعك، والبحث عن التجربة اللي تناسبك."],
+      ["العروض المميزة", "رحلات مختارة بأسعار واضحة لتبدأ مغامرتك بسرعة."],
+      ["التصنيفات والرحلات", "اختر نوع الوسيلة ثم تصفّح رحلات جاهزة للإبحار."],
+      ["الوسائط المميزة", "يخوت وقوارب فاخرة معتمدة يمكنك استعراض رحلاتها مباشرة."],
+      ["الاستكشاف والوكالات", "اكتشف القوارب القريبة وتعرّف على وكالات موثوقة بتقييمات حقيقية."],
     ] as [string, string][],
     storesTitle: "سيتم الإصدار قريبًا لتطبيق قادم إلى المتاجر",
     storesBody: "App Store و Google Play — ترقّب الإطلاق قريبًا.",
@@ -729,8 +752,10 @@ const en: typeof ar = {
     sending: "Sending…",
     sent: "Received successfully",
     sendError: "Could not send the request. Please try again.",
-    firestoreOff: "Could not reach the database. Confirm Cloud Firestore is enabled on the same Firebase project.",
-    firestoreDenied: "The request was blocked by security rules. Publish firestore.rules from the Firebase console or via firebase deploy.",
+    firestoreOff:
+      "Could not reach the database. Confirm Cloud Firestore is enabled on the same Firebase project.",
+    firestoreDenied:
+      "The request was blocked by security rules. Publish firestore.rules from the Firebase console or via firebase deploy.",
     menu: "Menu",
     readStory: "Read the story",
     allFeatures: "All services",
@@ -763,7 +788,8 @@ const en: typeof ar = {
     adminTitle: "Staff sign in",
     registerTitle: "Create an account",
     loginBody: "Sign in to manage your requests and continue with BoatPro.",
-    adminBody: "This page is for the BoatPro team to open the control panel — not for guest signup.",
+    adminBody:
+      "This page is for the BoatPro team to open the control panel — not for guest signup.",
     registerBody: "Create an account and start your journey with BoatPro.",
     name: "Name",
     email: "Email",
@@ -794,7 +820,8 @@ const en: typeof ar = {
     related: "Related articles",
     author: "Author",
     seoTitle: "BoatPro blog | Yacht and marina operations",
-    seoDesc: "Articles from BoatPro on yacht management, marina operations, and marine ownership in Saudi Arabia and the Gulf.",
+    seoDesc:
+      "Articles from BoatPro on yacht management, marina operations, and marine ownership in Saudi Arabia and the Gulf.",
     featuredBadge: "Featured",
     faqTitle: "FAQ",
     loading: "Loading…",
@@ -865,7 +892,8 @@ const en: typeof ar = {
     error: "The action could not be completed.",
     categories: ["Yacht management", "Marinas", "Ownership", "BoatPro news"],
     contentSection: "Article content",
-    contentHint: "Use H2/H3 headings for sections. To link a phrase: ensure it exists in the paragraph, then use the link tools.",
+    contentHint:
+      "Use H2/H3 headings for sections. To link a phrase: ensure it exists in the paragraph, then use the link tools.",
     publishSection: "Publish & classification",
     coverSection: "Cover image (top of article)",
     slugHint: "Page identifier in the URL — use English.",
@@ -881,7 +909,8 @@ const en: typeof ar = {
     blockQuote: "Quote",
     blockImage: "Image",
     externalLinks: "External links (clickable words)",
-    externalLinksHint: "Type the word in EN and/or AR (it must exist in the paragraph), paste the URL, then insert.",
+    externalLinksHint:
+      "Type the word in EN and/or AR (it must exist in the paragraph), paste the URL, then insert.",
     internalLinks: "In-article links",
     internalLinksHint: "Link a phrase to a specific H2/H3 section.",
     linkTextEn: "Link text (EN)",
@@ -892,7 +921,8 @@ const en: typeof ar = {
     insertExternalLink: "Insert external link",
     insertInternalLink: "Insert internal link",
     inlineImages: "Inline images",
-    inlineImagesHint: "Upload multiple images and choose placement after the selected block or at the end.",
+    inlineImagesHint:
+      "Upload multiple images and choose placement after the selected block or at the end.",
     insertAtCursor: "Insert at cursor",
     insertAtEnd: "Insert at end",
     imageAlt: "Image alt text",
@@ -950,7 +980,8 @@ const en: typeof ar = {
     checkPublished: "Ready to publish",
     checkPublishedHint: "Enable Publish when the article is ready.",
     gallery: "Photo gallery",
-    galleryHint: "Upload JPG, PNG, or WebP (max 8MB). Images are compressed and stored in Firestore and can be reused in articles.",
+    galleryHint:
+      "Upload JPG, PNG, or WebP (max 8MB). Images are compressed and stored in Firestore and can be reused in articles.",
     galleryEmpty: "No images in the gallery yet. Upload the first one.",
     galleryUpload: "Upload image",
     galleryUploading: "Uploading…",
@@ -962,7 +993,8 @@ const en: typeof ar = {
     galleryDeleted: "Image deleted.",
     galleryTooLarge: "Image is larger than 8MB.",
     licenses: "Licenses",
-    licensesHint: "Add company licenses: authority icon, license name, and unified number. Shown in the footer View licenses button.",
+    licensesHint:
+      "Add company licenses: authority icon, license name, and unified number. Shown in the footer View licenses button.",
     licensesEmpty: "No licenses yet. Add the first one.",
     licensesAdd: "Add license",
     licensesAuthorityIcon: "Authority icon",
@@ -977,7 +1009,8 @@ const en: typeof ar = {
     licensesDeleted: "License deleted.",
     licensesDeleteConfirm: "Delete this license?",
     licensesRequired: "License name and unified number are required.",
-    licensesProtectNote: "Images are protected from download and save inside the site as much as possible.",
+    licensesProtectNote:
+      "Images are protected from download and save inside the site as much as possible.",
     roleEditor: "Editor",
     roleModerator: "Requests moderator",
     roleStaff: "Staff",
@@ -985,13 +1018,15 @@ const en: typeof ar = {
     rolesGuideHint: "Each role only sees specific sections in the admin board.",
     permissionsTitle: "Permissions",
     permissionsHint: "Choose what each user can see and edit inside the admin board.",
-    permissionsGuide: "The super admin picks from available admin features for each staff member — dashboard, blog, gallery, requests, users, and account.",
+    permissionsGuide:
+      "The super admin picks from available admin features for each staff member — dashboard, blog, gallery, requests, users, and account.",
     permissionsPickerHint: "Choose what this user can see and edit.",
     activeAccount: "Active account",
     inactiveAccount: "Inactive account",
     editAccess: "Edit access",
     addUser: "Add user",
-    addUserHint: "Enter name, email, password, and permissions — the account is created directly in Firebase.",
+    addUserHint:
+      "Enter name, email, password, and permissions — the account is created directly in Firebase.",
     inviteName: "Name",
     createUser: "Create user",
     userCreated: "User created successfully.",
@@ -1008,7 +1043,8 @@ const en: typeof ar = {
     passwordReset: "Send password reset link",
     passwordResetSent: "A reset link was sent to your email.",
     changePassword: "Change password",
-    changePasswordHint: "Update your current password. If you change it yourself, the super admin will not see it until they set a new one.",
+    changePasswordHint:
+      "Update your current password. If you change it yourself, the super admin will not see it until they set a new one.",
     currentPassword: "Current password",
     newPassword: "New password",
     newPasswordHint: "Leave empty to keep unchanged",
@@ -1017,7 +1053,8 @@ const en: typeof ar = {
     passwordUpdated: "Permissions and password updated.",
     passwordMismatch: "Passwords do not match.",
     passwordUnknown: "Changed by user",
-    passwordServerOff: "Could not update the password on the server. Add FIREBASE_SERVICE_ACCOUNT in Vercel.",
+    passwordServerOff:
+      "Could not update the password on the server. Add FIREBASE_SERVICE_ACCOUNT in Vercel.",
     showPassword: "Show",
     hidePassword: "Hide",
     permissionsLabel: "Permissions",
@@ -1029,6 +1066,12 @@ const en: typeof ar = {
     contactSettingsHint: "Email, phone, and WhatsApp shown to visitors.",
     appLinks: "App & service links",
     appLinksHint: "Each service has its own links. Empty fields show “Coming soon” to visitors.",
+    appLaunched: "App is live on the stores",
+    appLaunchedOn: "On — download buttons work across the site",
+    appLaunchedOff: "Coming soon — visitors see “Coming soon”",
+    appLaunchMissingLink:
+      "The app is live but the {store} link is empty — the {store} button stays “Coming soon” until you add it.",
+    appLaunchSaveHint: "Press “Save” to apply this to the site.",
     settingsSaved: "Settings saved.",
     settingContact: "Email",
     settingWhatsApp: "WhatsApp",
@@ -1056,8 +1099,10 @@ const en: typeof ar = {
     seoAlert: "{count} article(s) need SEO work (score below 50%).",
     featuredCount: "Featured articles",
     content: "Content management",
-    cmsHint: "Edit marketing page copy in Arabic and English. Changes save to Firebase and appear on the live site.",
-    cmsPageHint: "Edit each section in Arabic and English. Images are chosen from the site's static media library.",
+    cmsHint:
+      "Edit marketing page copy in Arabic and English. Changes save to Firebase and appear on the live site.",
+    cmsPageHint:
+      "Edit each section in Arabic and English. Images are chosen from the site's static media library.",
     cmsSharedHint: "Navigation, footer, shared CTAs, store badges, and breadcrumbs.",
     cmsBack: "All pages",
     cmsContentSection: "Page content",
@@ -1072,15 +1117,20 @@ const en: typeof ar = {
   },
   seo: {
     homeTitle: "BoatPro | Yacht booking and marine operations platform",
-    homeDesc: "BoatPro is a marine technology platform for guests, yacht owners, and marinas: discover an experience, book it, or run your marine asset from one app in Saudi Arabia.",
+    homeDesc:
+      "BoatPro is a marine technology platform for guests, yacht owners, and marinas: discover an experience, book it, or run your marine asset from one app in Saudi Arabia.",
     aboutTitle: "About BoatPro | Vision and mission in the Saudi marine market",
-    aboutDesc: "The BoatPro story, vision and mission: a bridge between a love of the sea and marine business operations across the Kingdom and the region, from Jeddah.",
+    aboutDesc:
+      "The BoatPro story, vision and mission: a bridge between a love of the sea and marine business operations across the Kingdom and the region, from Jeddah.",
     featuresTitle: "BoatPro services for guests, owners, and marinas",
-    featuresDesc: "BoatPro services by user type: discovery and booking for guests, listings and collections for owners, and operational reach for marinas.",
+    featuresDesc:
+      "BoatPro services by user type: discovery and booking for guests, listings and collections for owners, and operational reach for marinas.",
     appTitle: "The BoatPro app | Guest and owner experience",
-    appDesc: "See the BoatPro app for guests and owners: search, trip details, booking, and listing management — available on iPhone and Android.",
+    appDesc:
+      "See the BoatPro app for guests and owners: search, trip details, booking, and listing management — available on iPhone and Android.",
     contactTitle: "Contact BoatPro | Partnerships and support",
-    contactDesc: "Reach BoatPro for partnerships or support: WhatsApp, email, and the Jeddah office. A form that follows whether you are a guest, owner, or marina.",
+    contactDesc:
+      "Reach BoatPro for partnerships or support: WhatsApp, email, and the Jeddah office. A form that follows whether you are a guest, owner, or marina.",
   },
   home: {
     hero: {
@@ -1127,10 +1177,16 @@ const en: typeof ar = {
       chip: "How it works",
       title: "From choice to being underway",
       steps: [
-        ["Pick your role", "A guest seeking an experience, an owner listing an asset, or a marina offering a service."],
+        [
+          "Pick your role",
+          "A guest seeking an experience, an owner listing an asset, or a marina offering a service.",
+        ],
         ["Discover or list", "Browse craft and experiences, or add your inventory and services."],
         ["Book and pay", "Time and payment inside the app — shorter than a chain of calls."],
-        ["Sail or operate", "The trip for the guest; operations and collections for owner and marina."],
+        [
+          "Sail or operate",
+          "The trip for the guest; operations and collections for owner and marina.",
+        ],
       ],
     },
     features: {
@@ -1139,7 +1195,10 @@ const en: typeof ar = {
       body: "A short digest. The full picture is grouped by user type.",
       items: [
         ["Discover and book", "Fleet and experiences in one path instead of scattered search."],
-        ["Manage listings", "Present craft and services to people who are already looking for the sea."],
+        [
+          "Manage listings",
+          "Present craft and services to people who are already looking for the sea.",
+        ],
         ["Clearer collections", "BoatPro collects on your behalf, with transparent reports."],
         ["Operational link", "Marinas, fuel and maintenance closer to owners."],
       ],
@@ -1148,7 +1207,8 @@ const en: typeof ar = {
       chip: "The app",
       title: "Preview the app experience",
       body: "Two faces in one system: one for the guest, one for the owner. Preview the screens, then open the app page for the full walkthrough.",
-      available: "Coming soon — the app is headed to the stores. App Store and Google Play — stay tuned for launch.",
+      available:
+        "Coming soon — the app is headed to the stores. App Store and Google Play — stay tuned for launch.",
     },
     partner: {
       chip: "Partnership",
@@ -1171,36 +1231,60 @@ const en: typeof ar = {
     lead: "BoatPro exists to build a technology system worthy of the Kingdom and the region: a guest experience that feels secure, and an owner return that feels operationally sound.",
     storyChip: "The story",
     storyTitle: "Why BoatPro?",
-    story: "The sea in Saudi Arabia is presence and opportunity, not a passing outing. The idea started from a clear gap: guests searched through scattered channels, owners chased bookings and collections by hand, and marinas sat apart from real demand. BoatPro puts the three sides on one platform instead of leaving each on its own island.",
+    story:
+      "The sea in Saudi Arabia is presence and opportunity, not a passing outing. The idea started from a clear gap: guests searched through scattered channels, owners chased bookings and collections by hand, and marinas sat apart from real demand. BoatPro puts the three sides on one platform instead of leaving each on its own island.",
     problemChip: "The problem",
     problemTitle: "What does the platform solve?",
     problems: [
-      ["Guest scatter", "Finding a yacht or a sea day meant contacts and calls, with no single booking path."],
-      ["Owner operations", "Listing the asset, following bookings, and collecting payments pulled owners away from the work itself."],
-      ["Marina isolation", "Shore services — berth, fuel, maintenance — did not reach people who are already on the water."],
+      [
+        "Guest scatter",
+        "Finding a yacht or a sea day meant contacts and calls, with no single booking path.",
+      ],
+      [
+        "Owner operations",
+        "Listing the asset, following bookings, and collecting payments pulled owners away from the work itself.",
+      ],
+      [
+        "Marina isolation",
+        "Shore services — berth, fuel, maintenance — did not reach people who are already on the water.",
+      ],
     ],
     visionChip: "Our vision",
     visionTitle: "The most trusted platform — and the most refined",
-    visionBody: "To become the first and most trusted platform for yacht, boat and leisure-craft charter, and the hub that supports marine businesses, enriches the experience of visitors to the Kingdom, and grows the sector.",
+    visionBody:
+      "To become the first and most trusted platform for yacht, boat and leisure-craft charter, and the hub that supports marine businesses, enriches the experience of visitors to the Kingdom, and grows the sector.",
     missionChip: "Our mission",
     missionTitle: "An experience shaped for both sides",
     loversLabel: "For those who love the sea",
-    loversBody: "Calm, swift, secure access to the finest options: from a private day afloat to a sporting run, and hours that stay with you.",
+    loversBody:
+      "Calm, swift, secure access to the finest options: from a private day afloat to a sporting run, and hours that stay with you.",
     ownersLabel: "For marine businesses and service providers",
-    ownersBody: "Wider market presence, collections that match your trust, and complete logistics — berth, fuel, maintenance — so you stay at the heart of your work.",
+    ownersBody:
+      "Wider market presence, collections that match your trust, and complete logistics — berth, fuel, maintenance — so you stay at the heart of your work.",
     servesChip: "Who we serve",
     servesTitle: "Three sides. One sea.",
     serves: [
-      ["Guests", "Anyone who wants a cruise, fishing, diving, or water sports with trust in the craft and the booking."],
-      ["Boat and yacht owners", "Anyone who wants to market an asset and manage bookings and collections without operational scatter."],
-      ["Marinas and services", "Anyone who wants reach to owners and guests, and clearer occupancy."],
+      [
+        "Guests",
+        "Anyone who wants a cruise, fishing, diving, or water sports with trust in the craft and the booking.",
+      ],
+      [
+        "Boat and yacht owners",
+        "Anyone who wants to market an asset and manage bookings and collections without operational scatter.",
+      ],
+      [
+        "Marinas and services",
+        "Anyone who wants reach to owners and guests, and clearer occupancy.",
+      ],
     ],
     marketChip: "The Kingdom and the region",
     marketTitle: "Positioned for the Saudi marine market",
-    marketBody: "The Kingdom hosts visitors and is building a clearer marine presence on its coasts. BoatPro sits as technology for that market: not a luxury yacht landing page, but infrastructure for booking, operations, and partnership — from Jeddah across the region.",
+    marketBody:
+      "The Kingdom hosts visitors and is building a clearer marine presence on its coasts. BoatPro sits as technology for that market: not a luxury yacht landing page, but infrastructure for booking, operations, and partnership — from Jeddah across the region.",
     officeChip: "The company",
     officeTitle: "The BoatPro office",
-    close: "Where passion meets opportunity, and vision becomes a presence you can feel on the water.",
+    close:
+      "Where passion meets opportunity, and vision becomes a presence you can feel on the water.",
   },
   featuresPage: {
     chip: "Services",
@@ -1277,7 +1361,8 @@ const en: typeof ar = {
       siteCta: "Visit website",
       siteChip: "Website",
       siteTitle: "An operations platform for marinas, fuel stations, and maintenance centres",
-      siteBody: "Visit the BoatPro website for marinas, fuel stations, and maintenance centres and run your operations from there.",
+      siteBody:
+        "Visit the BoatPro website for marinas, fuel stations, and maintenance centres and run your operations from there.",
       items: [
         [
           "Direct owner access",
@@ -1307,17 +1392,26 @@ const en: typeof ar = {
     whatBody:
       "The marine platform for guests: from greeting and search to craft cards, booking, and pay. What you see here are real slices of the app — not illustrative mockups.",
     guestTitle: "The guest experience",
-    guestBody: "Search by experience type, open details and photos, pick the day, then confirm. The trip should be ready without a broker at every step.",
+    guestBody:
+      "Search by experience type, open details and photos, pick the day, then confirm. The trip should be ready without a broker at every step.",
     ownerTitle: "The owner experience",
-    ownerBody: "Your craft lists, incoming bookings, and linked services. The platform brings operations into your pocket so the focus stays on the asset, not the coordination.",
+    ownerBody:
+      "Your craft lists, incoming bookings, and linked services. The platform brings operations into your pocket so the focus stays on the asset, not the coordination.",
     screensTitle: "Inside the app",
-    screensLead: "The full interface inside a phone frame — scroll to explore, or tap a section to jump there.",
+    screensLead:
+      "The full interface inside a phone frame — scroll to explore, or tap a section to jump there.",
     scrollHint: "Scroll inside the phone or pick a section to jump.",
     screens: [
-      ["Home", "Your starting point: a welcome, your location, and a search for the right experience."],
+      [
+        "Home",
+        "Your starting point: a welcome, your location, and a search for the right experience.",
+      ],
       ["Featured deals", "Hand-picked trips with clear pricing so you can start quickly."],
       ["Categories & trips", "Pick a vessel type, then browse trips ready to sail."],
-      ["Featured vessels", "Certified luxury yachts and boats whose trips you can open right away."],
+      [
+        "Featured vessels",
+        "Certified luxury yachts and boats whose trips you can open right away.",
+      ],
       ["Explore & agencies", "Find nearby boats and trusted agencies with real ratings."],
     ],
     storesTitle: "Coming soon — the app is headed to the stores",
@@ -1379,14 +1473,16 @@ const en: typeof ar = {
     ],
   },
   footer: {
-    tagline: "A marine technology platform: booking for the guest, operations for the owner and the marina.",
+    tagline:
+      "A marine technology platform: booking for the guest, operations for the owner and the marina.",
     viewLicenses: "View licenses",
     licensesTitle: "Licenses",
     licensesClose: "Close",
     licensesEmpty: "No licenses to show right now.",
     licensesNumberLabel: "Unified number",
     licensesImagePending: "Upload the license image from admin to show it here.",
-    licensesProtectNote: "Private content — download and save from inside the page are restricted as much as possible.",
+    licensesProtectNote:
+      "Private content — download and save from inside the page are restricted as much as possible.",
     commerceLicense: "Licensed by the Ministry of Commerce — license no. 7051116403",
     ecommerceCert:
       "Verified by the Saudi Business Center with e-commerce authentication certificate no. 0000197917",

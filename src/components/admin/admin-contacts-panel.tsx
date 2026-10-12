@@ -536,9 +536,13 @@ export function AdminContactsPanel({
         </span>
       </AdminFilterBar>
 
-      <div className={`${ADMIN_CARD_CLS} mb-3 flex max-w-none flex-wrap items-end gap-2.5 p-3 xl:max-w-5xl`}>
+      <div
+        className={`${ADMIN_CARD_CLS} mb-3 flex max-w-none flex-wrap items-end gap-2.5 p-3 xl:max-w-5xl`}
+      >
         <label className="min-w-[8.5rem] flex-1 sm:flex-none">
-          <span className="mb-1 block text-[10px] font-medium text-gold-ink">{t.admin.printFrom}</span>
+          <span className="mb-1 block text-[10px] font-medium text-gold-ink">
+            {t.admin.printFrom}
+          </span>
           <input
             type="date"
             className={`${ADMIN_FIELD_CLS} py-2 text-[13px]`}
@@ -547,7 +551,9 @@ export function AdminContactsPanel({
           />
         </label>
         <label className="min-w-[8.5rem] flex-1 sm:flex-none">
-          <span className="mb-1 block text-[10px] font-medium text-gold-ink">{t.admin.printTo}</span>
+          <span className="mb-1 block text-[10px] font-medium text-gold-ink">
+            {t.admin.printTo}
+          </span>
           <input
             type="date"
             className={`${ADMIN_FIELD_CLS} py-2 text-[13px]`}
@@ -576,11 +582,18 @@ export function AdminContactsPanel({
           const statusLabel = item.status === "new" ? t.admin.newCount : t.admin.handled;
           const typeLabel = localizeContactUserType(item.userType, t);
           return (
-            <article key={item.id} className={`${ADMIN_CARD_CLS} flex h-full flex-col overflow-hidden`}>
+            <article
+              key={item.id}
+              className={`${ADMIN_CARD_CLS} flex h-full flex-col overflow-hidden`}
+            >
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 px-3.5 py-2.5">
                 <div className="min-w-0">
-                  <p className="font-display text-base font-semibold text-navy">{item.name || "—"}</p>
-                  <p className="mt-0.5 truncate text-[11px] font-medium text-gold-ink">{typeLabel}</p>
+                  <p className="font-display text-base font-semibold text-navy">
+                    {item.name || "—"}
+                  </p>
+                  <p className="mt-0.5 truncate text-[11px] font-medium text-gold-ink">
+                    {typeLabel}
+                  </p>
                 </div>
                 <span className={item.status === "new" ? ADMIN_BADGE_ACTIVE : ADMIN_BADGE_MUTED}>
                   {statusLabel}
@@ -596,13 +609,17 @@ export function AdminContactsPanel({
                 </div>
 
                 <div className="rounded-lg border border-border/60 bg-background/50 px-2.5 py-2">
-                  <p className="text-[10px] font-medium leading-none text-gold-ink">{t.contact.content}</p>
+                  <p className="text-[10px] font-medium leading-none text-gold-ink">
+                    {t.contact.content}
+                  </p>
                   <p className="mt-1 whitespace-pre-wrap text-[12px] leading-5 text-navy">
                     {item.content || "—"}
                   </p>
                 </div>
 
-                <p className="mt-auto text-[11px] text-muted-foreground">{formatDateTime(item.createdAt, lang)}</p>
+                <p className="mt-auto text-[11px] text-muted-foreground">
+                  {formatDateTime(item.createdAt, lang)}
+                </p>
               </div>
 
               <div className="flex flex-wrap gap-2 border-t border-border/60 bg-gold/10 px-3.5 py-2.5">
@@ -626,7 +643,13 @@ export function AdminContactsPanel({
                   type="button"
                   className={`${ADMIN_BTN_SECONDARY} inline-flex min-h-9 items-center gap-1.5 px-3.5 text-[12px]`}
                   onClick={() =>
-                    printSingleContact(item, buildPrintLabels(t, lang), statusLabel, typeLabel, lang)
+                    printSingleContact(
+                      item,
+                      buildPrintLabels(t, lang),
+                      statusLabel,
+                      typeLabel,
+                      lang,
+                    )
                   }
                 >
                   <Printer size={13} strokeWidth={2} />

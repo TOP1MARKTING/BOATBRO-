@@ -3,10 +3,10 @@ export const SUPER_ADMIN_EMAILS = ["admin@boatpro.club"] as const;
 export const ADMIN_EMAILS = [
   ...SUPER_ADMIN_EMAILS,
   "info@boatpro.club",
-  ...(String(import.meta.env.VITE_ADMIN_EMAILS ?? "")
+  ...String(import.meta.env["VITE_ADMIN_EMAILS"] ?? "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)),
+    .filter(Boolean),
 ];
 
 function normalizeEmail(email?: string | null) {

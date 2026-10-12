@@ -12,7 +12,14 @@ import { AdminUsersPanel } from "../components/admin/admin-users-panel";
 import { PageMeta } from "../components/page-meta";
 import type { AdminTab } from "../lib/admin-permissions";
 import { useAuth } from "../lib/auth";
-import { listAllPosts, listContacts, listUsers, type BlogPost, type ContactRecord, type UserRecord } from "../lib/db";
+import {
+  listAllPosts,
+  listContacts,
+  listUsers,
+  type BlogPost,
+  type ContactRecord,
+  type UserRecord,
+} from "../lib/db";
 import { useLang } from "../lib/i18n";
 import { useSiteSettings } from "../lib/site-settings-context";
 import { pageHead } from "../lib/site";
@@ -65,7 +72,10 @@ function AdminPage() {
       setContacts(c);
       setUsers(u);
     } catch (err) {
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
       if (import.meta.env.DEV) console.error("[admin]", code, err);
       setError(
         code === "unimplemented" || code === "failed-precondition" || code === "not-found"
@@ -157,7 +167,11 @@ function AdminPage() {
           </p>
         ) : null}
 
-        {loading && tab !== "gallery" && tab !== "profile" && tab !== "settings" && tab !== "content" ? (
+        {loading &&
+        tab !== "gallery" &&
+        tab !== "profile" &&
+        tab !== "settings" &&
+        tab !== "content" ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-32 animate-pulse rounded-2xl bg-card/80" />
@@ -178,9 +192,18 @@ function AdminPage() {
           />
         ) : null}
         {!loading && tab === "posts" && canAccessTab("posts") ? (
-          <AdminPostsPanel posts={posts} onChange={load} lang={lang} t={t} author={user.displayName || user.email || ""} uid={user.uid} />
+          <AdminPostsPanel
+            posts={posts}
+            onChange={load}
+            lang={lang}
+            t={t}
+            author={user.displayName || user.email || ""}
+            uid={user.uid}
+          />
         ) : null}
-        {tab === "gallery" && canAccessTab("gallery") ? <AdminGalleryPanel uid={user.uid} t={t} /> : null}
+        {tab === "gallery" && canAccessTab("gallery") ? (
+          <AdminGalleryPanel uid={user.uid} t={t} />
+        ) : null}
         {tab === "content" && canAccessTab("content") ? <AdminContentPanel t={t} /> : null}
         {!loading && tab === "contacts" && canAccessTab("contacts") ? (
           <AdminContactsPanel contacts={contacts} onChange={load} t={t} lang={lang} />
@@ -197,10 +220,21 @@ function AdminPage() {
           />
         ) : null}
         {tab === "settings" && canAccessTab("settings") ? (
-          <AdminSettingsPanel uid={user.uid} t={t} onSaved={() => void refreshSiteSettings()} />
+          <AdminSettingsPanel
+            uid={user.uid}
+            t={t}
+            isSuperAdmin={isSuperAdmin}
+            onSaved={() => void refreshSiteSettings()}
+          />
         ) : null}
         {tab === "profile" && canAccessTab("profile") ? (
-          <AdminProfilePanel user={user} staffRole={staffRole} permissions={permissions} lang={lang} t={t} />
+          <AdminProfilePanel
+            user={user}
+            staffRole={staffRole}
+            permissions={permissions}
+            lang={lang}
+            t={t}
+          />
         ) : null}
       </AdminShell>
     </>

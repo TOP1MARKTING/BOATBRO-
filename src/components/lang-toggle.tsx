@@ -11,9 +11,7 @@ export function LangToggle({ onDark = false }: { onDark?: boolean }) {
         onClick={() => setLang(isEn ? "ar" : "en")}
         aria-label={isEn ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}
         className={`relative h-9 w-[4.35rem] shrink-0 rounded-full border transition-colors ${
-          onDark
-            ? "border-white/70 bg-white/90"
-            : "border-border/80 bg-card"
+          onDark ? "border-white/70 bg-white/90" : "border-border/80 bg-card"
         }`}
       >
         <span
@@ -25,7 +23,9 @@ export function LangToggle({ onDark = false }: { onDark?: boolean }) {
           <span className={`text-center transition-colors ${isEn ? "text-white" : "text-navy/40"}`}>
             EN
           </span>
-          <span className={`text-center font-display text-[13px] transition-colors ${isEn ? "text-navy/40" : "text-white"}`}>
+          <span
+            className={`text-center font-display text-[13px] transition-colors ${isEn ? "text-navy/40" : "text-white"}`}
+          >
             ع
           </span>
         </span>

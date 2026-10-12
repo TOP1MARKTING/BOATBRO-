@@ -103,9 +103,7 @@ export function AdminShell({
             >
               <span
                 className={`inline-flex size-8 items-center justify-center rounded-xl ${
-                  active
-                    ? "bg-gold/20 text-white"
-                    : "bg-white/[0.04] text-white/45"
+                  active ? "bg-gold/20 text-white" : "bg-white/[0.04] text-white/45"
                 }`}
               >
                 <Icon size={16} strokeWidth={1.75} />

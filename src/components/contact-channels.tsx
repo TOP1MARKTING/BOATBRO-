@@ -18,8 +18,10 @@ export function ContactChannels({ className = "" }: { className?: string }) {
       icon: "whatsapp" as const,
       external: true,
       ltr: true,
-      accent: "from-[#25D366]/18 via-[#25D366]/6 to-card dark:from-[#25D366]/28 dark:via-[#0f2a22]/55 dark:to-card",
-      iconWrap: "bg-[#25D366]/15 text-[#128C7E] ring-[#25D366]/30 dark:text-[#5EE09A] dark:ring-[#25D366]/40",
+      accent:
+        "from-[#25D366]/18 via-[#25D366]/6 to-card dark:from-[#25D366]/28 dark:via-[#0f2a22]/55 dark:to-card",
+      iconWrap:
+        "bg-[#25D366]/15 text-[#128C7E] ring-[#25D366]/30 dark:text-[#5EE09A] dark:ring-[#25D366]/40",
       hover: "hover:border-[#25D366]/45",
       labelCls: "text-[#128C7E] dark:text-[#5EE09A]",
       lineCls: "bg-[#25D366]/55",
@@ -33,8 +35,10 @@ export function ContactChannels({ className = "" }: { className?: string }) {
       icon: "mail" as const,
       external: true,
       ltr: true,
-      accent: "from-[#1e3a5f]/16 via-[#2b4a6f]/8 to-card dark:from-[#1e3a5f]/55 dark:via-[#243b55]/40 dark:to-card",
-      iconWrap: "bg-[#1e3a5f]/12 text-[#1e3a5f] ring-[#1e3a5f]/25 dark:bg-white/10 dark:text-[#9eb6d4] dark:ring-white/20",
+      accent:
+        "from-[#1e3a5f]/16 via-[#2b4a6f]/8 to-card dark:from-[#1e3a5f]/55 dark:via-[#243b55]/40 dark:to-card",
+      iconWrap:
+        "bg-[#1e3a5f]/12 text-[#1e3a5f] ring-[#1e3a5f]/25 dark:bg-white/10 dark:text-[#9eb6d4] dark:ring-white/20",
       hover: "hover:border-[#1e3a5f]/40 dark:hover:border-[#9eb6d4]/40",
       labelCls: "text-[#1e3a5f] dark:text-[#9eb6d4]",
       lineCls: "bg-[#1e3a5f]/50 dark:bg-[#9eb6d4]/50",
@@ -49,8 +53,10 @@ export function ContactChannels({ className = "" }: { className?: string }) {
       icon: "map" as const,
       external: false,
       ltr: false,
-      accent: "from-sky-400/20 via-sky-200/15 to-card dark:from-sky-500/25 dark:via-sky-950/45 dark:to-card",
-      iconWrap: "bg-sky-500/15 text-sky-700 ring-sky-500/30 dark:bg-sky-500/20 dark:text-sky-300 dark:ring-sky-400/35",
+      accent:
+        "from-sky-400/20 via-sky-200/15 to-card dark:from-sky-500/25 dark:via-sky-950/45 dark:to-card",
+      iconWrap:
+        "bg-sky-500/15 text-sky-700 ring-sky-500/30 dark:bg-sky-500/20 dark:text-sky-300 dark:ring-sky-400/35",
       hover: "hover:border-sky-500/40",
       labelCls: "text-sky-800 dark:text-sky-300",
       lineCls: "bg-sky-500/50",
@@ -79,7 +85,11 @@ export function ContactChannels({ className = "" }: { className?: string }) {
               >
                 {icon}
               </span>
-              <p className={`mt-4 text-[12px] font-medium tracking-[0.14em] sm:mt-5 ${card.labelCls}`}>{card.label}</p>
+              <p
+                className={`mt-4 text-[12px] font-medium tracking-[0.14em] sm:mt-5 ${card.labelCls}`}
+              >
+                {card.label}
+              </p>
               <span className={`mt-2.5 block h-px w-10 ${card.lineCls}`} aria-hidden="true" />
               <p
                 className="mt-4 break-words font-display text-[1.05rem] font-semibold leading-7 text-navy/90 sm:text-lg sm:leading-8 dark:text-white/90"

@@ -16,12 +16,14 @@ import {
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { BlogHtmlBody } from "../blog-post-body";
 import type { GalleryImage } from "../../lib/db";
+import { dataUrlToFile } from "../../lib/image-compress";
 import { buildFigureHtml, escapeHtml, htmlHeadings, type FigureSize } from "../../lib/post-html";
 import { ADMIN_BTN_SECONDARY, ADMIN_FIELD_CLS } from "./shared";
 
 const c = {
   contentLabel: "المحتوى (HTML)",
-  contentHint: "استخدم عناوين h2/h3 لأقسام المقال. لربط كلمة برابط: حدّدها في المحرر ثم استخدم أداة الروابط أدناه.",
+  contentHint:
+    "استخدم عناوين h2/h3 لأقسام المقال. لربط كلمة برابط: حدّدها في المحرر ثم استخدم أداة الروابط أدناه.",
   showPreview: "عرض المعاينة",
   hidePreview: "إخفاء المعاينة",
   previewEmpty: "اكتب أو الصق HTML وستظهر المعاينة هنا كما ستبدو في الموقع.",
@@ -70,11 +72,31 @@ const c = {
 };
 
 const PLACEHOLDERS = {
-  ar: { phHeading: "عنوان القسم", phText: "اكتب النص هنا", phItem: "عنصر", col: "العمود", cell: "قيمة" },
-  en: { phHeading: "Section heading", phText: "Write text here", phItem: "Item", col: "Column", cell: "Value" },
+  ar: {
+    phHeading: "عنوان القسم",
+    phText: "اكتب النص هنا",
+    phItem: "عنصر",
+    col: "العمود",
+    cell: "قيمة",
+  },
+  en: {
+    phHeading: "Section heading",
+    phText: "Write text here",
+    phItem: "Item",
+    col: "Column",
+    cell: "Value",
+  },
 };
 
-function ToolButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+function ToolButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
@@ -164,11 +186,20 @@ export function AdminHtmlEditor({
     build: (selected: string) => { html: string; focusStart?: number; focusEnd?: number },
     { block = false, atEnd = false }: { block?: boolean; atEnd?: boolean } = {},
   ) => {
-    const sel = atEnd ? { start: value.length, end: value.length, selected: "" } : currentSelection();
+    const sel = atEnd
+      ? { start: value.length, end: value.length, selected: "" }
+      : currentSelection();
     const { html, focusStart, focusEnd } = build(sel.selected);
     const before = atEnd ? value.slice(0, sel.start).trimEnd() : value.slice(0, sel.start);
     const after = value.slice(sel.end);
-    const lead = block && before.trim() ? (before.endsWith("\n\n") ? "" : before.endsWith("\n") ? "\n" : "\n\n") : "";
+    const lead =
+      block && before.trim()
+        ? before.endsWith("\n\n")
+          ? ""
+          : before.endsWith("\n")
+            ? "\n"
+            : "\n\n"
+        : "";
     const trail = block && after.trim() ? (after.startsWith("\n") ? "" : "\n\n") : "";
     onChange(`${before}${lead}${html}${trail}${after}`);
     const base = before.length + lead.length;
@@ -180,7 +211,11 @@ export function AdminHtmlEditor({
       (selected) => {
         const inner = (block ? selected.trim() : selected) || placeholder;
         const open = `<${tag}>`;
-        return { html: `${open}${inner}</${tag}>`, focusStart: open.length, focusEnd: open.length + inner.length };
+        return {
+          html: `${open}${inner}</${tag}>`,
+          focusStart: open.length,
+          focusEnd: open.length + inner.length,
+        };
       },
       { block },
     );
@@ -188,8 +223,13 @@ export function AdminHtmlEditor({
   const insertList = (tag: "ul" | "ol") =>
     insert(
       (selected) => {
-        const lines = selected.split("\n").map((l) => l.trim()).filter(Boolean);
-        const items = (lines.length ? lines : [`${placeholders.phItem} 1`, `${placeholders.phItem} 2`])
+        const lines = selected
+          .split("\n")
+          .map((l) => l.trim())
+          .filter(Boolean);
+        const items = (
+          lines.length ? lines : [`${placeholders.phItem} 1`, `${placeholders.phItem} 2`]
+        )
           .map((line) => `  <li>${line}</li>`)
           .join("\n");
         return { html: `<${tag}>\n${items}\n</${tag}>` };
@@ -253,7 +293,10 @@ export function AdminHtmlEditor({
   const onInsertImage = (atEnd: boolean) => {
     const url = imgUrl.trim();
     if (!url) return;
-    insert(() => ({ html: buildFigureHtml(url, imgAlt.trim(), imgCaption, imgSize) }), { block: true, atEnd });
+    insert(() => ({ html: buildFigureHtml(url, imgAlt.trim(), imgCaption, imgSize) }), {
+      block: true,
+      atEnd,
+    });
     setImgUrl("");
     setImgAlt("");
     setImgCaption("");
@@ -276,18 +319,41 @@ export function AdminHtmlEditor({
         </div>
 
         <div className="flex flex-wrap items-center gap-0.5 rounded-t-xl border border-b-0 border-border bg-surface-2 p-1">
-          <ToolButton label={c.h2} onClick={() => wrap("h2", placeholders.phHeading, true)}><Heading2 size={16} /></ToolButton>
-          <ToolButton label={c.h3} onClick={() => wrap("h3", placeholders.phHeading, true)}><Heading3 size={16} /></ToolButton>
-          <ToolButton label={c.p} onClick={() => wrap("p", placeholders.phText, true)}><Pilcrow size={16} /></ToolButton>
+          <ToolButton label={c.h2} onClick={() => wrap("h2", placeholders.phHeading, true)}>
+            <Heading2 size={16} />
+          </ToolButton>
+          <ToolButton label={c.h3} onClick={() => wrap("h3", placeholders.phHeading, true)}>
+            <Heading3 size={16} />
+          </ToolButton>
+          <ToolButton label={c.p} onClick={() => wrap("p", placeholders.phText, true)}>
+            <Pilcrow size={16} />
+          </ToolButton>
           <span className="mx-1 h-5 w-px bg-border" />
-          <ToolButton label={c.bold} onClick={() => wrap("strong", placeholders.phText, false)}><Bold size={16} /></ToolButton>
-          <ToolButton label={c.italic} onClick={() => wrap("em", placeholders.phText, false)}><Italic size={16} /></ToolButton>
+          <ToolButton label={c.bold} onClick={() => wrap("strong", placeholders.phText, false)}>
+            <Bold size={16} />
+          </ToolButton>
+          <ToolButton label={c.italic} onClick={() => wrap("em", placeholders.phText, false)}>
+            <Italic size={16} />
+          </ToolButton>
           <span className="mx-1 h-5 w-px bg-border" />
-          <ToolButton label={c.ul} onClick={() => insertList("ul")}><List size={16} /></ToolButton>
-          <ToolButton label={c.ol} onClick={() => insertList("ol")}><ListOrdered size={16} /></ToolButton>
-          <ToolButton label={c.quote} onClick={() => wrap("blockquote", placeholders.phText, true)}><Quote size={16} /></ToolButton>
-          <ToolButton label={c.table} onClick={insertTable}><Table size={16} /></ToolButton>
-          <ToolButton label={c.hr} onClick={() => insert(() => ({ html: "<hr />" }), { block: true })}><Minus size={16} /></ToolButton>
+          <ToolButton label={c.ul} onClick={() => insertList("ul")}>
+            <List size={16} />
+          </ToolButton>
+          <ToolButton label={c.ol} onClick={() => insertList("ol")}>
+            <ListOrdered size={16} />
+          </ToolButton>
+          <ToolButton label={c.quote} onClick={() => wrap("blockquote", placeholders.phText, true)}>
+            <Quote size={16} />
+          </ToolButton>
+          <ToolButton label={c.table} onClick={insertTable}>
+            <Table size={16} />
+          </ToolButton>
+          <ToolButton
+            label={c.hr}
+            onClick={() => insert(() => ({ html: "<hr />" }), { block: true })}
+          >
+            <Minus size={16} />
+          </ToolButton>
         </div>
 
         <div className={preview ? "grid gap-3 lg:grid-cols-2" : ""}>
@@ -306,7 +372,11 @@ export function AdminHtmlEditor({
               dir={contentLang === "ar" ? "rtl" : "ltr"}
               className="max-h-[32rem] overflow-y-auto rounded-xl border border-border bg-background p-5"
             >
-              {value.trim() ? <BlogHtmlBody html={value} className="" lang={contentLang} /> : <p className="text-[13px] text-muted-foreground">{c.previewEmpty}</p>}
+              {value.trim() ? (
+                <BlogHtmlBody html={value} className="" lang={contentLang} />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">{c.previewEmpty}</p>
+              )}
             </div>
           ) : null}
         </div>
@@ -318,13 +388,30 @@ export function AdminHtmlEditor({
           <div className="grid gap-3">
             <label>
               <FieldLabel>{c.linkText}</FieldLabel>
-              <input className={ADMIN_FIELD_CLS} placeholder={c.linkTextPh} value={extText} onChange={(e) => setExtText(e.target.value)} />
+              <input
+                className={ADMIN_FIELD_CLS}
+                placeholder={c.linkTextPh}
+                value={extText}
+                onChange={(e) => setExtText(e.target.value)}
+              />
             </label>
             <label>
               <FieldLabel>{c.linkUrl}</FieldLabel>
-              <input dir="ltr" className={ADMIN_FIELD_CLS} placeholder="https://www.example.com" value={extUrl} onChange={(e) => setExtUrl(e.target.value)} />
+              <input
+                dir="ltr"
+                className={ADMIN_FIELD_CLS}
+                placeholder="https://www.example.com"
+                value={extUrl}
+                onChange={(e) => setExtUrl(e.target.value)}
+              />
             </label>
-            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onExternal} disabled={!extUrl.trim()} className="justify-self-start rounded-full bg-navy-deep px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40">
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={onExternal}
+              disabled={!extUrl.trim()}
+              className="justify-self-start rounded-full bg-navy-deep px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40"
+            >
               {c.insertExternal}
             </button>
           </div>
@@ -335,11 +422,20 @@ export function AdminHtmlEditor({
             <div className="grid gap-3">
               <label>
                 <FieldLabel>{c.linkText}</FieldLabel>
-                <input className={ADMIN_FIELD_CLS} placeholder={c.linkTextPh} value={intText} onChange={(e) => setIntText(e.target.value)} />
+                <input
+                  className={ADMIN_FIELD_CLS}
+                  placeholder={c.linkTextPh}
+                  value={intText}
+                  onChange={(e) => setIntText(e.target.value)}
+                />
               </label>
               <label>
                 <FieldLabel>{c.section}</FieldLabel>
-                <select className={ADMIN_FIELD_CLS} value={intTarget} onChange={(e) => setIntTarget(e.target.value)}>
+                <select
+                  className={ADMIN_FIELD_CLS}
+                  value={intTarget}
+                  onChange={(e) => setIntTarget(e.target.value)}
+                >
                   <option value="">{c.sectionNone}</option>
                   {headings.map((h) => (
                     <option key={h.id} value={h.id}>
@@ -349,7 +445,13 @@ export function AdminHtmlEditor({
                   ))}
                 </select>
               </label>
-              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onInternal} disabled={!intTarget} className="justify-self-start rounded-full bg-navy-deep px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40">
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={onInternal}
+                disabled={!intTarget}
+                className="justify-self-start rounded-full bg-navy-deep px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40"
+              >
                 {c.insertInternal}
               </button>
             </div>
@@ -367,16 +469,36 @@ export function AdminHtmlEditor({
             <div className="grid gap-3 sm:grid-cols-2">
               <label>
                 <FieldLabel>{c.alt}</FieldLabel>
-                <input className={ADMIN_FIELD_CLS} placeholder={c.altPh} value={imgAlt} onChange={(e) => setImgAlt(e.target.value)} />
+                <input
+                  className={ADMIN_FIELD_CLS}
+                  placeholder={c.altPh}
+                  value={imgAlt}
+                  onChange={(e) => setImgAlt(e.target.value)}
+                />
               </label>
               <label>
                 <FieldLabel>{c.caption}</FieldLabel>
-                <input className={ADMIN_FIELD_CLS} placeholder={c.captionPh} value={imgCaption} onChange={(e) => setImgCaption(e.target.value)} />
+                <input
+                  className={ADMIN_FIELD_CLS}
+                  placeholder={c.captionPh}
+                  value={imgCaption}
+                  onChange={(e) => setImgCaption(e.target.value)}
+                />
               </label>
             </div>
             <div className="flex flex-wrap gap-2">
-              <label className={`${ADMIN_BTN_SECONDARY} inline-flex cursor-pointer items-center gap-1.5`}>
-                <input type="file" accept="image/*" className="sr-only" onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ""; }} />
+              <label
+                className={`${ADMIN_BTN_SECONDARY} inline-flex cursor-pointer items-center gap-1.5`}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    void onFile(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
                 <Upload size={14} />
                 {c.chooseFile}
               </label>
@@ -385,16 +507,23 @@ export function AdminHtmlEditor({
                 className={ADMIN_BTN_SECONDARY}
                 onClick={() =>
                   openGallery((url, image) => {
-                    setImgUrl(url);
                     setImgAlt((prev) => prev || image.alt[contentLang] || image.name);
                     setImgCaption((prev) => prev || image.caption[contentLang] || "");
+                    if (url.startsWith("data:")) void onFile(dataUrlToFile(url, image.name));
+                    else setImgUrl(url);
                   })
                 }
               >
                 {c.fromGallery}
               </button>
             </div>
-            <input dir="ltr" className={ADMIN_FIELD_CLS} placeholder={c.orUrl} value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} />
+            <input
+              dir="ltr"
+              className={ADMIN_FIELD_CLS}
+              placeholder={c.orUrl}
+              value={imgUrl}
+              onChange={(e) => setImgUrl(e.target.value)}
+            />
             {uploading ? <p className="text-[12px] text-gold-ink">{c.uploading}</p> : null}
             {uploadError ? <p className="text-[12px] text-destructive">{c.uploadError}</p> : null}
             <div>
@@ -426,13 +555,26 @@ export function AdminHtmlEditor({
               {imgUrl.trim() ? (
                 <img src={imgUrl.trim()} alt={imgAlt} className="h-full w-full object-cover" />
               ) : (
-                <span className="px-3 text-center text-[11px] text-muted-foreground">{c.noImage}</span>
+                <span className="px-3 text-center text-[11px] text-muted-foreground">
+                  {c.noImage}
+                </span>
               )}
             </div>
-            <button type="button" onMouseDown={(e) => e.preventDefault()} disabled={!imgUrl.trim() || uploading} onClick={() => onInsertImage(false)} className="rounded-full bg-navy-deep px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40">
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              disabled={!imgUrl.trim() || uploading}
+              onClick={() => onInsertImage(false)}
+              className="rounded-full bg-navy-deep px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40"
+            >
               {c.insertCursor}
             </button>
-            <button type="button" disabled={!imgUrl.trim() || uploading} onClick={() => onInsertImage(true)} className="rounded-full border border-border px-4 py-2 text-[12px] font-semibold text-navy disabled:opacity-40">
+            <button
+              type="button"
+              disabled={!imgUrl.trim() || uploading}
+              onClick={() => onInsertImage(true)}
+              className="rounded-full border border-border px-4 py-2 text-[12px] font-semibold text-navy disabled:opacity-40"
+            >
               {c.insertEnd}
             </button>
           </div>
@@ -451,7 +593,9 @@ export function AdminHtmlEditor({
                   className="relative size-14 overflow-hidden rounded-lg border border-border hover:border-gold"
                 >
                   <img src={img.src} alt="" className="h-full w-full object-cover" />
-                  <span className="absolute inset-x-0 bottom-0 bg-navy-deep/70 text-[10px] text-white">#{i + 1}</span>
+                  <span className="absolute inset-x-0 bottom-0 bg-navy-deep/70 text-[10px] text-white">
+                    #{i + 1}
+                  </span>
                 </button>
               ))}
             </div>

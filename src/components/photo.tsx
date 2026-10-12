@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 const WIDTHS = [480, 960, 1440] as const;
 
 export type PhotoName =
@@ -25,6 +27,21 @@ export type PhotoName =
   | "hero-blog"
   | "hero-features";
 
+/** Horizontal position of each photo's subject, so the narrow phone crop keeps the yachts in frame. */
+const PHOTO_FOCUS_X: Partial<Record<PhotoName, string>> = {
+  "hero-about": "28%",
+  "hero-blog": "26%",
+  "hero-features": "24%",
+  "hero-contact": "22%",
+  "luxury-sailing": "62%",
+  "luxury-marina": "68%",
+};
+
+/** Inline style exposing the subject position as `--photo-focus` for `object-[var(--photo-focus)]`. */
+export function photoFocusStyle(name: PhotoName): CSSProperties {
+  return { "--photo-focus": `${PHOTO_FOCUS_X[name] ?? "50%"} 50%` } as CSSProperties;
+}
+
 export function photoSrc(name: PhotoName, width: (typeof WIDTHS)[number] = 960) {
   return `/media/${name}-${width}.webp`;
 }
@@ -33,6 +50,7 @@ export function Photo({
   name,
   alt,
   className,
+  style,
   sizes,
   eager = false,
   bright = false,
@@ -42,6 +60,7 @@ export function Photo({
   name: PhotoName;
   alt: string;
   className?: string;
+  style?: CSSProperties | undefined;
   sizes: string;
   eager?: boolean;
   /** Extra lift for hero / header images in dark mode */
@@ -60,6 +79,7 @@ export function Photo({
       sizes={sizes}
       alt={alt}
       className={`${darkLift} ${className}`}
+      style={style}
       width={width}
       height={height}
       loading={eager ? "eager" : "lazy"}

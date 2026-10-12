@@ -33,97 +33,101 @@ function ContactPage() {
     <>
       <PageMeta title={t.seo.contactTitle} description={t.seo.contactDesc} />
       <MarketingShell dir={dir}>
-      <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "ContactPage",
-            name: c.h1,
-            url: localizedUrl("/contact", lang),
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
-              { "@type": "ListItem", position: 2, name: t.crumbs.contact, item: localizedUrl("/contact", lang) },
-            ],
-          },
-        ]}
-      />
+        <JsonLd
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": "ContactPage",
+              name: c.h1,
+              url: localizedUrl("/contact", lang),
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: t.crumbs.home,
+                  item: localizedUrl("/", lang),
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: t.crumbs.contact,
+                  item: localizedUrl("/contact", lang),
+                },
+              ],
+            },
+          ]}
+        />
 
-      <PageHero
-        dir={dir}
-        image={heroImage}
-        chip={c.chip}
-        title={c.h1}
-        lead={c.lead}
-      />
+        <PageHero dir={dir} image={heroImage} chip={c.chip} title={c.h1} lead={c.lead} />
 
-      <Section tone="mute">
-        <Kicker>{c.chip}</Kicker>
-        <GoldLine className="mt-4" />
-        <h2 className="mt-6 max-w-2xl font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">
-          {c.title1} {c.title2}
-        </h2>
+        <Section tone="mute">
+          <Kicker>{c.chip}</Kicker>
+          <GoldLine className="mt-4" />
+          <h2 className="mt-6 max-w-2xl font-display text-3xl font-semibold leading-snug text-navy md:text-4xl">
+            {c.title1} {c.title2}
+          </h2>
 
-        <div
-          id="partner-form"
-          className="mt-10 scroll-mt-28 overflow-hidden rounded-[1.85rem] border border-[#C8A96A]/25 bg-gradient-to-br from-[#C8A96A]/10 via-surface-2 to-card p-1.5 shadow-[0_24px_48px_-32px_rgba(15,40,70,0.45)] sm:p-2"
-        >
-          <div className="rounded-[1.55rem] border border-border/60 bg-card/95 p-5 backdrop-blur-sm sm:p-7 lg:p-8">
-            <ContactForm />
+          <div
+            id="partner-form"
+            className="mt-10 scroll-mt-28 overflow-hidden rounded-[1.85rem] border border-gold/25 bg-gradient-to-br from-gold/10 via-surface-2 to-card p-1.5 shadow-[0_24px_48px_-32px_rgba(15,40,70,0.45)] sm:p-2"
+          >
+            <div className="rounded-[1.55rem] border border-border/60 bg-card/95 p-5 backdrop-blur-sm sm:p-7 lg:p-8">
+              <ContactForm />
+            </div>
           </div>
-        </div>
 
-        <ContactChannels className="mt-10" />
-      </Section>
+          <ContactChannels className="mt-10" />
+        </Section>
 
-      <Section>
-        <Kicker>{c.chip}</Kicker>
-        <GoldLine className="mt-4" />
-        <h2 className="mt-6 max-w-2xl font-display text-3xl font-semibold leading-snug text-navy">
-          {c.title1}
-          <br />
-          {c.title2}
-        </h2>
-        <div className="mt-8 grid gap-3 md:grid-cols-3">
-          {c.paths.map(([title, body], i) => (
-            <article
-              key={title}
-              className="relative overflow-hidden rounded-[1.35rem] border border-border bg-card p-5 ps-6"
-            >
-              <span className="absolute inset-y-0 start-0 w-1 bg-gold" aria-hidden="true" />
-              <p className="font-display text-[12px] tracking-[0.14em] text-gold">
-                {String(i + 1).padStart(2, "0")}
-              </p>
-              <h3 className="mt-2 font-display text-lg font-semibold text-navy">{title}</h3>
-              <p className="mt-1 text-sm leading-7 text-muted-foreground">{body}</p>
-            </article>
-          ))}
-        </div>
-      </Section>
-
-      <Section tone="mute">
-        <div className="rounded-[1.75rem] border border-border bg-card px-6 py-12 sm:px-10 lg:flex lg:items-end lg:justify-between lg:gap-10 lg:px-14 lg:py-14">
-          <div className="max-w-xl">
-            <GoldLine />
-            <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy">
-              {c.title1} {c.title2}
-            </h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">{c.lead}</p>
+        <Section>
+          <Kicker>{c.chip}</Kicker>
+          <GoldLine className="mt-4" />
+          <h2 className="mt-6 max-w-2xl font-display text-3xl font-semibold leading-snug text-navy">
+            {c.title1}
+            <br />
+            {c.title2}
+          </h2>
+          <div className="mt-8 grid gap-3 md:grid-cols-3">
+            {c.paths.map(([title, body], i) => (
+              <article
+                key={title}
+                className="relative overflow-hidden rounded-[1.35rem] border border-border bg-card p-5 ps-6"
+              >
+                <span className="absolute inset-y-0 start-0 w-1 bg-gold" aria-hidden="true" />
+                <p className="font-display text-[12px] tracking-[0.14em] text-gold">
+                  {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-2 font-display text-lg font-semibold text-navy">{title}</h3>
+                <p className="mt-1 text-sm leading-7 text-muted-foreground">{body}</p>
+              </article>
+            ))}
           </div>
-          <div className="mt-8 flex flex-wrap gap-3 lg:mt-0">
-            <Btn href={contact.whatsapp} variant="whatsapp">
-              {t.cta.whatsapp} <CtaArrow />
-            </Btn>
-            <Btn to="/app" variant="line">
-              {t.cta.download} <CtaArrow />
-            </Btn>
+        </Section>
+
+        <Section tone="mute">
+          <div className="rounded-[1.75rem] border border-border bg-card px-6 py-12 sm:px-10 lg:flex lg:items-end lg:justify-between lg:gap-10 lg:px-14 lg:py-14">
+            <div className="max-w-xl">
+              <GoldLine />
+              <h2 className="mt-5 font-display text-3xl font-semibold leading-snug text-navy">
+                {c.title1} {c.title2}
+              </h2>
+              <p className="mt-4 text-base leading-8 text-muted-foreground">{c.lead}</p>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-3 lg:mt-0">
+              <Btn href={contact.whatsapp} variant="whatsapp">
+                {t.cta.whatsapp} <CtaArrow />
+              </Btn>
+              <Btn to="/app" variant="line">
+                {t.cta.download} <CtaArrow />
+              </Btn>
+            </div>
           </div>
-        </div>
-      </Section>
-    </MarketingShell>
+        </Section>
+      </MarketingShell>
     </>
   );
 }

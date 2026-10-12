@@ -493,7 +493,6 @@ export const CMS_EDITOR_SCHEMAS: Record<CmsPageId, CmsPageEditorSchema> = {
           str(["blog", "loading"], "Loading Message"),
           str(["blog", "empty"], "Empty State Message"),
           str(["blog", "read"], "Read Article Label"),
-          str(["blog", "minRead"], "Minutes Read Label"),
           str(["blog", "featuredBadge"], "Featured Badge"),
         ],
       },

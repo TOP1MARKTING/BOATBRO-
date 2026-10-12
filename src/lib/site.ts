@@ -105,11 +105,18 @@ export function pageHead({
     noindex || pageLangs.length < 2
       ? []
       : [
-          ...pageLangs.map((code) => ({ rel: "alternate", hrefLang: code, href: localizedUrl(path, code) })),
+          ...pageLangs.map((code) => ({
+            rel: "alternate",
+            hrefLang: code,
+            href: localizedUrl(path, code),
+          })),
           {
             rel: "alternate",
             hrefLang: "x-default",
-            href: localizedUrl(path, pageLangs.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : pageLangs[0]!),
+            href: localizedUrl(
+              path,
+              pageLangs.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : pageLangs[0]!,
+            ),
           },
         ];
   const img = shareImageUrl(image);
@@ -120,7 +127,10 @@ export function pageHead({
     meta: [
       { title },
       { name: "description", content: description },
-      { name: "robots", content: noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large" },
+      {
+        name: "robots",
+        content: noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large",
+      },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: type },
@@ -134,12 +144,18 @@ export function pageHead({
           ]
         : []),
       { property: "og:locale", content: lang === "ar" ? "ar_SA" : "en_US" },
-      ...(otherLang ? [{ property: "og:locale:alternate", content: otherLang === "ar" ? "ar_SA" : "en_US" }] : []),
+      ...(otherLang
+        ? [{ property: "og:locale:alternate", content: otherLang === "ar" ? "ar_SA" : "en_US" }]
+        : []),
       { property: "og:site_name", content: "BoatPro" },
       ...(type === "article" && article
         ? [
-            ...(article.publishedTime ? [{ property: "article:published_time", content: article.publishedTime }] : []),
-            ...(article.modifiedTime ? [{ property: "article:modified_time", content: article.modifiedTime }] : []),
+            ...(article.publishedTime
+              ? [{ property: "article:published_time", content: article.publishedTime }]
+              : []),
+            ...(article.modifiedTime
+              ? [{ property: "article:modified_time", content: article.modifiedTime }]
+              : []),
             ...(article.section ? [{ property: "article:section", content: article.section }] : []),
             ...(article.tags ?? []).map((tag) => ({ property: "article:tag", content: tag })),
           ]

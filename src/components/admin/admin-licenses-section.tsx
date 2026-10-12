@@ -31,7 +31,9 @@ function FilePickButton({
   disabled?: boolean;
 }) {
   return (
-    <label className={`${ADMIN_BTN_SECONDARY} inline-flex min-h-9 cursor-pointer items-center gap-1.5 px-3 text-[12px] ${disabled ? "pointer-events-none opacity-60" : ""}`}>
+    <label
+      className={`${ADMIN_BTN_SECONDARY} inline-flex min-h-9 cursor-pointer items-center gap-1.5 px-3 text-[12px] ${disabled ? "pointer-events-none opacity-60" : ""}`}
+    >
       <Upload size={13} strokeWidth={2} />
       {label}
       <input
@@ -90,10 +92,15 @@ export function AdminLicensesSection({
       const list = await listLicenses();
       setItems(list);
       setEdits(
-        Object.fromEntries(list.map((item) => [item.id, { name: { ...item.name }, number: item.number }])),
+        Object.fromEntries(
+          list.map((item) => [item.id, { name: { ...item.name }, number: item.number }]),
+        ),
       );
     } catch (err) {
-      const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+      const code =
+        typeof err === "object" && err && "code" in err
+          ? String((err as { code: string }).code)
+          : "";
       setError(code === "permission-denied" ? t.cta.firestoreDenied : t.admin.error);
     } finally {
       setLoading(false);
@@ -119,7 +126,8 @@ export function AdminLicensesSection({
       if (err.message === "file-too-large") return t.admin.galleryTooLarge;
       if (err.message === "invalid-license") return t.admin.licensesRequired;
     }
-    const code = typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
+    const code =
+      typeof err === "object" && err && "code" in err ? String((err as { code: string }).code) : "";
     if (code === "permission-denied") return t.cta.firestoreDenied;
     return t.admin.error;
   };
@@ -129,7 +137,9 @@ export function AdminLicensesSection({
     setMessage("");
     setError("");
     try {
-      await createLicense({ name: draftName, number: draftNumber }, uid, { authorityIcon: draftIcon });
+      await createLicense({ name: draftName, number: draftNumber }, uid, {
+        authorityIcon: draftIcon,
+      });
       setDraftName(emptyName());
       setDraftNumber("");
       setDraftIcon(null);
@@ -213,7 +223,9 @@ export function AdminLicensesSection({
         <p className="text-[13px] font-semibold text-navy">{t.admin.licensesAdd}</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <label>
-            <span className="mb-1 block text-[11px] text-muted-foreground">{t.admin.licensesName} · AR</span>
+            <span className="mb-1 block text-[11px] text-muted-foreground">
+              {t.admin.licensesName} · AR
+            </span>
             <input
               className={`${ADMIN_FIELD_CLS} px-3 py-2`}
               value={draftName.ar}
@@ -221,7 +233,9 @@ export function AdminLicensesSection({
             />
           </label>
           <label>
-            <span className="mb-1 block text-[11px] text-muted-foreground">{t.admin.licensesName} · EN</span>
+            <span className="mb-1 block text-[11px] text-muted-foreground">
+              {t.admin.licensesName} · EN
+            </span>
             <input
               className={`${ADMIN_FIELD_CLS} px-3 py-2`}
               value={draftName.en}
@@ -230,7 +244,9 @@ export function AdminLicensesSection({
           </label>
         </div>
         <label className="block max-w-sm">
-          <span className="mb-1 block text-[11px] text-muted-foreground">{t.admin.licensesNumber}</span>
+          <span className="mb-1 block text-[11px] text-muted-foreground">
+            {t.admin.licensesNumber}
+          </span>
           <input
             dir="ltr"
             className={`${ADMIN_FIELD_CLS} px-3 py-2`}
@@ -242,7 +258,11 @@ export function AdminLicensesSection({
           <p className="text-[11px] text-muted-foreground">{t.admin.licensesAuthorityIcon}</p>
           <div className="flex items-center gap-3">
             <PreviewBox src={draftIconPreview} alt="" />
-            <FilePickButton label={t.admin.galleryUpload} onPick={setDraftIcon} disabled={busyId === "new"} />
+            <FilePickButton
+              label={t.admin.galleryUpload}
+              onPick={setDraftIcon}
+              disabled={busyId === "new"}
+            />
           </div>
         </div>
         <button
@@ -266,7 +286,9 @@ export function AdminLicensesSection({
             <article key={item.id} className={`${ADMIN_CARD_CLS} space-y-3 p-4`}>
               <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
                 <div className="space-y-2">
-                  <p className="text-[11px] text-muted-foreground">{t.admin.licensesAuthorityIcon}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {t.admin.licensesAuthorityIcon}
+                  </p>
                   <PreviewBox src={item.authorityIconUrl} alt={edit.name.ar || edit.name.en} />
                   <div className="flex flex-wrap gap-2">
                     <FilePickButton
@@ -290,7 +312,9 @@ export function AdminLicensesSection({
                 <div className="space-y-3">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <label>
-                      <span className="mb-1 block text-[11px] text-muted-foreground">{t.admin.licensesName} · AR</span>
+                      <span className="mb-1 block text-[11px] text-muted-foreground">
+                        {t.admin.licensesName} · AR
+                      </span>
                       <input
                         className={`${ADMIN_FIELD_CLS} px-3 py-2`}
                         value={edit.name.ar}
@@ -304,7 +328,9 @@ export function AdminLicensesSection({
                       />
                     </label>
                     <label>
-                      <span className="mb-1 block text-[11px] text-muted-foreground">{t.admin.licensesName} · EN</span>
+                      <span className="mb-1 block text-[11px] text-muted-foreground">
+                        {t.admin.licensesName} · EN
+                      </span>
                       <input
                         className={`${ADMIN_FIELD_CLS} px-3 py-2`}
                         value={edit.name.en}
@@ -319,7 +345,9 @@ export function AdminLicensesSection({
                     </label>
                   </div>
                   <label className="block max-w-sm">
-                    <span className="mb-1 block text-[11px] text-muted-foreground">{t.admin.licensesNumber}</span>
+                    <span className="mb-1 block text-[11px] text-muted-foreground">
+                      {t.admin.licensesNumber}
+                    </span>
                     <input
                       dir="ltr"
                       className={`${ADMIN_FIELD_CLS} px-3 py-2`}
@@ -337,7 +365,12 @@ export function AdminLicensesSection({
               </div>
 
               <div className="flex flex-wrap gap-2 border-t border-border/60 pt-3">
-                <button type="button" className={ADMIN_BTN_PRIMARY} disabled={busy} onClick={() => void onSave(item)}>
+                <button
+                  type="button"
+                  className={ADMIN_BTN_PRIMARY}
+                  disabled={busy}
+                  onClick={() => void onSave(item)}
+                >
                   {busy ? t.admin.loading : t.admin.save}
                 </button>
                 <button

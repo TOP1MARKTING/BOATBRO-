@@ -26,7 +26,6 @@ import {
   SITE_ORIGIN,
   formatDisplayDate,
   pageHead,
-  readingMinutes,
   localizedUrl,
   shareImageUrl,
 } from "../../lib/site";
@@ -34,8 +33,7 @@ import {
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const posts = await listPublishedPosts().catch(() => []);
-    let post =
-      posts.find((item) => item.slug === params.slug || item.id === params.slug) ?? null;
+    let post = posts.find((item) => item.slug === params.slug || item.id === params.slug) ?? null;
     if (!post) {
       post = await getPostBySlug(params.slug).catch(() => null);
     }
@@ -100,7 +98,10 @@ function postPageTitle(post: BlogPost, lang: "ar" | "en") {
 function postShareImage(post: BlogPost, lang: "ar" | "en") {
   const cover = postCoverUrl(post, lang);
   if (!cover.startsWith("data:")) return resolveShareImage(post, lang);
-  return resolveShareImage({ ...post, coverUrl: `/media/covers/${post.id}-${lang}.jpg`, coverUrlEn: "" }, lang);
+  return resolveShareImage(
+    { ...post, coverUrl: `/media/covers/${post.id}-${lang}.jpg`, coverUrlEn: "" },
+    lang,
+  );
 }
 
 /** Stored meta description, then the excerpt, then the opening of the article itself. */
@@ -125,8 +126,6 @@ function BlogPostPage() {
   const metaTitle = resolveMetaTitle(post, lang);
   const metaDescription = postMetaDescription(post, lang);
   const ogImage = shareImageUrl(postShareImage(post, lang));
-  const bodyText = postPlainText(post, lang);
-  const mins = readingMinutes(`${excerpt} ${bodyText}`);
   const tags = lang === "en" ? post.tags.en : post.tags.ar;
   const published = post.createdAt ? formatDisplayDate(post.createdAt, lang) : "";
   const updated =
@@ -138,126 +137,139 @@ function BlogPostPage() {
     <>
       <PageMeta title={postPageTitle(post, lang)} description={metaDescription} />
       <MarketingShell dir={dir}>
-      <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: metaTitle.slice(0, 110),
-            description: metaDescription,
-            image: [ogImage],
-            datePublished: post.createdAt?.toISOString(),
-            dateModified: (post.updatedAt || post.createdAt)?.toISOString(),
-            author: author
-              ? { "@type": "Person", name: author }
-              : { "@type": "Organization", name: "BoatPro", url: SITE_ORIGIN },
-            publisher: {
-              "@type": "Organization",
-              name: "BoatPro",
-              logo: { "@type": "ImageObject", url: `${SITE_ORIGIN}/logo.png` },
+        <JsonLd
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: metaTitle.slice(0, 110),
+              description: metaDescription,
+              image: [ogImage],
+              datePublished: post.createdAt?.toISOString(),
+              dateModified: (post.updatedAt || post.createdAt)?.toISOString(),
+              author: author
+                ? { "@type": "Person", name: author }
+                : { "@type": "Organization", name: "BoatPro", url: SITE_ORIGIN },
+              publisher: {
+                "@type": "Organization",
+                name: "BoatPro",
+                logo: { "@type": "ImageObject", url: `${SITE_ORIGIN}/logo.png` },
+              },
+              mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": localizedUrl(`/blog/${post.slug}`, lang),
+              },
+              inLanguage: lang,
+              ...(category ? { articleSection: category } : {}),
+              ...(tags.length ? { keywords: tags.join(", ") } : {}),
             },
-            mainEntityOfPage: { "@type": "WebPage", "@id": localizedUrl(`/blog/${post.slug}`, lang) },
-            inLanguage: lang,
-            ...(category ? { articleSection: category } : {}),
-            ...(tags.length ? { keywords: tags.join(", ") } : {}),
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: t.crumbs.home, item: localizedUrl("/", lang) },
-              { "@type": "ListItem", position: 2, name: t.crumbs.blog, item: localizedUrl("/blog", lang) },
-              { "@type": "ListItem", position: 3, name: metaTitle, item: localizedUrl(`/blog/${post.slug}`, lang) },
-            ],
-          },
-          ...(post.faq.length > 0
-            ? [
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
                 {
-                  "@context": "https://schema.org",
-                  "@type": "FAQPage",
-                  mainEntity: post.faq.map((item) => ({
-                    "@type": "Question",
-                    name: pickLocalized(item.question, lang),
-                    acceptedAnswer: {
-                      "@type": "Answer",
-                      text: pickLocalized(item.answer, lang),
-                    },
-                  })),
+                  "@type": "ListItem",
+                  position: 1,
+                  name: t.crumbs.home,
+                  item: localizedUrl("/", lang),
                 },
-              ]
-            : []),
-        ]}
-      />
-      <article className={`${SHELL} max-w-3xl pt-20 pb-20 sm:pt-24 lg:pt-[104px]`}>
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[13px] font-medium text-gold-ink">{category}</p>
-          {post.featured ? (
-            <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-[11px] font-semibold text-gold-ink">
-              {t.blog.featuredBadge}
-            </span>
-          ) : null}
-        </div>
-        <h1 className="mt-4 font-display text-4xl font-semibold leading-snug text-navy md:text-5xl">
-          {title}
-        </h1>
-        <p className="mt-4 text-sm leading-7 text-muted-foreground">
-          {t.blog.author}: {author || "BoatPro"}
-          {published ? ` · ${t.blog.published} ${published}` : ""}
-          {updated ? ` · ${t.blog.updated} ${updated}` : ""}
-          {` · ${mins} ${t.blog.minRead}`}
-        </p>
-        {coverUrl && (
-          <img
-            src={coverUrl}
-            alt={coverAlt}
-            width={1200}
-            height={675}
-            fetchPriority="high"
-            className="mt-8 aspect-[16/9] w-full rounded-[1.6rem] object-cover"
-          />
-        )}
-        <p className="mt-8 text-lg leading-9 text-foreground/85">{excerpt}</p>
-        <BlogPostBody post={post} lang={lang} fallbackAlt={title} />
-        <BlogPostTags tags={tags} lang={lang} />
-        <BlogFaqSection
-          faq={post.faq}
-          lang={lang}
-          title={t.blog.faqTitle}
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: t.crumbs.blog,
+                  item: localizedUrl("/blog", lang),
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: metaTitle,
+                  item: localizedUrl(`/blog/${post.slug}`, lang),
+                },
+              ],
+            },
+            ...(post.faq.length > 0
+              ? [
+                  {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    mainEntity: post.faq.map((item) => ({
+                      "@type": "Question",
+                      name: pickLocalized(item.question, lang),
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: pickLocalized(item.answer, lang),
+                      },
+                    })),
+                  },
+                ]
+              : []),
+          ]}
         />
+        <article className={`${SHELL} max-w-3xl pt-20 pb-20 sm:pt-24 lg:pt-[104px]`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-[13px] font-medium text-gold-ink">{category}</p>
+            {post.featured ? (
+              <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-[11px] font-semibold text-gold-ink">
+                {t.blog.featuredBadge}
+              </span>
+            ) : null}
+          </div>
+          <h1 className="mt-4 font-display text-4xl font-semibold leading-snug text-navy md:text-5xl">
+            {title}
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-muted-foreground">
+            {t.blog.author}: {author || "BoatPro"}
+            {published ? ` · ${t.blog.published} ${published}` : ""}
+            {updated ? ` · ${t.blog.updated} ${updated}` : ""}
+          </p>
+          {coverUrl && (
+            <img
+              src={coverUrl}
+              alt={coverAlt}
+              width={1200}
+              height={675}
+              fetchPriority="high"
+              className="mt-8 aspect-[16/9] w-full rounded-[1.6rem] object-cover"
+            />
+          )}
+          <p className="mt-8 text-lg leading-9 text-foreground/85">{excerpt}</p>
+          <BlogPostBody post={post} lang={lang} fallbackAlt={title} />
+          <BlogPostTags tags={tags} lang={lang} />
+          <BlogFaqSection faq={post.faq} lang={lang} title={t.blog.faqTitle} />
 
-        {related.length > 0 && (
-          <aside className="mt-14 border-t border-border pt-10">
-            <h2 className="font-display text-2xl font-semibold text-navy">{t.blog.related}</h2>
-            <div className="mt-6 grid gap-4">
-              {related.map((item) => (
-                <Link
-                  key={item.id}
-                  to="/blog/$slug"
-                  params={{ slug: item.slug }}
-                  className="rounded-[1.3rem] border border-border bg-card p-5 transition-colors hover:border-gold"
-                >
-                  <p className="text-[12px] font-medium text-gold-ink">
-                    {pickLocalized(item.categoryI18n, lang, item.category)}
-                  </p>
-                  <h3 className="mt-2 font-display text-xl text-navy">
-                    {pickLocalized(item.titleI18n, lang, item.title)}
-                  </h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted-foreground">
-                    {pickLocalized(item.excerptI18n, lang, item.excerpt)}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </aside>
-        )}
+          {related.length > 0 && (
+            <aside className="mt-14 border-t border-border pt-10">
+              <h2 className="font-display text-2xl font-semibold text-navy">{t.blog.related}</h2>
+              <div className="mt-6 grid gap-4">
+                {related.map((item) => (
+                  <Link
+                    key={item.id}
+                    to="/blog/$slug"
+                    params={{ slug: item.slug }}
+                    className="rounded-[1.3rem] border border-border bg-card p-5 transition-colors hover:border-gold"
+                  >
+                    <p className="text-[12px] font-medium text-gold-ink">
+                      {pickLocalized(item.categoryI18n, lang, item.category)}
+                    </p>
+                    <h3 className="mt-2 font-display text-xl text-navy">
+                      {pickLocalized(item.titleI18n, lang, item.title)}
+                    </h3>
+                    <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted-foreground">
+                      {pickLocalized(item.excerptI18n, lang, item.excerpt)}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </aside>
+          )}
 
-        <div className="mt-10">
-          <Btn to="/blog" variant="line">
-            {t.blog.back} <CtaArrow />
-          </Btn>
-        </div>
-      </article>
-    </MarketingShell>
+          <div className="mt-10">
+            <Btn to="/blog" variant="line">
+              {t.blog.back} <CtaArrow />
+            </Btn>
+          </div>
+        </article>
+      </MarketingShell>
     </>
   );
 }
