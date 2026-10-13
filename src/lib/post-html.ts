@@ -146,6 +146,11 @@ function ensureHooks() {
   });
 }
 
+/** The page title is the only <h1>; headings pasted as <h1> inside an article are section headings. Mirrors bp_clean_article_html(). */
+function demoteH1(html: string) {
+  return html.replace(/<(\/?)h1\b/gi, "<$1h2");
+}
+
 /** Sanitize author HTML for public rendering. Browser-only (the site and prerender run in a real DOM). */
 export function sanitizePostHtml(html: string, fallbackAlt = "", lang: Lang | null = null) {
   if (!html.trim() || typeof window === "undefined") return "";
@@ -153,7 +158,7 @@ export function sanitizePostHtml(html: string, fallbackAlt = "", lang: Lang | nu
   usedIds = new Set();
   imageFallbackAlt = fallbackAlt.trim();
   articleLang = lang;
-  return DOMPurify.sanitize(html, {
+  return DOMPurify.sanitize(demoteH1(html), {
     ALLOWED_TAGS,
     ALLOWED_ATTR: [...ALLOWED_ATTR, "decoding"],
     ALLOW_DATA_ATTR: false,
@@ -176,7 +181,7 @@ export function htmlPlainText(html: string) {
 export function htmlHeadings(html: string) {
   const out: { level: 2 | 3; text: string; id: string }[] = [];
   const seen = new Set<string>();
-  for (const match of html.matchAll(/<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi)) {
+  for (const match of demoteH1(html).matchAll(/<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi)) {
     const text = htmlPlainText(match[3] ?? "");
     if (!text) continue;
     const explicit = /\sid=["']([^"']+)["']/i.exec(match[2] ?? "")?.[1];

@@ -449,6 +449,8 @@ function bp_clean_article_html($html, $fallbackAlt, $lang)
     $html = preg_replace('#<(script|style|iframe|object|embed|form|link|meta)\b[^>]*>#i', '', (string) $html);
     $html = preg_replace('#\son[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', (string) $html);
     $html = preg_replace('#(href|src)\s*=\s*(["\'])\s*javascript:[^"\']*\2#i', '$1="#"', (string) $html);
+    // The page title is the only <h1>; <h1> pasted inside an article is a section heading. Mirrors sanitizePostHtml().
+    $html = preg_replace('#<(/?)h1\b#i', '<$1h2', (string) $html);
     $html = preg_replace_callback('#<a\b[^>]*>#i', function ($m) use ($lang) {
         if (!preg_match('#\shref\s*=\s*(["\'])([^"\']*)\1#i', $m[0], $h)) {
             return $m[0];
