@@ -10,14 +10,20 @@ $posts = bp_published_posts();
 
 header('Content-Type: application/xml; charset=UTF-8');
 header('Cache-Control: public, max-age=300');
-header('X-Robots-Tag: noindex');
+
+$routeManifestPath = __DIR__ . '/public-routes.json';
+$routeManifest = is_file($routeManifestPath) ? json_decode(file_get_contents($routeManifestPath), true) : null;
+if (!is_array($routeManifest) || !isset($routeManifest['routes']) || !is_array($routeManifest['routes'])) {
+    http_response_code(500);
+    exit('Sitemap route manifest missing or invalid. Run the production build and deploy its output.');
+}
 
 if ($posts === null) {
     readfile(dirname(__DIR__) . '/sitemap.xml');
     exit;
 }
 
-$staticPaths = array('/', '/about', '/features', '/app', '/contact', '/blog');
+$staticPaths = $routeManifest['routes'];
 
 function bp_sitemap_url($loc, $alternates, $lastmod, $images)
 {

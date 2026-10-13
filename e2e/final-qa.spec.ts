@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, test, type Page, type Response } from "@playwright/test";
 
 const PUBLIC_ROUTES = ["/", "/about", "/features", "/app", "/contact", "/blog", "/login", "/admin"] as const;
@@ -87,6 +88,8 @@ test.describe("FINAL QA", () => {
     expect(head.canonical).toContain(href);
     expect(head.robots ?? "").not.toMatch(/noindex/i);
     expect(head.jsonLd.toLowerCase()).toMatch(/article/);
+    expect(head.ogImage).toMatch(/^https:\/\/boatpro\.club\/.+/);
+    expect(head.jsonLd).toMatch(/"image"\s*:/);
   });
 
   test("sitemap.xml is valid production XML", async ({ request }) => {
@@ -94,18 +97,23 @@ test.describe("FINAL QA", () => {
     expect(res.status()).toBe(200);
     const type = res.headers()["content-type"] ?? "";
     expect(type).toMatch(/xml/);
+    expect(res.headers()["x-robots-tag"] ?? "").not.toMatch(/noindex/i);
     const body = await res.text();
     expect(body).toContain('<?xml version="1.0"');
-    expect(body).toContain("https://boatpro.club/");
-    expect(body).toContain("https://boatpro.club/about");
-    expect(body).toContain("https://boatpro.club/features");
-    expect(body).toContain("https://boatpro.club/app");
-    expect(body).toContain("https://boatpro.club/contact");
-    expect(body).toContain("https://boatpro.club/blog");
+    expect(body).toContain("xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\"");
+    expect(body).toContain("<image:image>");
     expect(body).not.toContain("localhost");
     expect(body).not.toContain("/login");
     expect(body).not.toContain("/admin");
     expect(body).not.toContain("non-existing-slug");
+    const { routes } = JSON.parse(
+      readFileSync(new URL("../public/seo/public-routes.json", import.meta.url), "utf8"),
+    ) as { routes: string[] };
+    for (const route of routes) {
+      const localizedPath = route === "/" ? "/" : `${route}/`;
+      expect(body).toContain(`https://boatpro.club/ar${localizedPath}`);
+      expect(body).toContain(`https://boatpro.club/en${localizedPath}`);
+    }
   });
 
   test("robots.txt references sitemap and allows public crawl", async ({ request }) => {
@@ -115,7 +123,7 @@ test.describe("FINAL QA", () => {
     expect(body).toContain("Sitemap: https://boatpro.club/sitemap.xml");
     expect(body).toMatch(/User-agent:\s*\*/i);
     expect(body).toMatch(/Allow:\s*\//i);
-    expect(body).not.toMatch(/Disallow:\s*\//);
+    expect(body).not.toMatch(/Disallow:\s*\/\s*(?:\r?\n|$)/i);
   });
 
   test("homepage images are responsive and not huge JPEGs", async ({ page }, testInfo) => {
