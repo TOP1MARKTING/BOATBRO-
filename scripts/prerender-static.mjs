@@ -8,12 +8,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { fetchPublishedBlogSlugs } from "./fetch-published-blog-slugs.mjs";
+import { discoverPublicRoutes } from "./public-routes.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, "../dist");
 const port = Number(process.env.PRERENDER_PORT || 4173);
 
-const PUBLIC_ROUTES = ["/", "/about", "/features", "/app", "/contact", "/blog"];
 const LOCALES = ["ar", "en"];
 
 /** `/about` → `/ar/about/`, `/` → `/ar/` (dist/index.html stays the SPA shell for /admin and fallbacks). */
@@ -86,7 +86,7 @@ async function main() {
   }
 
   const slugs = await fetchPublishedBlogSlugs();
-  const routes = [...PUBLIC_ROUTES, ...slugs.map((slug) => `/blog/${slug}`)].flatMap((route) =>
+  const routes = [...discoverPublicRoutes(), ...slugs.map((slug) => `/blog/${slug}`)].flatMap((route) =>
     LOCALES.map((lang) => localize(route, lang)),
   );
 

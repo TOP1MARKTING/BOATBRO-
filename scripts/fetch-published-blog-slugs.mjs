@@ -49,6 +49,38 @@ async function runPublishedPostsQuery() {
 
 const str = (field) => field?.stringValue ?? "";
 const localized = (field, lang) => str(field?.mapValue?.fields?.[lang]).trim();
+const origin = (process.env.VITE_SITE_URL || "https://boatpro.club").replace(/\/$/, "");
+
+function absoluteImage(value) {
+  const image = value.trim();
+  if (!image || image.startsWith("data:")) return "";
+  return /^https?:\/\//i.test(image) ? image : `${origin}${image.startsWith("/") ? image : `/${image}`}`;
+}
+
+function firstHtmlImage(html) {
+  for (const match of html.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi)) {
+    const image = absoluteImage(match[1] ?? "");
+    if (image) return image;
+  }
+  return "";
+}
+
+function shareImage(fields, id, lang) {
+  const ogImage = absoluteImage(str(fields.ogImage));
+  if (ogImage) return ogImage;
+
+  const cover = lang === "en" ? str(fields.coverUrlEn).trim() || str(fields.coverUrl).trim() : str(fields.coverUrl).trim();
+  if (cover.startsWith("data:image/")) {
+    return `${origin}/media/covers/${encodeURIComponent(id)}-${lang}.jpg`;
+  }
+  const coverUrl = absoluteImage(cover);
+  if (coverUrl) return coverUrl;
+
+  return firstHtmlImage(localized(fields.contentHtml, lang)) ||
+    firstHtmlImage(localized(fields.contentHtml, "ar")) ||
+    firstHtmlImage(localized(fields.contentHtml, "en")) ||
+    "";
+}
 
 /** Mirrors postAvailableLangs() in src/lib/post-seo.ts. */
 function availableLangs(fields) {
@@ -59,7 +91,7 @@ function availableLangs(fields) {
   return langs.length ? langs : ["ar"];
 }
 
-/** @returns {Promise<{ slug: string; noindex: boolean; lastmod: string; langs: string[] }[]>} */
+/** @returns {Promise<{ slug: string; noindex: boolean; lastmod: string; langs: string[]; images: Record<string, string> }[]>} */
 export async function fetchPublishedBlogPosts() {
   const rows = await runPublishedPostsQuery();
   const posts = new Map();
@@ -75,6 +107,7 @@ export async function fetchPublishedBlogPosts() {
       noindex: Boolean(fields.noindex?.booleanValue),
       lastmod: stamp ? new Date(stamp).toISOString().replace(/\.\d{3}Z$/, "Z") : "",
       langs: availableLangs(fields),
+      images: Object.fromEntries(availableLangs(fields).map((lang) => [lang, shareImage(fields, id, lang)])),
     });
   }
   return [...posts.values()];
