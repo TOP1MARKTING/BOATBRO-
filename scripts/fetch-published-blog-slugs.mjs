@@ -1,0 +1,77 @@
+/**
+ * Fetches published blog posts from Firestore at build time (public read rules).
+ * Used to prerender /blog/$slug pages and to write the fallback sitemap.xml
+ * (on the cPanel host /sitemap.xml is normally served live by public/seo/sitemap.php).
+ */
+async function runPublishedPostsQuery() {
+  const projectId =
+    process.env.VITE_FIREBASE_PROJECT_ID?.trim() || "boatpro1-18c6d";
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: "posts" }],
+      where: {
+        fieldFilter: {
+          field: { fieldPath: "published" },
+          op: "EQUAL",
+          value: { booleanValue: true },
+        },
+      },
+    },
+  };
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    throw new Error(`[build] Could not fetch published blog posts from Firestore (${res.status}).`);
+  }
+
+  const rows = await res.json();
+  if (!Array.isArray(rows)) {
+    throw new Error("[build] Firestore returned an invalid published blog posts response.");
+  }
+  return rows.filter((row) => row.document?.name);
+}
+
+const str = (field) => field?.stringValue ?? "";
+const localized = (field, lang) => str(field?.mapValue?.fields?.[lang]).trim();
+
+/** Mirrors postAvailableLangs() in src/lib/post-seo.ts. */
+function availableLangs(fields) {
+  const langs = ["ar", "en"].filter((lang) => {
+    if (!localized(fields.titleI18n, lang)) return false;
+    return str(fields.contentMode) !== "html" || Boolean(localized(fields.contentHtml, lang));
+  });
+  return langs.length ? langs : ["ar"];
+}
+
+/** @returns {Promise<{ slug: string; noindex: boolean; lastmod: string; langs: string[] }[]>} */
+export async function fetchPublishedBlogPosts() {
+  const rows = await runPublishedPostsQuery();
+  const posts = new Map();
+  for (const row of rows) {
+    const doc = row.document;
+    const fields = doc.fields ?? {};
+    const id = doc.name.split("/").pop() ?? "";
+    const slug = str(fields.slug).trim() || id;
+    if (!slug || posts.has(slug)) continue;
+    const rawStamp = fields.updatedAt?.timestampValue || fields.createdAt?.timestampValue || "";
+    const parsedStamp = rawStamp ? new Date(rawStamp) : null;
+    posts.set(slug, {
+      slug,
+      noindex: Boolean(fields.noindex?.booleanValue),
+      lastmod: parsedStamp && !Number.isNaN(parsedStamp.getTime()) ? parsedStamp.toISOString().slice(0, 10) : "",
+      langs: availableLangs(fields),
+    });
+  }
+  return [...posts.values()];
+}
+
+export async function fetchPublishedBlogSlugs() {
+  return (await fetchPublishedBlogPosts()).map((post) => post.slug);
+}

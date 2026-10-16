@@ -1,0 +1,52 @@
+# BoatPro static site (Apache / cPanel)
+# Scope: document root only. Does NOT modify www.lunayairmarina.com/ — that subdirectory
+# is served as its own site when requested directly.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # One public host: www.boatpro.club → boatpro.club (keeps Search Console and the sitemap on a single site).
+  RewriteCond %{HTTP_HOST} ^www\.boatpro\.club$ [NC]
+  RewriteRule ^(.*)$ https://boatpro.club/$1 [R=301,L]
+
+  # Leave the separate marina website directory untouched.
+  RewriteRule ^www\.lunayairmarina\.com(/.*)?$ - [L]
+
+  # Marina / fuel / maintenance provider portal lives in its own directory.
+  RewriteRule ^Admin(/.*)?$ - [L]
+  RewriteRule ^Console(/.*)?$ - [L]
+
+  # Dynamic SEO layer (PHP, see /seo/health.php): live sitemap, per-post metadata and Firestore-backed
+  # article images. Placed before the real-file rule so posts never serve a stale prerendered copy.
+  RewriteRule ^sitemap\.xml$ seo/sitemap.php [L]
+  RewriteRule ^media/posts/([A-Za-z0-9_-]+)\.(jpe?g|png|webp)$ seo/image.php?id=$1 [L,QSA]
+  RewriteRule ^media/covers/([A-Za-z0-9_-]+)-(ar|en)\.jpg$ seo/image.php?cover=$1&lang=$2 [L,QSA]
+  # Renamed posts: the old slug stays indexed by search engines, so it moves permanently to the new one.
+  RewriteRule ^(ar|en)/blog/botpro-saudi-arabia-boat-yacht-booking/?$ /$1/blog/boatpro-saudi-arabia/ [R=301,L]
+  RewriteRule ^blog/botpro-saudi-arabia-boat-yacht-booking/?$ /ar/blog/boatpro-saudi-arabia/ [R=301,L]
+  RewriteRule ^(ar|en)/blog/([^/]+)$ /$1/blog/$2/ [R=301,L]
+  RewriteRule ^(ar|en)/blog/([^/]+)/$ seo/blog.php?lang=$1&slug=$2 [B,L,QSA]
+
+  # Public pages live under /ar/... and /en/...; the root and old unprefixed URLs move to Arabic.
+  RewriteRule ^$ /ar/ [R=301,L]
+  RewriteRule ^(about|features|app|contact|blog)/?$ /ar/$1/ [R=301,L]
+  RewriteRule ^blog/([^/]+)/?$ /ar/blog/$1/ [R=301,L]
+
+  # Serve real files and directories (prerendered HTML, assets, media, etc.).
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Client-side fallback for routes not prerendered at build time (e.g. new blog posts).
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|webp|svg|ico|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

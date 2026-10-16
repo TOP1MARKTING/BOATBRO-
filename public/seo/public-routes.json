@@ -1,0 +1,10 @@
+{
+  "routes": [
+    "/",
+    "/about",
+    "/app",
+    "/blog",
+    "/contact",
+    "/features"
+  ]
+}
